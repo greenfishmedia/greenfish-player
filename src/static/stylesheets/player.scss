@@ -1,6 +1,7 @@
 $background-color: #000;
 $controls-color: rgba(50, 50, 50, 0.5);
 $button-color: rgba(255, 255, 255, 1);
+$slider-color: rgba(150, 150, 150, 1);
 
 .eluvio-player {
   align-items: center;
@@ -11,13 +12,14 @@ $button-color: rgba(255, 255, 255, 1);
   position: relative;
   width: 100%;
 
+  input[type="range"],
   button {
     background: transparent;
     border: 0;
     cursor: pointer;
     opacity: 0.7;
     padding: 0;
-    transition: opacity 0.1s ease-out;
+    transition: opacity 0.1s linear;
 
     svg {
       stroke: $button-color;
@@ -25,6 +27,33 @@ $button-color: rgba(255, 255, 255, 1);
 
     &:hover {
       opacity: 1;
+    }
+  }
+
+  input[type="range"] {
+    appearance: none;
+    background: $slider-color;
+    height: 8px;
+    border-radius: 3px;
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 8px;
+      height: 8px;
+      background-color: white;
+      border-radius: 100%;
+      opacity: 1;
+      border: 0;
+    }
+
+    &::-moz-range-thumb {
+      appearance: none;
+      width: 8px;
+      height: 8px;
+      background-color: white;
+      border-radius: 100%;
+      opacity: 1;
+      border: 0;
     }
   }
 
@@ -46,11 +75,23 @@ $button-color: rgba(255, 255, 255, 1);
 
   &__big-play-button {
     position: absolute;
-    top: 40%;
+    z-index: 10;
+
+    svg {
+      opacity: 0.7;
+      transition: opacity 0.1s linear;
+      z-index: 11;
+    }
+
+    &:hover {
+      svg {
+        opacity: 1;
+      }
+    }
 
     &.eluvio-player__controls__button {
-      height: 10%;
-      width: 10%;
+      height: 150px;
+      width: 150px;
 
       svg {
         stroke-width: 1px;
@@ -66,11 +107,12 @@ $button-color: rgba(255, 255, 255, 1);
     height: 40px;
     position: absolute;
     width: 100%;
+    transition: opacity 0.25s linear;
 
     &__button {
-      height: 30px;
+      height: 25px;
       margin: 0 10px;
-      width: 30px;
+      width: 25px;
     }
 
     &__button-play {

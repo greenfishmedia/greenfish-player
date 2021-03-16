@@ -9,6 +9,9 @@ import VolumeLowIcon from "./static/icons/volume-1.svg";
 import VolumeHighIcon from "./static/icons/volume-2.svg";
 
 import Logo from "./static/images/Logo.png";
+import {EluvioPlayerParameters} from "./index";
+
+let timeouts = {};
 
 export const CreateElement = ({parent, type, options={}, classes=[]}) => {
   const element = document.createElement(type);
@@ -26,6 +29,20 @@ const CreateImageButton = ({parent, svg, options={}, classes=[]}) => {
   button.innerHTML = svg;
 
   return button;
+};
+
+const FadeOut = (key, element, delay=250) => {
+  timeouts[key] = setTimeout(() => {
+    element.style.opacity = 0;
+    timeouts[key] = setTimeout(() => element.style.display = "none", 250);
+  }, delay);
+};
+
+const FadeIn = (key, element, display="block") => {
+  clearTimeout(timeouts[key]);
+  element.style.display = display;
+
+  timeouts[key] = setTimeout(() => element.style.opacity = 1, 100);
 };
 
 const ToggleFullscreen = (target) => {
@@ -52,17 +69,19 @@ const ToggleFullscreen = (target) => {
   }
 };
 
-export const InitializeControls = (target, video) => {
-  // Watermark
-  CreateElement({
-    parent: target,
-    type: "img",
-    options: {
-      src: Logo,
-      alt: "Eluvio"
-    },
-    classes: ["eluvio-player__watermark"]
-  });
+export const InitializeControls = (target, video, playerOptions) => {
+  if(playerOptions.watermark) {
+    // Watermark
+    CreateElement({
+      parent: target,
+      type: "img",
+      options: {
+        src: Logo,
+        alt: "Eluvio"
+      },
+      classes: ["eluvio-player__watermark"]
+    });
+  }
 
   // Big play icon
   const bigPlayButton = CreateImageButton({
@@ -71,8 +90,15 @@ export const InitializeControls = (target, video) => {
     classes: ["eluvio-player__big-play-button"]
   });
 
+  video.addEventListener("play", () => FadeOut("big-play-button", bigPlayButton));
+  video.addEventListener("pause", () => FadeIn("big-play-button", bigPlayButton));
+
   bigPlayButton.style.display = video.paused ? "block" : "none";
   bigPlayButton.addEventListener("click", () => video.play());
+
+  if(playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
+    return;
+  }
 
   // Controls container
   const controls = CreateElement({
@@ -145,16 +171,8 @@ export const InitializeControls = (target, video) => {
 
   // Event Listeners
 
-  video.addEventListener("play", () => {
-    playPauseButton.innerHTML = PauseIcon;
-    bigPlayButton.style.display = "none";
-  });
-
-  video.addEventListener("pause", () => {
-    playPauseButton.innerHTML = PlayIcon;
-    bigPlayButton.style.display = "block";
-  });
-
+  video.addEventListener("play", () => playPauseButton.innerHTML = PauseIcon);
+  video.addEventListener("pause", () => playPauseButton.innerHTML = PlayIcon);
   video.addEventListener("volumechange", () => {
     volumeButton.innerHTML = video.muted || video.volume === 0 ? MutedIcon : (video.volume < 0.5 ? VolumeLowIcon : VolumeHighIcon);
     volumeSlider.value = Math.min(1, Math.max(0, video.volume));
@@ -173,4 +191,10 @@ export const InitializeControls = (target, video) => {
       fullscreenButton.innerHTML = ExitFullscreenIcon;
     }
   });
+
+  // Autohide controls
+  if(playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
+    target.addEventListener("mouseleave", () => FadeOut("controls", controls, 2000));
+    target.addEventListener("mouseenter", () => FadeIn("controls", controls, "flex"));
+  }
 };

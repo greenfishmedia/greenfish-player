@@ -37,6 +37,10 @@ export const EluvioPlayerParameters = {
     OFF: false,
     WHEN_NOT_VISIBLE: "when_not_visible",
     ON: true
+  },
+  watermark: {
+    OFF: false,
+    ON: true
   }
 };
 
@@ -77,6 +81,7 @@ const DefaultParameters = {
     controls: EluvioPlayerParameters.controls.AUTO_HIDE,
     autoplay: EluvioPlayerParameters.autoplay.OFF,
     muted: EluvioPlayerParameters.muted.OFF,
+    watermark: EluvioPlayerParameters.watermark.ON,
     className: undefined,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
@@ -190,6 +195,10 @@ class EluvioPlayer {
 
       this.target.classList.add("eluvio-player");
 
+      if(this.playerOptions.className) {
+        this.target.classList.add(this.playerOptions.className);
+      }
+
       this.video = CreateElement({
         parent: this.target,
         type: "video",
@@ -200,7 +209,7 @@ class EluvioPlayer {
         classes: ["eluvio-player__video"]
       });
 
-      InitializeControls(this.target, this.video);
+      InitializeControls(this.target, this.video, this.playerOptions);
 
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
