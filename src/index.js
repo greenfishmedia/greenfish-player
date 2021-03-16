@@ -186,13 +186,14 @@ class EluvioPlayer {
       protocol,
       drm,
       playoutUrl,
-      drms
+      drms,
+      availableDRMs
     };
   }
 
   async Initialize() {
     try {
-      let {protocol, drm, playoutUrl, drms} = await this.PlayoutOptions();
+      let {protocol, drm, playoutUrl, drms, availableDRMs} = await this.PlayoutOptions();
 
       this.target.classList.add("eluvio-player");
 
@@ -210,6 +211,8 @@ class EluvioPlayer {
         classes: ["eluvio-player__video"]
       });
 
+      this.video.setAttribute("playsinline", "playsinline");
+
       if(this.playerOptions.controls !== EluvioPlayerParameters.controls.DEFAULT) {
         InitializeControls(this.target, this.video, this.playerOptions);
       }
@@ -220,7 +223,7 @@ class EluvioPlayer {
       let hlsPlayer, dashPlayer;
       if(drm === "fairplay") {
         InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
-      } else if(drm === "sample-aes") {
+      } else if(availableDRMs.includes("fairplay") || availableDRMs.includes("sample-aes")) {
         this.video.src = playoutUrl.toString();
       } else if(protocol === "hls") {
         const HLSPlayer = (await import("hls.js")).default;
