@@ -1,21 +1,22 @@
+$background-color: #000;
 $controls-color: rgba(50, 50, 50, 0.5);
 $button-color: rgba(255, 255, 255, 1);
 
 .eluvio-player {
+  align-items: center;
+  background-color: $background-color;
+  display: flex;
+  height: 100%;
+  justify-content: center;
   position: relative;
   width: 100%;
-  height: 100%;
-  background-color: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   button {
-    padding: 0;
     background: transparent;
     border: 0;
     cursor: pointer;
     opacity: 0.7;
+    padding: 0;
     transition: opacity 0.1s ease-out;
 
     svg {
@@ -30,17 +31,17 @@ $button-color: rgba(255, 255, 255, 1);
   &__video {
     cursor: pointer;
     margin: auto;
-    object-position: center;
     object-fit: contain;
+    object-position: center;
     width: 100%;
   }
 
   &__watermark {
     height: 20px;
-    position: absolute;
-    top: 15px;
     left: 15px;
     opacity: 0.7;
+    position: absolute;
+    top: 15px;
   }
 
   &__big-play-button {
@@ -58,30 +59,30 @@ $button-color: rgba(255, 255, 255, 1);
   }
 
   &__controls {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 40px;
-    background: $controls-color;
-    display: flex;
     align-items: center;
+    background: $controls-color;
+    bottom: 0;
+    display: flex;
+    height: 40px;
+    position: absolute;
+    width: 100%;
 
     &__button {
       height: 30px;
-      width: 30px;
       margin: 0 10px;
+      width: 30px;
     }
 
     &__button-play {
       svg {
         fill: $button-color;
-        stroke: transparent!important;
+        stroke: transparent !important;
       }
     }
 
     &__progress-slider {
-      margin: 0 10px;
       flex: 1 1 auto;
+      margin: 0 10px;
     }
   }
 }

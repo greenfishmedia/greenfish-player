@@ -273,7 +273,7 @@ class EluvioPlayer {
       this.video.addEventListener("click", () => this.video.paused ? this.video.play() : this.video.pause());
 
       this.RegisterVisibilityCallback();
-    } catch(error) {
+    } catch (error) {
       this.playerOptions.errorCallback(error);
     }
   }

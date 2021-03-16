@@ -3,9 +3,6 @@ files:
   ignore:
     - "src/static/stylesheets/fonts.scss"
 rules:
-  class-name-format:
-  - 2
-  - convention: hyphenatedlowercase
   leading-zero:
   - 0
   nesting-depth:
