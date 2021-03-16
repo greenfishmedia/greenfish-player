@@ -26,7 +26,8 @@ export const EluvioPlayerParameters = {
   controls: {
     OFF: false,
     AUTO_HIDE: "autohide",
-    ON: true
+    ON: true,
+    DEFAULT: "default"
   },
   autoplay: {
     OFF: false,
@@ -204,12 +205,14 @@ class EluvioPlayer {
         type: "video",
         options: {
           muted: this.playerOptions.muted !== EluvioPlayerParameters.muted.OFF,
-          controls: false
+          controls: this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT
         },
         classes: ["eluvio-player__video"]
       });
 
-      InitializeControls(this.target, this.video, this.playerOptions);
+      if(this.playerOptions.controls !== EluvioPlayerParameters.controls.DEFAULT) {
+        InitializeControls(this.target, this.video, this.playerOptions);
+      }
 
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
