@@ -213,6 +213,9 @@ class EluvioPlayer {
         this.target.classList.add(this.playerOptions.className);
       }
 
+      // Clear target
+      this.target.innerHTML = "";
+
       this.video = CreateElement({
         parent: this.target,
         type: "video",
@@ -296,8 +299,6 @@ class EluvioPlayer {
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON) {
         this.video.play();
       }
-
-      this.video.addEventListener("click", () => this.video.paused ? this.video.play() : this.video.pause());
 
       this.RegisterVisibilityCallback();
     } catch (error) {

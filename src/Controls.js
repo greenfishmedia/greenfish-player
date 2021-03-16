@@ -91,6 +91,8 @@ export const InitializeControls = (target, video, playerOptions) => {
     return;
   }
 
+  this.video.addEventListener("click", () => this.video.paused ? this.video.play() : this.video.pause());
+
   // Big play icon
   const bigPlayButton = CreateImageButton({
     parent: target,
