@@ -83,6 +83,14 @@ export const InitializeControls = (target, video, playerOptions) => {
     });
   }
 
+  if(
+    playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT ||
+    playerOptions.controls === EluvioPlayerParameters.controls.OFF
+  ) {
+    // Controls disabled
+    return;
+  }
+
   // Big play icon
   const bigPlayButton = CreateImageButton({
     parent: target,

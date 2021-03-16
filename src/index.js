@@ -23,15 +23,19 @@ export const EluvioPlayerParameters = {
     HLS: "hls",
     DASH: "dash"
   },
+  autoplay: {
+    OFF: false,
+    WHEN_VISIBLE: "when visible",
+    ON: true
+  },
   controls: {
     OFF: false,
     AUTO_HIDE: "autohide",
     ON: true,
     DEFAULT: "default"
   },
-  autoplay: {
+  loop: {
     OFF: false,
-    WHEN_VISIBLE: "when visible",
     ON: true
   },
   muted: {
@@ -82,6 +86,7 @@ const DefaultParameters = {
     controls: EluvioPlayerParameters.controls.AUTO_HIDE,
     autoplay: EluvioPlayerParameters.autoplay.OFF,
     muted: EluvioPlayerParameters.muted.OFF,
+    loop: EluvioPlayerParameters.loop.OFF,
     watermark: EluvioPlayerParameters.watermark.ON,
     className: undefined,
     hlsjsOptions: undefined,
@@ -175,6 +180,12 @@ class EluvioPlayer {
       });
     }
 
+    let posterUrl;
+    try {
+      const targetHash = await client.LinkTarget({...this.sourceOptions.playoutParameters});
+      posterUrl = await client.ContentObjectImageUrl({versionHash: targetHash});
+    } catch (error) {}
+
     const availableDRMs = await client.AvailableDRMs();
 
     const protocol = this.sourceOptions.protocols.find(protocol => this.sourceOptions.playoutOptions[protocol]);
@@ -187,13 +198,14 @@ class EluvioPlayer {
       drm,
       playoutUrl,
       drms,
+      posterUrl,
       availableDRMs
     };
   }
 
   async Initialize() {
     try {
-      let {protocol, drm, playoutUrl, drms, availableDRMs} = await this.PlayoutOptions();
+      let {protocol, drm, playoutUrl, drms, posterUrl, availableDRMs} = await this.PlayoutOptions();
 
       this.target.classList.add("eluvio-player");
 
@@ -206,16 +218,16 @@ class EluvioPlayer {
         type: "video",
         options: {
           muted: this.playerOptions.muted !== EluvioPlayerParameters.muted.OFF,
-          controls: this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT
+          controls: this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT,
+          loop: this.playerOptions.loop === EluvioPlayerParameters.loop.ON,
+          poster: posterUrl
         },
         classes: ["eluvio-player__video"]
       });
 
       this.video.setAttribute("playsinline", "playsinline");
 
-      if(this.playerOptions.controls !== EluvioPlayerParameters.controls.DEFAULT) {
-        InitializeControls(this.target, this.video, this.playerOptions);
-      }
+      InitializeControls(this.target, this.video, this.playerOptions);
 
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
@@ -279,7 +291,7 @@ class EluvioPlayer {
         );
       }
 
-      this.playerOptions.playerCallback({videoElement: this.video, hlsPlayer});
+      this.playerOptions.playerCallback({videoElement: this.video, hlsPlayer, dashPlayer});
 
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON) {
         this.video.play();

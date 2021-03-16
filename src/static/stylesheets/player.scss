@@ -38,7 +38,7 @@ $slider-color: rgba(150, 150, 150, 1);
 
     &::-webkit-slider-thumb {
       appearance: none;
-      background-color: #ffffff;
+      background-color: #fff;
       border: 0;
       border-radius: 100%;
       height: 8px;
@@ -48,7 +48,7 @@ $slider-color: rgba(150, 150, 150, 1);
 
     &::-moz-range-thumb {
       appearance: none;
-      background-color: #ffffff;
+      background-color: #fff;
       border: 0;
       border-radius: 100%;
       height: 8px;
@@ -60,6 +60,7 @@ $slider-color: rgba(150, 150, 150, 1);
   &__video {
     cursor: pointer;
     margin: auto;
+    max-height: 100%;
     object-fit: contain;
     object-position: center;
     width: 100%;
