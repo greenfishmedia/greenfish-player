@@ -1,6 +1,8 @@
 import "./static/stylesheets/player.scss";
 
-import mergeWith from "lodash/mergeWith";
+import MergeWith from "lodash/mergeWith";
+import Clone from "lodash/cloneDeep";
+
 import URI from "urijs";
 
 import {InitializeFairPlayStream} from "./FairPlay";
@@ -104,8 +106,8 @@ const DefaultParameters = {
 
 class EluvioPlayer {
   constructor(target, parameters) {
-    parameters = mergeWith(
-      DefaultParameters,
+    parameters = MergeWith(
+      Clone(DefaultParameters),
       parameters
     );
 
@@ -188,13 +190,10 @@ class EluvioPlayer {
           this.sourceOptions.playoutParameters.versionHash ||
           await client.LatestVersionHash({objectId: this.sourceOptions.playoutParameters.objectId});
 
-      console.log(targetHash);
       if(targetHash) {
         posterUrl = await client.ContentObjectImageUrl({versionHash: targetHash});
       }
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
 
     const availableDRMs = await client.AvailableDRMs();
 
