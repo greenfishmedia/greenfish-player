@@ -182,9 +182,19 @@ class EluvioPlayer {
 
     let posterUrl;
     try {
-      const targetHash = await client.LinkTarget({...this.sourceOptions.playoutParameters});
-      posterUrl = await client.ContentObjectImageUrl({versionHash: targetHash});
-    } catch (error) {}
+      const targetHash =
+        this.sourceOptions.playoutParameters.linkPath ?
+          await client.LinkTarget({...this.sourceOptions.playoutParameters}) :
+          this.sourceOptions.playoutParameters.versionHash ||
+          await client.LatestVersionHash({objectId: this.sourceOptions.playoutParameters.objectId});
+
+      console.log(targetHash);
+      if(targetHash) {
+        posterUrl = await client.ContentObjectImageUrl({versionHash: targetHash});
+      }
+    } catch (error) {
+      console.log(error);
+    }
 
     const availableDRMs = await client.AvailableDRMs();
 
