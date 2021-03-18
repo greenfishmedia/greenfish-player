@@ -8,7 +8,8 @@ import MutedIcon from "./static/icons/volume-x.svg";
 import VolumeLowIcon from "./static/icons/volume-1.svg";
 import VolumeHighIcon from "./static/icons/volume-2.svg";
 
-import Logo from "./static/images/Logo.png";
+import LogoSVG from "./static/images/ELUVIO white.svg";
+
 import {EluvioPlayerParameters} from "./index";
 
 let timeouts = {};
@@ -72,15 +73,13 @@ const ToggleFullscreen = (target) => {
 export const InitializeControls = (target, video, playerOptions) => {
   if(playerOptions.watermark) {
     // Watermark
-    CreateElement({
+    const watermark = CreateElement({
       parent: target,
-      type: "img",
-      options: {
-        src: Logo,
-        alt: "Eluvio"
-      },
+      type: "div",
       classes: ["eluvio-player__watermark"]
     });
+
+    watermark.innerHTML = LogoSVG;
   }
 
   if(

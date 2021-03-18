@@ -15,8 +15,7 @@ new EluvioPlayer(
       }
     },
     playerOptions: {
-      watermark: false,
-      controls: false,
+      controls: EluvioPlayerParameters.controls.DEFAULT,
       loop: true
     }
   }
