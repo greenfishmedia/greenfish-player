@@ -31,7 +31,7 @@ module.exports = {
   entry,
   target: "web",
   output: {
-    path: Path.resolve(__dirname, "dist"),
+    path: process.env.TEST_PAGE ? Path.resolve(__dirname, "test", "dist") : Path.resolve(__dirname, "dist"),
     filename: "index.js",
     chunkFilename: "[name].bundle.js"
   },

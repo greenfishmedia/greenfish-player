@@ -158,20 +158,47 @@ class EluvioPlayer {
   }
 
   async Client() {
+    if(this.clientPromise) {
+      await this.clientPromise;
+    }
+
     if(!this.clientOptions.client) {
-      const {ElvClient} = await import("@eluvio/elv-client-js");
-      const client = await ElvClient.FromConfigurationUrl({
-        configUrl: this.clientOptions.network
+      this.clientPromise = new Promise(async resolve => {
+        const {ElvClient} = await import("@eluvio/elv-client-js");
+        this.clientOptions.client = await ElvClient.FromConfigurationUrl({
+          configUrl: this.clientOptions.network
+        });
+
+        this.clientOptions.client.SetStaticToken({
+          token:
+            this.clientOptions.staticToken ||
+            this.clientOptions.client.utils.B64(JSON.stringify({qspace_id: await this.clientOptions.client.ContentSpaceId()}))
+        });
+
+        resolve();
       });
 
-      await client.SetStaticToken({
-        token: this.clientOptions.staticToken || client.utils.B64(JSON.stringify({qspace_id: await client.ContentSpaceId()}))
-      });
-
-      return client;
+      await this.clientPromise;
     }
 
     return this.clientOptions.client;
+  }
+
+  async PosterUrl() {
+    const client = await this.Client();
+
+    try {
+      const targetHash =
+        this.sourceOptions.playoutParameters.linkPath ?
+          await client.LinkTarget({...this.sourceOptions.playoutParameters}) :
+          this.sourceOptions.playoutParameters.versionHash ||
+          await client.LatestVersionHash({objectId: this.sourceOptions.playoutParameters.objectId});
+
+      if(targetHash) {
+        return await client.ContentObjectImageUrl({versionHash: targetHash});
+      }
+    // eslint-disable-next-line no-empty
+    } catch (error) {}
   }
 
   async PlayoutOptions() {
@@ -181,19 +208,6 @@ class EluvioPlayer {
         ...this.sourceOptions.playoutParameters
       });
     }
-
-    let posterUrl;
-    try {
-      const targetHash =
-        this.sourceOptions.playoutParameters.linkPath ?
-          await client.LinkTarget({...this.sourceOptions.playoutParameters}) :
-          this.sourceOptions.playoutParameters.versionHash ||
-          await client.LatestVersionHash({objectId: this.sourceOptions.playoutParameters.objectId});
-
-      if(targetHash) {
-        posterUrl = await client.ContentObjectImageUrl({versionHash: targetHash});
-      }
-    } catch (error) {}
 
     const availableDRMs = await client.AvailableDRMs();
 
@@ -207,16 +221,19 @@ class EluvioPlayer {
       drm,
       playoutUrl,
       drms,
-      posterUrl,
       availableDRMs
     };
   }
 
   async Initialize() {
     try {
-      let {protocol, drm, playoutUrl, drms, posterUrl, availableDRMs} = await this.PlayoutOptions();
+      const playoutOptionsPromise = this.PlayoutOptions();
 
       this.target.classList.add("eluvio-player");
+
+      if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
+        this.target.classList.add("eluvio-player-autohide");
+      }
 
       if(this.playerOptions.className) {
         this.target.classList.add(this.playerOptions.className);
@@ -232,7 +249,6 @@ class EluvioPlayer {
           muted: this.playerOptions.muted !== EluvioPlayerParameters.muted.OFF,
           controls: this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT,
           loop: this.playerOptions.loop === EluvioPlayerParameters.loop.ON,
-          poster: posterUrl
         },
         classes: ["eluvio-player__video"]
       });
@@ -240,6 +256,14 @@ class EluvioPlayer {
       this.video.setAttribute("playsinline", "playsinline");
 
       InitializeControls(this.target, this.video, this.playerOptions);
+
+      this.PosterUrl().then(posterUrl => {
+        if(posterUrl) {
+          this.video.setAttribute("poster", posterUrl);
+        }
+      });
+
+      let {protocol, drm, playoutUrl, drms, availableDRMs} = await playoutOptionsPromise;
 
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
