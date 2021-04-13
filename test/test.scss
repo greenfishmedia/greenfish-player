@@ -31,13 +31,14 @@ body,
   display: flex;
   height: 100%;
   justify-content: center;
-  padding: 100px;
   width: 100%;
 }
 
-#player-target {
+.player-target-container {
+  height: MIN(90vw * 9 / 16, calc(70vh));
   max-height: MIN(90vw * 9 / 16, calc(70vh));
   max-width: MIN(90vw, calc(70vh * 16 / 9));
   min-height: MIN(90vw * 9 / 16, calc(70vh));
   min-width: MIN(90vw, calc(70vh * 16 / 9));
+  width: MIN(90vw, calc(70vh * 16 / 9));
 }

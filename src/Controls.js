@@ -55,7 +55,9 @@ const FadeIn = (key, element) => {
 };
 
 const ToggleFullscreen = (target) => {
-  if(document.fullscreenElement) {
+  const isFullscreen = !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+
+  if(isFullscreen) {
     if(document.exitFullscreen) {
       document.exitFullscreen();
     } else if(document.webkitExitFullscreen) {
@@ -96,7 +98,7 @@ const Time = (time, total) => {
   return string;
 };
 
-export const InitializeControls = (target, video, playerOptions) => {
+export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   if(playerOptions.watermark) {
     // Watermark
     const watermark = CreateElement({
@@ -136,6 +138,22 @@ export const InitializeControls = (target, video, playerOptions) => {
 
   if(playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
     return;
+  }
+
+  // Poster
+  let poster;
+  if(posterUrl) {
+    poster = CreateElement({
+      parent: target,
+      type: "img",
+      classes: ["eluvio-player__poster-image"],
+      options: {
+        src: posterUrl,
+        alt: "Poster Image"
+      }
+    });
+
+    poster.addEventListener("click", () => video.play());
   }
 
   // Controls container
@@ -242,6 +260,12 @@ export const InitializeControls = (target, video, playerOptions) => {
 
   video.addEventListener("play", () => {
     played = true;
+
+    if(poster) {
+      poster.remove();
+      poster = undefined;
+    }
+
     playPauseButton.innerHTML = PauseIcon;
 
     clearTimeout(timeouts.progress);

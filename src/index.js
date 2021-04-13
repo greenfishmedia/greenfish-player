@@ -248,19 +248,15 @@ class EluvioPlayer {
         options: {
           muted: this.playerOptions.muted !== EluvioPlayerParameters.muted.OFF,
           controls: this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT,
-          loop: this.playerOptions.loop === EluvioPlayerParameters.loop.ON,
+          loop: this.playerOptions.loop === EluvioPlayerParameters.loop.ON
         },
         classes: ["eluvio-player__video"]
       });
 
       this.video.setAttribute("playsinline", "playsinline");
 
-      InitializeControls(this.target, this.video, this.playerOptions);
-
       this.PosterUrl().then(posterUrl => {
-        if(posterUrl) {
-          this.video.setAttribute("poster", posterUrl);
-        }
+        InitializeControls(this.target, this.video, this.playerOptions, posterUrl);
       });
 
       let {protocol, drm, playoutUrl, drms, availableDRMs} = await playoutOptionsPromise;
@@ -280,6 +276,9 @@ class EluvioPlayer {
 
         // Inject
         hlsPlayer = new HLSPlayer({
+          maxBufferLength: 30,
+          maxBufferSize: 300,
+          enableWorker: true,
           xhrSetup: xhr => {
             xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
 

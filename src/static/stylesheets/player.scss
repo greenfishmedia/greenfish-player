@@ -72,6 +72,17 @@ $slider-color: #717171;
     }
   }
 
+  &__poster-image {
+    cursor: pointer;
+    height: 100%;
+    left: 0;
+    object-fit: contain;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
   &__video {
     background: $background-color;
     height: 100%;
@@ -82,14 +93,15 @@ $slider-color: #717171;
   }
 
   &__watermark {
-    height: 12px;
+    height: 16px;
     left: 15px;
     pointer-events: none;
     position: absolute;
     top: 15px;
+    width: auto;
 
     svg {
-      height: 14px;
+      height: 100%;
       width: auto;
 
       * {
@@ -175,6 +187,22 @@ $slider-color: #717171;
   &.eluvio-player-autohide {
     .eluvio-player__controls {
       opacity: 0;
+    }
+  }
+
+  &:fullscreen {
+    margin: 0;
+    max-height: unset;
+    max-width: unset;
+    min-height: 100vh;
+    min-width: 100vw;
+    padding: 0;
+
+    video {
+      max-height: unset;
+      max-width: unset;
+      min-height: 100%;
+      min-width: 100%;
     }
   }
 
