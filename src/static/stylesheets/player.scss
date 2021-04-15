@@ -123,8 +123,11 @@ $slider-color: #717171;
     width: 100%;
 
     &__button {
+      -webkit-tap-highlight-color: transparent;
       height: 20px;
       margin: 0 10px;
+      min-height: 20px;
+      min-width: 20px;
       transition: opacity 0.25s linear;
       width: 20px;
 
@@ -140,11 +143,14 @@ $slider-color: #717171;
     }
 
     &__volume-slider {
-      width: 75px;
+      flex: 1 1 auto;
+      max-width: 75px;
+      min-width: 0;
     }
 
     &__progress-slider {
       flex: 1 1 auto;
+      min-width: 0;
     }
 
     &__time {
@@ -156,19 +162,22 @@ $slider-color: #717171;
   }
 
   &__big-play-button {
+    height: 15%;
     position: absolute;
+    width: 15%;
     z-index: 10;
 
     svg {
-      height: 125px;
+      height: 100%;
       opacity: 0.7;
+      overflow: visible;
       transition: opacity 0.1s linear;
-      width: 125px;
+      width: 100%;
       z-index: 11;
 
       * {
-        fill: $button-color;
-        stroke: transparent;
+        stroke: $button-color;
+        stroke-width: 4px;
       }
     }
 
@@ -176,11 +185,6 @@ $slider-color: #717171;
       svg {
         opacity: 1;
       }
-    }
-
-    &.eluvio-player__controls__button {
-      height: 150px;
-      width: 150px;
     }
   }
 
@@ -206,48 +210,22 @@ $slider-color: #717171;
     }
   }
 
-  @media only screen and (max-width: 1000px) {
-    input[type="range"] {
-      &::-webkit-slider-runnable-track {
-        height: 5px;
-      }
-
-      &::-moz-range-track {
-        height: 5px;
-      }
+  @media only screen and (max-device-width: 900px) {
+    &__watermark {
+      height: 10px;
+      top: 5px;
     }
 
     &__controls {
-      height: 90px;
-
-      &__button {
-        height: 40px;
-        margin: 0 20px;
-        width: 40px;
-      }
-
       &__volume-slider {
         display: none;
       }
-
-      &__time {
-        font-size: 20px;
-        width: 100px;
-      }
     }
 
-    &:fullscreen {
-      .eluvio-player__controls {
-        &__button:not(.eluvio-player__big-play-button) {
-          height: 20px;
-          margin: 0 10px;
-          padding: 0;
-          width: 20px;
-        }
-
-        &__time {
-          font-size: 12px;
-        }
+    &__big-play-button {
+      svg {
+        height: 50px;
+        width: 50px;
       }
     }
   }

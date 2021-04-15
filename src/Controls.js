@@ -1,4 +1,4 @@
-import PlayCircleIcon from "./static/icons/play.svg";
+import PlayCircleIcon from "./static/icons/play circle.svg";
 
 import PlayIcon from "./static/icons/play.svg";
 import PauseIcon from "./static/icons/pause.svg";
