@@ -7,6 +7,7 @@ import ExitFullscreenIcon from "./static/icons/minimize.svg";
 import MutedIcon from "./static/icons/muted.svg";
 import VolumeLowIcon from "./static/icons/unmuted.svg";
 import VolumeHighIcon from "./static/icons/unmuted.svg";
+import MultiViewIcon from "./static/icons/multiview.svg";
 
 import LogoSVG from "./static/images/ELUVIO white.svg";
 
@@ -16,20 +17,22 @@ let timeouts = {};
 let played = false;
 let controlsHover = false;
 
-export const CreateElement = ({parent, type="div", options={}, classes=[]}) => {
+export const CreateElement = ({parent, type="div", options={}, classes=[], prepend=false}) => {
   const element = document.createElement(type);
   classes.forEach(c => element.classList.add(c));
-  parent.appendChild(element);
+  prepend ? parent.prepend(element) : parent.appendChild(element);
 
   Object.keys(options).forEach(key => element[key] = options[key]);
 
   return element;
 };
 
-const CreateImageButton = ({parent, svg, options={}, classes=[]}) => {
+const CreateImageButton = ({parent, svg, alt, options={}, classes=[], prepend=false}) => {
   classes.unshift("eluvio-player__controls__button");
-  const button = CreateElement({parent, type: "button", options, classes});
+  const button = CreateElement({parent, type: "button", options, classes, prepend});
   button.innerHTML = svg;
+
+  button.querySelector("svg").setAttribute("alt", alt);
 
   return button;
 };
@@ -127,7 +130,8 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   const bigPlayButton = CreateImageButton({
     parent: target,
     svg: PlayCircleIcon,
-    classes: ["eluvio-player__big-play-button"]
+    classes: ["eluvio-player__big-play-button"],
+    alt: "Play"
   });
 
   video.addEventListener("play", () => FadeOut("big-play-button", bigPlayButton));
@@ -167,7 +171,8 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   const playPauseButton = CreateImageButton({
     parent: controls,
     svg: video.paused ? PlayIcon : PauseIcon,
-    classes: ["eluvio-player__controls__button-play"]
+    classes: ["eluvio-player__controls__button-play"],
+    alt: "Play"
   });
 
   playPauseButton.addEventListener("click", () => {
@@ -178,7 +183,8 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   const volumeButton = CreateImageButton({
     parent: controls,
     svg: video.muted || video.volume === 0 ? MutedIcon : (video.volume < 0.5 ? VolumeLowIcon : VolumeHighIcon),
-    classes: ["eluvio-player__controls__button-volume"]
+    classes: ["eluvio-player__controls__button-volume"],
+    alt: video.muted ? "Unmute" : "Mute"
   });
 
   volumeButton.addEventListener("click", () => video.muted = !video.muted);
@@ -234,11 +240,19 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
 
   totalTime.innerHTML = "00:00";
 
+  // Right buttons container
+  const buttonsContainer = CreateElement({
+    parent: controls,
+    type: "div",
+    classes: ["eluvio-player__controls__right-buttons"]
+  });
+
   // Fullscreen
   const fullscreenButton = CreateImageButton({
-    parent: controls,
+    parent: buttonsContainer,
     svg: FullscreenIcon,
-    classes: ["eluvio-player__controls__button-fullscreen"]
+    classes: ["eluvio-player__controls__button-fullscreen"],
+    alt: "Full Screen"
   });
 
   fullscreenButton.addEventListener("click", () => ToggleFullscreen(target));
@@ -257,6 +271,9 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
     clearTimeout(timeouts.playPause);
     ToggleFullscreen(target);
   });
+
+  // Prevent double clicking on controls from going fullscreen
+  controls.addEventListener("dblclick", event => event.stopPropagation());
 
   video.addEventListener("play", () => {
     played = true;
@@ -320,4 +337,45 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
 
     controls.addEventListener("mouseleave", () => controlsHover = false);
   }
+};
+
+export const InitializeMultiViewControls = ({AvailableViews, SwitchView}) => {
+  // Fullscreen
+  const multiviewButton = CreateImageButton({
+    parent: document.querySelector(".eluvio-player__controls__right-buttons"),
+    svg: MultiViewIcon,
+    classes: ["eluvio-player__controls__button-multiview"],
+    prepend: true,
+    alt: "Select View"
+  });
+
+  multiviewButton.addEventListener("click", async () => {
+    let selectionContainer = document.querySelector(".eluvio-player__controls__multiview-options");
+    if(selectionContainer) {
+      selectionContainer.parentNode.removeChild(selectionContainer);
+      return;
+    }
+
+    selectionContainer = CreateElement({
+      parent: document.querySelector(".eluvio-player__controls__right-buttons"),
+      type: "div",
+      classes: ["eluvio-player__controls__multiview-options"]
+    });
+
+    (await AvailableViews()).map(({view, view_display_label}) => {
+      const selection = CreateElement({
+        parent: selectionContainer,
+        type: "div",
+        classes: ["eluvio-player__controls__multiview-option"]
+      });
+
+      selection.innerHTML = view_display_label;
+
+      selection.addEventListener("click", () => {
+        SwitchView(view);
+
+        selectionContainer.parentNode.removeChild(selectionContainer);
+      });
+    });
+  });
 };

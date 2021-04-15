@@ -6,7 +6,7 @@ import Clone from "lodash/cloneDeep";
 import URI from "urijs";
 
 import {InitializeFairPlayStream} from "./FairPlay";
-import {InitializeControls, CreateElement} from "./Controls";
+import {InitializeControls, CreateElement, InitializeMultiViewControls} from "./Controls";
 
 export const EluvioPlayerParameters = {
   networks: {
@@ -207,6 +207,8 @@ class EluvioPlayer {
       this.sourceOptions.playoutOptions = await client.PlayoutOptions({
         ...this.sourceOptions.playoutParameters
       });
+
+      window.playoutOptions = this.sourceOptions.playoutOptions;
     }
 
     const availableDRMs = await client.AvailableDRMs();
@@ -221,7 +223,13 @@ class EluvioPlayer {
       drm,
       playoutUrl,
       drms,
-      availableDRMs
+      availableDRMs,
+      sessionId: this.sourceOptions.playoutOptions.sessionId,
+      multiviewOptions: {
+        enabled: this.sourceOptions.playoutOptions.multiview,
+        AvailableViews: this.sourceOptions.playoutOptions.AvailableViews,
+        SwitchView: this.sourceOptions.playoutOptions.SwitchView
+      }
     };
   }
 
@@ -255,11 +263,11 @@ class EluvioPlayer {
 
       this.video.setAttribute("playsinline", "playsinline");
 
-      this.PosterUrl().then(posterUrl => {
+      const controlsPromise = this.PosterUrl().then(posterUrl => {
         InitializeControls(this.target, this.video, this.playerOptions, posterUrl);
       });
 
-      let {protocol, drm, playoutUrl, drms, availableDRMs} = await playoutOptionsPromise;
+      let {protocol, drm, playoutUrl, drms, availableDRMs, multiviewOptions} = await playoutOptionsPromise;
 
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
@@ -267,8 +275,12 @@ class EluvioPlayer {
       let hlsPlayer, dashPlayer;
       if(drm === "fairplay") {
         InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
+
+        if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
       } else if(availableDRMs.includes("fairplay") || availableDRMs.includes("sample-aes")) {
         this.video.src = playoutUrl.toString();
+
+        if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
       } else if(protocol === "hls") {
         const HLSPlayer = (await import("hls.js")).default;
 
@@ -292,6 +304,19 @@ class EluvioPlayer {
         });
         hlsPlayer.loadSource(playoutUrl.toString());
         hlsPlayer.attachMedia(this.video);
+
+        if(multiviewOptions.enabled) {
+          const Switch = multiviewOptions.SwitchView;
+
+          window.hls = hlsPlayer;
+
+          multiviewOptions.SwitchView = async (view) => {
+            await Switch(view);
+            hlsPlayer.nextLevel = hlsPlayer.currentLevel;
+          };
+
+          controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions));
+        }
       } else {
         const DashPlayer = (await import("dashjs")).default;
         dashPlayer = DashPlayer.MediaPlayer().create();
@@ -324,6 +349,8 @@ class EluvioPlayer {
           playoutUrl.toString(),
           this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON
         );
+
+        if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
       }
 
       this.playerOptions.playerCallback({videoElement: this.video, hlsPlayer, dashPlayer});

@@ -20,7 +20,7 @@
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^3.1.47",
+    "@eluvio/elv-client-js": "^3.1.50",
     "dashjs": "^3.2.1",
     "hls.js": "^0.14.17",
     "lodash": "^4.17.21",

@@ -159,6 +159,41 @@ $slider-color: #717171;
       text-align: center;
       width: 55px;
     }
+
+    &__right-buttons {
+      align-items: center;
+      display: flex;
+      flex-wrap: nowrap;
+      height: 100%;
+      position: relative;
+    }
+
+    &__multiview-options {
+      background: $controls-color;
+      border: 1px solid #151515;
+      border-radius: 3px;
+      bottom: calc(100% + 1px);
+      color: #ffffff;
+      position: absolute;
+      right: 50%;
+      width: 200px;
+      z-index: 100;
+    }
+
+    &__multiview-option {
+      color: #eee;
+      cursor: pointer;
+      padding: 10px 20px;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid #151515;
+      }
+
+      &:hover {
+        background: rgba(25, 25, 25, 0.7);
+        color: #ffffff;
+      }
+    }
   }
 
   &__big-play-button {
@@ -219,6 +254,10 @@ $slider-color: #717171;
     &__controls {
       &__volume-slider {
         display: none;
+      }
+
+      &__multiview-options {
+        background-color: rgba(0, 0, 0, 0.7);
       }
     }
 
