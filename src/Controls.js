@@ -19,7 +19,7 @@ let controlsHover = false;
 
 export const CreateElement = ({parent, type="div", options={}, classes=[], prepend=false}) => {
   const element = document.createElement(type);
-  classes.forEach(c => element.classList.add(c));
+  classes.filter(c => c).forEach(c => element.classList.add(c));
   prepend ? parent.prepend(element) : parent.appendChild(element);
 
   Object.keys(options).forEach(key => element[key] = options[key]);
@@ -171,13 +171,11 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   const playPauseButton = CreateImageButton({
     parent: controls,
     svg: video.paused ? PlayIcon : PauseIcon,
-    classes: ["eluvio-player__controls__button-play"],
+    classes: ["eluvio-player__controls__button-play", video.paused ? "" : "eluvio-player__controls__button-pause"],
     alt: "Play"
   });
 
-  playPauseButton.addEventListener("click", () => {
-    video.paused ? video.play() : video.pause();
-  });
+  playPauseButton.addEventListener("click", () => video.paused ? video.play() : video.pause());
 
   // Volume
   const volumeButton = CreateImageButton({
@@ -284,6 +282,7 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
     }
 
     playPauseButton.innerHTML = PauseIcon;
+    playPauseButton.classList.add("eluvio-player__controls__button-pause");
 
     clearTimeout(timeouts.progress);
     timeouts.progress = setInterval(Progress, 50);
@@ -295,6 +294,7 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
 
   video.addEventListener("pause", () => {
     playPauseButton.innerHTML = PlayIcon;
+    playPauseButton.classList.remove("eluvio-player__controls__button-pause");
     clearTimeout(timeouts.progress);
   });
 
@@ -362,11 +362,11 @@ export const InitializeMultiViewControls = ({AvailableViews, SwitchView}) => {
       classes: ["eluvio-player__controls__multiview-options"]
     });
 
-    (await AvailableViews()).map(({view, view_display_label}) => {
+    (await AvailableViews()).map(({view, view_display_label, currently_selected}, i) => {
       const selection = CreateElement({
         parent: selectionContainer,
-        type: "div",
-        classes: ["eluvio-player__controls__multiview-option"]
+        type: "button",
+        classes: ["eluvio-player__controls__multiview-option", currently_selected ? "eluvio-player__controls__multiview-option-selected" : ""]
       });
 
       selection.innerHTML = view_display_label;
@@ -376,6 +376,9 @@ export const InitializeMultiViewControls = ({AvailableViews, SwitchView}) => {
 
         selectionContainer.parentNode.removeChild(selectionContainer);
       });
+
+      // Focus on first element in list when menu opened
+      if(i === 0) { selection.focus(); }
     });
   });
 };

@@ -15,6 +15,7 @@ $slider-color: #717171;
   width: 100%;
 
   * {
+    box-sizing: border-box;
     font-family: "Helvetica Neue", Helvetica, sans-serif;
   }
 
@@ -23,11 +24,19 @@ $slider-color: #717171;
     background: transparent;
     border: 0;
     cursor: pointer;
-    padding: 0;
     transition: opacity 0.1s linear;
 
     &:hover {
       opacity: 1;
+    }
+
+    &:focus {
+      outline: 0;
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 2px rgba(225, 225, 255, 0.8);
+      outline: 0;
     }
   }
 
@@ -124,22 +133,30 @@ $slider-color: #717171;
 
     &__button {
       -webkit-tap-highlight-color: transparent;
-      height: 20px;
-      margin: 0 10px;
+      height: 100%;
       min-height: 20px;
       min-width: 20px;
+      padding: 0 10px;
       transition: opacity 0.25s linear;
-      width: 20px;
+      width: 40px;
 
       svg {
-        height: 100%;
-        width: 100%;
+        max-height: 100%;
+        max-width: 100%;
 
         * {
           stroke: $button-color;
           stroke-width: 3px;
         }
       }
+    }
+
+    &__button-play {
+      padding: 0 12px;
+    }
+
+    &__button-pause {
+      padding: 0 13px 0 12px;
     }
 
     &__volume-slider {
@@ -173,25 +190,35 @@ $slider-color: #717171;
       border: 1px solid #151515;
       border-radius: 3px;
       bottom: calc(100% + 1px);
-      color: #ffffff;
+      color: #fff;
+      min-height: 20px;
       position: absolute;
       right: 50%;
       width: 200px;
       z-index: 100;
-    }
 
-    &__multiview-option {
-      color: #eee;
-      cursor: pointer;
-      padding: 10px 20px;
+      .eluvio-player__controls__multiview-option {
+        border: 0;
+        color: #ccc;
+        cursor: pointer;
+        display: block;
+        font-size: 14px;
+        height: 100%;
+        padding: 10px 20px;
+        width: 100%;
 
-      &:not(:last-child) {
-        border-bottom: 1px solid #151515;
-      }
+        &-selected {
+          color: #fff;
+        }
 
-      &:hover {
-        background: rgba(25, 25, 25, 0.7);
-        color: #ffffff;
+        &:not(:last-child) {
+          border-bottom: 1px solid #151515;
+        }
+
+        &:hover {
+          background: rgba(25, 25, 25, 0.7);
+          color: #fff;
+        }
       }
     }
   }
