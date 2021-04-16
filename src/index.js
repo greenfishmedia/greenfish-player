@@ -283,7 +283,7 @@ class EluvioPlayer {
 
         if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
       } else if(protocol === "hls") {
-        const HLSPlayer = (await import("hls-fix")).default;
+        const HLSPlayer = (await import("hls.js")).default;
 
         playoutUrl.removeQuery("authorization");
 
