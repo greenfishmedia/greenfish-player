@@ -1,3 +1,5 @@
+// TODO: Stop autohide when tabbing
+
 import PlayCircleIcon from "./static/icons/play circle.svg";
 
 import PlayIcon from "./static/icons/play.svg";

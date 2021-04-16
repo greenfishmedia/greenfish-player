@@ -94,7 +94,7 @@ const DefaultParameters = {
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
     // eslint-disable-next-line no-unused-vars
-    playerCallback: ({videoElement, hlsPlayer, dashPlayer}) => {},
+    playerCallback: ({videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
     errorCallback: (error) => {
       // eslint-disable-next-line no-console
       console.error("Eluvio Player Error:");
@@ -264,6 +264,7 @@ class EluvioPlayer {
       this.video.setAttribute("playsinline", "playsinline");
 
       const controlsPromise = this.PosterUrl().then(posterUrl => {
+        this.posterUrl = posterUrl;
         InitializeControls(this.target, this.video, this.playerOptions, posterUrl);
       });
 
@@ -353,7 +354,14 @@ class EluvioPlayer {
         if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
       }
 
-      this.playerOptions.playerCallback({videoElement: this.video, hlsPlayer, dashPlayer});
+      if(this.playerOptions.playerCallback) {
+        this.playerOptions.playerCallback({
+          videoElement: this.video,
+          hlsPlayer,
+          dashPlayer,
+          posterUrl: this.posterUrl
+        });
+      }
 
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON) {
         this.video.play();
