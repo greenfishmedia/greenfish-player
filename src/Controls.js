@@ -341,10 +341,10 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   }
 };
 
-export const InitializeMultiViewControls = ({AvailableViews, SwitchView}) => {
+export const InitializeMultiViewControls = ({target, AvailableViews, SwitchView}) => {
   // Fullscreen
   const multiviewButton = CreateImageButton({
-    parent: document.querySelector(".eluvio-player__controls__right-buttons"),
+    parent: target.querySelector(".eluvio-player__controls__right-buttons"),
     svg: MultiViewIcon,
     classes: ["eluvio-player__controls__button-multiview"],
     prepend: true,
@@ -352,14 +352,14 @@ export const InitializeMultiViewControls = ({AvailableViews, SwitchView}) => {
   });
 
   multiviewButton.addEventListener("click", async () => {
-    let selectionContainer = document.querySelector(".eluvio-player__controls__multiview-options");
+    let selectionContainer = target.querySelector(".eluvio-player__controls__multiview-options");
     if(selectionContainer) {
       selectionContainer.parentNode.removeChild(selectionContainer);
       return;
     }
 
     selectionContainer = CreateElement({
-      parent: document.querySelector(".eluvio-player__controls__right-buttons"),
+      parent: target,
       type: "div",
       classes: ["eluvio-player__controls__multiview-options"]
     });

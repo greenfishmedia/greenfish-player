@@ -270,6 +270,8 @@ class EluvioPlayer {
 
       let {protocol, drm, playoutUrl, drms, availableDRMs, multiviewOptions} = await playoutOptionsPromise;
 
+      multiviewOptions.target = this.target;
+
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
 

@@ -25,7 +25,6 @@ $slider-color: #717171;
     background: transparent;
     border: 0;
     cursor: pointer;
-    display: flex;
     justify-content: center;
     transition: opacity 0.1s linear;
 
@@ -137,6 +136,7 @@ $slider-color: #717171;
     &__button {
       -webkit-tap-highlight-color: transparent;
       height: 100%;
+      margin-top: 2px;
       min-height: 20px;
       min-width: 20px;
       padding: 0 10px;
@@ -185,18 +185,18 @@ $slider-color: #717171;
       display: flex;
       flex-wrap: nowrap;
       height: 100%;
-      position: relative;
     }
 
     &__multiview-options {
       background: $controls-color;
-      border: 1px solid #151515;
       border-radius: 3px;
-      bottom: calc(100% + 1px);
+      bottom: 52px;
       color: #fff;
+      max-height: calc(100% - 54px);
       min-height: 20px;
+      overflow-y: scroll;
       position: absolute;
-      right: 50%;
+      right: 10px;
       width: 200px;
       z-index: 100;
 
@@ -212,10 +212,6 @@ $slider-color: #717171;
 
         &-selected {
           color: #fff;
-        }
-
-        &:not(:last-child) {
-          border-bottom: 1px solid #151515;
         }
 
         &:hover {
@@ -283,7 +279,7 @@ $slider-color: #717171;
 
     &__controls {
       &__volume-slider {
-        display: none;
+        display: none !important;
       }
 
       &__multiview-options {
