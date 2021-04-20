@@ -21,9 +21,12 @@ $slider-color: #717171;
 
   input[type="range"],
   button {
+    align-items: center;
     background: transparent;
     border: 0;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
     transition: opacity 0.1s linear;
 
     &:hover {

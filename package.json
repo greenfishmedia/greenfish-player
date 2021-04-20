@@ -22,8 +22,7 @@
   "dependencies": {
     "@eluvio/elv-client-js": "^3.1.50",
     "dashjs": "^3.2.1",
-    "hls.js": "^1.0.2-0.canary.7198",
-    "hls-fix": "git+https://github.com/elv-peter/hls.js.git#prebuilt/multi-ext-x-map-init",
+    "hls-fix": "git+https://github.com/elv-peter/hls.js.git#prebuilt/multi-ext-x-map-init-1.0.1",
     "lodash": "^4.17.21",
     "urijs": "^1.19.6",
     "url-join": "^4.0.1"
