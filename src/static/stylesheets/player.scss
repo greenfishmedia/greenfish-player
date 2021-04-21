@@ -135,9 +135,9 @@ $slider-color: #717171;
     &__button {
       -webkit-tap-highlight-color: transparent;
       height: 100%;
-      margin-top: 2px;
       min-height: 20px;
       min-width: 20px;
+      overflow: visible;
       padding: 0 10px;
       transition: opacity 0.25s linear;
       width: 40px;
@@ -146,6 +146,7 @@ $slider-color: #717171;
         height: 100%;
         max-height: 100%;
         max-width: 100%;
+        overflow: visible;
         width: 100%;
 
         * {
@@ -233,6 +234,7 @@ $slider-color: #717171;
       height: 100%;
       opacity: 0.7;
       overflow: visible;
+      padding: 2px;
       transition: opacity 0.1s linear;
       width: 100%;
       z-index: 11;
@@ -289,10 +291,8 @@ $slider-color: #717171;
     }
 
     &__big-play-button {
-      svg {
-        height: 50px;
-        width: 50px;
-      }
+      height: 25%;
+      width: 25%;
     }
   }
 }

@@ -81,6 +81,9 @@ const ToggleFullscreen = (target) => {
       target.webkitRequestFullscreen();
     } else if(target.msRequestFullscreen) {
       target.msRequestFullscreen();
+    } else {
+      // iPhone - Use native fullscreen on video element only
+      target.querySelector("video").webkitEnterFullScreen();
     }
   }
 };
