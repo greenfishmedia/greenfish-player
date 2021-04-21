@@ -22,13 +22,13 @@ const Initialize = async () => {
 
   await client.RedeemCode({
     tenantId,
-    //code: "dVGZRUj"
-    code: "wVFVYV8"
+    code: "dVGZRUj"
+    //code: "wVFVYV8"
   });
 
-  //const versionHash = await client.LatestVersionHash({versionHash: "hq__EbGAKKpfeTKnfy8nBifcVbu4Czbg8df2Qrunx1kdpDL77wcm6SKdtbrkP9z6ipiACfiqEh37hJ"});
+  const versionHash = await client.LatestVersionHash({versionHash: "hq__36gaCZiFBKL6QLUYAxuSfpRQy1qFFBF8XU3LysDbucxRZz6Dt7GfDYxYaTg1kDY677QNigirFS"});
   //const versionHash = await client.LatestVersionHash({versionHash: "hq__JBuEFojvV3EuEMEtq7wY589Bd1uw38WASYTXoJK4Lmt4nvsy3k9SyR86Z3hgJa8HyQVm4g9qjq"});
-  const versionHash = await client.LatestVersionHash({versionHash: "hq__KRZUjbZCpZFar4Jhg813sN2BGFPR1aSQnxDTVpB8iMAS7uG5acnmioXnoJac7xAA3PAFMGrThr"});
+  //const versionHash = await client.LatestVersionHash({versionHash: "hq__KRZUjbZCpZFar4Jhg813sN2BGFPR1aSQnxDTVpB8iMAS7uG5acnmioXnoJac7xAA3PAFMGrThr"});
 
   const availableOfferings = await client.AvailableOfferings({
     versionHash,

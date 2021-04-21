@@ -21,7 +21,6 @@ $slider-color: #717171;
 
   input[type="range"],
   button {
-    align-items: center;
     background: transparent;
     border: 0;
     cursor: pointer;
@@ -36,7 +35,7 @@ $slider-color: #717171;
       outline: 0;
     }
 
-    &:focus-visible {
+    &.focus-visible {
       box-shadow: 0 0 2px rgba(225, 225, 255, 0.8);
       outline: 0;
     }
@@ -144,8 +143,10 @@ $slider-color: #717171;
       width: 40px;
 
       svg {
+        height: 100%;
         max-height: 100%;
         max-width: 100%;
+        width: 100%;
 
         * {
           stroke: $button-color;
@@ -194,7 +195,7 @@ $slider-color: #717171;
       color: #fff;
       max-height: calc(100% - 54px);
       min-height: 20px;
-      overflow-y: scroll;
+      overflow-y: auto;
       position: absolute;
       right: 10px;
       width: 200px;

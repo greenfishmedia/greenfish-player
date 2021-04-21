@@ -1,5 +1,7 @@
 import "./static/stylesheets/player.scss";
 
+import "focus-visible";
+
 import MergeWith from "lodash/mergeWith";
 import Clone from "lodash/cloneDeep";
 
