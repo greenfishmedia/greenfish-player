@@ -99,27 +99,18 @@ const DefaultParameters = {
     playerCallback: ({videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
     errorCallback: (error) => {
       // eslint-disable-next-line no-console
-      console.error("Eluvio Player Error:");
+      console.error("ELUVIO PLAYER: Error");
       // eslint-disable-next-line no-console
       console.error(error);
-    }
+    },
+    // eslint-disable-next-line no-unused-vars
+    restartCallback: async (error) => {}
   }
 };
 
 class EluvioPlayer {
   constructor(target, parameters) {
-    parameters = MergeWith(
-      Clone(DefaultParameters),
-      parameters
-    );
-
-    this.target = target;
-
-    this.clientOptions = parameters.clientOptions;
-    this.sourceOptions = parameters.sourceOptions;
-    this.playerOptions = parameters.playerOptions;
-
-    this.Initialize();
+    this.Initialize(target, parameters);
   }
 
   RegisterVisibilityCallback() {
@@ -235,7 +226,24 @@ class EluvioPlayer {
     };
   }
 
-  async Initialize() {
+  async Initialize(target, parameters) {
+    this.originalParameters = MergeWith({}, parameters);
+
+    parameters = MergeWith(
+      Clone(DefaultParameters),
+      parameters
+    );
+
+    //this.originalParameters = Clone(parameters)
+
+    this.target = target;
+
+    this.clientOptions = parameters.clientOptions;
+    this.sourceOptions = parameters.sourceOptions;
+    this.playerOptions = parameters.playerOptions;
+
+    this.errors = 0;
+
     try {
       const playoutOptionsPromise = this.PlayoutOptions();
 
@@ -322,6 +330,34 @@ class EluvioPlayer {
 
           controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions));
         }
+
+        hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => this.errors = 0);
+
+        hlsPlayer.on(HLSPlayer.Events.ERROR, async (_, error) => {
+          this.errors += 1;
+
+          // eslint-disable-next-line no-console
+          console.warn("ELUVIO PLAYER: Encountered error", error);
+
+          if(error.fatal || this.errors === 3) {
+            hlsPlayer.destroy();
+
+            if(this.playerOptions.restartCallback) {
+              const abort = await this.playerOptions.restartCallback(error);
+
+              if(abort && typeof abort === "boolean") {
+                return;
+              }
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            // eslint-disable-next-line no-console
+            console.warn("ELUVIO PLAYER: Retrying stream");
+
+            this.Initialize(this.target, this.originalParameters);
+          }
+        });
       } else {
         const DashPlayer = (await import("dashjs")).default;
         dashPlayer = DashPlayer.MediaPlayer().create();

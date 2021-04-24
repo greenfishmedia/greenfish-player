@@ -380,6 +380,13 @@ export const InitializeMultiViewControls = ({target, AvailableViews, SwitchView}
         SwitchView(view);
 
         selectionContainer.parentNode.removeChild(selectionContainer);
+
+        // Make button spin to show something is happening
+        clearTimeout(timeouts["spin"]);
+        multiviewButton.classList.add("eluvio-player__controls__button-multiview-spinning");
+        timeouts["spin"] = setTimeout(() => {
+          multiviewButton.classList.remove("eluvio-player__controls__button-multiview-spinning");
+        }, 3000);
       });
 
       // Focus on first element in list when menu opened

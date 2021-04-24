@@ -156,6 +156,12 @@ $slider-color: #717171;
       }
     }
 
+    &__button-multiview-spinning {
+      svg {
+        animation: spin 1s ease-in-out infinite;
+      }
+    }
+
     &__button-play {
       padding: 0 12px;
     }
@@ -294,5 +300,15 @@ $slider-color: #717171;
       height: 25%;
       width: 25%;
     }
+  }
+}
+
+@keyframes spin {
+  0%   {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
   }
 }
