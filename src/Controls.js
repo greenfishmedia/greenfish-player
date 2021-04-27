@@ -18,6 +18,7 @@ import {EluvioPlayerParameters} from "./index";
 let timeouts = {};
 let played = false;
 let controlsHover = false;
+let progressHidden = false;
 
 export const CreateElement = ({parent, type="div", options={}, classes=[], prepend=false}) => {
   const element = document.createElement(type);
@@ -127,6 +128,11 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   }
 
   video.addEventListener("click", () => {
+    if(window.matchMedia("(hover: none)").matches) {
+      // Touch screen - don't start/stop on video click
+      return;
+    }
+
     clearTimeout(timeouts.playPause);
     timeouts.playPause = setTimeout(() => video.paused ? video.play() : video.pause(), 200);
   });
@@ -263,9 +269,15 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   // Event Listeners
 
   const Progress = () => {
-    if(!isFinite(video.duration)) {
-      controls.classList.add("eluvio-player__controls-no-progress");
-      video.removeEventListener("durationchange", Progress);
+    if(isNaN(video.duration) || !isFinite(video.duration)) {
+      if(!progressHidden) {
+        controls.classList.add("eluvio-player__controls-no-progress");
+      }
+
+      progressHidden = true;
+    } else if(progressHidden) {
+      progressHidden = false;
+      controls.classList.remove("eluvio-player__controls-no-progress");
     }
 
     progressSlider.value = isNaN(video.duration) ? 0 : video.currentTime / video.duration;
@@ -295,7 +307,7 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
     playPauseButton.classList.add("eluvio-player__controls__button-pause");
 
     clearTimeout(timeouts.progress);
-    timeouts.progress = setInterval(Progress, 50);
+    timeouts.progress = setInterval(Progress, 40);
 
     if(playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
       target.dispatchEvent(new Event("mousemove"));
@@ -325,27 +337,40 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
 
   // Autohide controls
   if(playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
-    target.addEventListener("mousemove", () => {
+    const PlayerOut = () => {
+      if(!played) { return; }
+
+      FadeOut("controls", controls, 2000);
+    };
+
+    const PlayerMove = () => {
       if(!played || controlsHover) { return; }
 
       FadeIn("controls", controls);
       FadeOut("controls", controls, 3000, () => target.style.cursor = "none");
 
       target.style.cursor = "unset";
-    });
+    };
 
-    target.addEventListener("mouseleave", () => {
-      if(!played) { return; }
-
-      FadeOut("controls", controls, 2000);
-    });
-
-    controls.addEventListener("mouseenter", () => {
+    const ControlsIn = () => {
       clearTimeout(timeouts.controls);
       controlsHover = true;
-    });
+    };
 
-    controls.addEventListener("mouseleave", () => controlsHover = false);
+    const ControlsOut = () => controlsHover = false;
+
+    // Mouse events
+    target.addEventListener("mousemove", PlayerMove);
+    target.addEventListener("mouseleave", PlayerOut);
+    controls.addEventListener("mouseenter", ControlsIn);
+    controls.addEventListener("mouseleave", ControlsOut);
+
+    // Touch Events
+    target.addEventListener("touchmove", PlayerMove);
+    target.addEventListener("touchleave", PlayerOut);
+    controls.addEventListener("touchmove", ControlsIn);
+    controls.addEventListener("touchleave", ControlsOut);
+    controls.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
   }
 };
 
