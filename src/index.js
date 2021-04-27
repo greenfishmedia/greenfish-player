@@ -345,8 +345,6 @@ class EluvioPlayer {
         if(multiviewOptions.enabled) {
           const Switch = multiviewOptions.SwitchView;
 
-          window.hls = hlsPlayer;
-
           multiviewOptions.SwitchView = async (view) => {
             await Switch(view);
             hlsPlayer.nextLevel = hlsPlayer.currentLevel;
@@ -355,14 +353,10 @@ class EluvioPlayer {
           controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions));
         }
 
-        window.levels = () => hlsPlayer.levels;
-
         this.controls.SetQualityControls({
           GetLevels: () => hlsPlayer.levels.map((level, index) => ({index, active: index === hlsPlayer.currentLevel, resolution: level.attrs.RESOLUTION, bitrate: level.bitrate})),
           SetLevel: levelIndex => hlsPlayer.nextLevel = levelIndex
         });
-
-        window.hls = hlsPlayer;
 
         hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => this.errors = 0);
 
@@ -378,16 +372,6 @@ class EluvioPlayer {
             // eslint-disable-next-line no-console
             console.warn("ELUVIO PLAYER: Buffer full error - Restarting player");
             this.HardReload(error);
-          }
-
-          if(error.details === "bufferStalledError") {
-            try {
-              hlsPlayer.recoverMediaError();
-            } catch (error) {
-              // eslint-disable-next-line no-console
-              console.warn("ELUVIO PLAYER: Buffer unrecoverable buffer stalled error - Restarting player");
-              this.HardReload(error);
-            }
           }
 
           if(error.fatal || this.errors === 3) {
