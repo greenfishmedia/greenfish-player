@@ -195,6 +195,13 @@ $slider-color: #717171;
       height: 100%;
     }
 
+    &.eluvio-player__controls-no-progress {
+      .eluvio-player__controls__time,
+      .eluvio-player__controls__progress-slider {
+        visibility: hidden;
+      }
+    }
+
     &__multiview-options {
       background: $controls-color;
       border-radius: 3px;

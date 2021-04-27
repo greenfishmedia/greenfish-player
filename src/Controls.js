@@ -263,6 +263,11 @@ export const InitializeControls = (target, video, playerOptions, posterUrl) => {
   // Event Listeners
 
   const Progress = () => {
+    if(!isFinite(video.duration)) {
+      controls.classList.add("eluvio-player__controls-no-progress");
+      video.removeEventListener("durationchange", Progress);
+    }
+
     progressSlider.value = isNaN(video.duration) ? 0 : video.currentTime / video.duration;
     progressTime.innerHTML = Time(video.currentTime, video.duration);
     totalTime.innerHTML = Time(video.duration, video.duration);

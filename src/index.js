@@ -226,6 +226,23 @@ class EluvioPlayer {
     };
   }
 
+  async HardReload(error) {
+    if(this.playerOptions.restartCallback) {
+      const abort = await this.playerOptions.restartCallback(error);
+
+      if(abort && typeof abort === "boolean") {
+        return;
+      }
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    // eslint-disable-next-line no-console
+    console.warn("ELUVIO PLAYER: Retrying stream");
+
+    this.Initialize(this.target, this.originalParameters);
+  }
+
   async Initialize(target, parameters) {
     this.originalParameters = MergeWith({}, parameters);
 
@@ -243,6 +260,7 @@ class EluvioPlayer {
     this.playerOptions = parameters.playerOptions;
 
     this.errors = 0;
+    this.lastRecovery = 0;
 
     try {
       const playoutOptionsPromise = this.PlayoutOptions();
@@ -278,24 +296,25 @@ class EluvioPlayer {
         InitializeControls(this.target, this.video, this.playerOptions, posterUrl);
       });
 
-      let {protocol, drm, playoutUrl, drms, availableDRMs, multiviewOptions} = await playoutOptionsPromise;
+      let {protocol, drm, playoutUrl, drms, multiviewOptions} = await playoutOptionsPromise;
 
       multiviewOptions.target = this.target;
 
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
 
+      const HLSPlayer = (await import("hls-fix")).default;
+
       let hlsPlayer, dashPlayer;
       if(drm === "fairplay") {
         InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
 
         if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
-      } else if(availableDRMs.includes("fairplay") || availableDRMs.includes("sample-aes")) {
+      } else if(!HLSPlayer.isSupported() || drm === "sample-aes") {
         this.video.src = playoutUrl.toString();
 
         if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
       } else if(protocol === "hls") {
-        const HLSPlayer = (await import("hls-fix")).default;
 
         playoutUrl.removeQuery("authorization");
 
@@ -333,31 +352,47 @@ class EluvioPlayer {
 
         hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => this.errors = 0);
 
-        hlsPlayer.on(HLSPlayer.Events.ERROR, async (_, error) => {
+        hlsPlayer.on(HLSPlayer.Events.ERROR, async (event, error) => {
           this.errors += 1;
 
+          console.log(error);
+
           // eslint-disable-next-line no-console
-          console.warn("ELUVIO PLAYER: Encountered error", error);
+          console.warn(`ELUVIO PLAYER: Encountered ${error.details}`);
+
+          if(error.details === "bufferFullError") {
+            // eslint-disable-next-line no-console
+            console.warn("ELUVIO PLAYER: Buffer full error - Restarting player");
+            this.HardReload(error);
+          }
 
           if(error.fatal || this.errors === 3) {
-            hlsPlayer.destroy();
-
-            if(this.playerOptions.restartCallback) {
-              const abort = await this.playerOptions.restartCallback(error);
-
-              if(abort && typeof abort === "boolean") {
-                return;
-              }
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 5000));
-
             // eslint-disable-next-line no-console
-            console.warn("ELUVIO PLAYER: Retrying stream");
+            console.warn("ELUVIO PLAYER: Encountered error", error);
 
-            this.Initialize(this.target, this.originalParameters);
+            const recentRecoveryAttempt = Date.now() - this.lastRecovery < 10 * 1000;
+
+            if(!recentRecoveryAttempt && error.type === HLSPlayer.ErrorTypes.NETWORK_ERROR) {
+              // eslint-disable-next-line no-console
+              console.warn("ELUVIO PLAYER: Restarting from network error", error);
+              this.lastRecovery = Date.now();
+              hlsPlayer.startLoad();
+              this.errors = 0;
+            } else if(!recentRecoveryAttempt && error.type === HLSPlayer.ErrorTypes.MEDIA_ERROR) {
+              // eslint-disable-next-line no-console
+              console.warn("ELUVIO PLAYER: Recovering from media error", error);
+              this.lastRecovery = Date.now();
+              hlsPlayer.recoverMediaError();
+              this.errors = 0;
+            } else {
+              hlsPlayer.destroy();
+
+              this.HardReload(error);
+            }
           }
         });
+
+        this.player = HLSPlayer;
       } else {
         const DashPlayer = (await import("dashjs")).default;
         dashPlayer = DashPlayer.MediaPlayer().create();
@@ -392,6 +427,8 @@ class EluvioPlayer {
         );
 
         if(multiviewOptions.enabled) { controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions)); }
+
+        this.player = dashPlayer;
       }
 
       if(this.playerOptions.playerCallback) {
