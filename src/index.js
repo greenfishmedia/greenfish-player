@@ -8,7 +8,7 @@ import Clone from "lodash/cloneDeep";
 import URI from "urijs";
 
 import {InitializeFairPlayStream} from "./FairPlay";
-import {InitializeControls, CreateElement, InitializeMultiViewControls} from "./Controls";
+import PlayerControls, {CreateElement} from "./PlayerControls";
 
 export const EluvioPlayerParameters = {
   networks: {
@@ -48,6 +48,10 @@ export const EluvioPlayerParameters = {
     ON: true
   },
   watermark: {
+    OFF: false,
+    ON: true
+  },
+  settings: {
     OFF: false,
     ON: true
   }
@@ -92,6 +96,7 @@ const DefaultParameters = {
     muted: EluvioPlayerParameters.muted.OFF,
     loop: EluvioPlayerParameters.loop.OFF,
     watermark: EluvioPlayerParameters.watermark.ON,
+    settings: EluvioPlayerParameters.settings.ON,
     className: undefined,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
@@ -235,7 +240,7 @@ class EluvioPlayer {
       }
     }
 
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 6000));
 
     // eslint-disable-next-line no-console
     console.warn("ELUVIO PLAYER: Retrying stream");
@@ -293,10 +298,10 @@ class EluvioPlayer {
 
       const controlsPromise = this.PosterUrl().then(posterUrl => {
         this.posterUrl = posterUrl;
-        InitializeControls(this.target, this.video, this.playerOptions, posterUrl);
+        this.controls = new PlayerControls(this.target, this.video, this.playerOptions, posterUrl);
       });
 
-      let {protocol, drm, playoutUrl, drms, multiviewOptions} = await playoutOptionsPromise;
+      let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
 
       multiviewOptions.target = this.target;
 
@@ -347,23 +352,42 @@ class EluvioPlayer {
             hlsPlayer.nextLevel = hlsPlayer.currentLevel;
           };
 
-          controlsPromise.then(() => InitializeMultiViewControls(multiviewOptions));
+          controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions));
         }
+
+        window.levels = () => hlsPlayer.levels;
+
+        this.controls.SetQualityControls({
+          GetLevels: () => hlsPlayer.levels.map((level, index) => ({index, active: index === hlsPlayer.currentLevel, resolution: level.attrs.RESOLUTION, bitrate: level.bitrate})),
+          SetLevel: levelIndex => hlsPlayer.nextLevel = levelIndex
+        });
+
+        window.hls = hlsPlayer;
 
         hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => this.errors = 0);
 
         hlsPlayer.on(HLSPlayer.Events.ERROR, async (event, error) => {
           this.errors += 1;
 
-          console.log(error);
-
           // eslint-disable-next-line no-console
           console.warn(`ELUVIO PLAYER: Encountered ${error.details}`);
+          // eslint-disable-next-line no-console
+          console.warn(error);
 
           if(error.details === "bufferFullError") {
             // eslint-disable-next-line no-console
             console.warn("ELUVIO PLAYER: Buffer full error - Restarting player");
             this.HardReload(error);
+          }
+
+          if(error.details === "bufferStalledError") {
+            try {
+              hlsPlayer.recoverMediaError();
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.warn("ELUVIO PLAYER: Buffer unrecoverable buffer stalled error - Restarting player");
+              this.HardReload(error);
+            }
           }
 
           if(error.fatal || this.errors === 3) {
@@ -447,6 +471,10 @@ class EluvioPlayer {
       this.RegisterVisibilityCallback();
     } catch (error) {
       this.playerOptions.errorCallback(error);
+
+      if(error.status === 500) {
+        this.HardReload(error);
+      }
     }
   }
 }
