@@ -1,6 +1,6 @@
 {
   "name": "@eluvio/elv-player-js",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description": "![Eluvio Logo](src/static/images/Logo.png \"Eluvio Logo\")",
   "main": "src/index.js",
   "license": "MIT",
