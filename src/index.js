@@ -115,6 +115,8 @@ const DefaultParameters = {
 
 class EluvioPlayer {
   constructor(target, parameters) {
+    this.DetectRemoval = this.DetectRemoval.bind(this);
+
     this.Initialize(target, parameters);
   }
 
@@ -259,6 +261,13 @@ class EluvioPlayer {
     this.Initialize(this.target, this.originalParameters);
   }
 
+  DetectRemoval() {
+    if(!Array.from(document.querySelectorAll(".eluvio-player__video")).find(video => video === this.video)) {
+      this.DestroyPlayer();
+      this.mutationObserver.disconnect();
+    }
+  }
+
   async Initialize(target, parameters) {
     this.DestroyPlayer();
 
@@ -308,6 +317,10 @@ class EluvioPlayer {
       });
 
       this.video.setAttribute("playsinline", "playsinline");
+
+      // Detect removal of video to ensure player is properly destroyed
+      this.mutationObserver = new MutationObserver(this.DetectRemoval);
+      this.mutationObserver.observe(document.body, {childList: true, subtree: true});
 
       const controlsPromise = this.PosterUrl().then(posterUrl => {
         this.posterUrl = posterUrl;

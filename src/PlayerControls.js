@@ -338,7 +338,7 @@ class PlayerControls {
       playPauseButton.classList.add("eluvio-player__controls__button-pause");
 
       clearTimeout(this.timeouts.progress);
-      this.timeouts.progress = setInterval(Progress, 40);
+      this.timeouts.progress = setInterval(Progress, 50);
 
       if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
         this.target.dispatchEvent(new Event("mousemove"));
