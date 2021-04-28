@@ -231,11 +231,22 @@ class EluvioPlayer {
     };
   }
 
+  DestroyPlayer() {
+    if(!this.player) { return; }
+
+    if(this.player.destroy) {
+      this.player.destroy();
+    } else if(this.player.reset) {
+      this.player.reset();
+    }
+  }
+
   async HardReload(error) {
     if(this.playerOptions.restartCallback) {
       const abort = await this.playerOptions.restartCallback(error);
 
       if(abort && typeof abort === "boolean") {
+        this.DestroyPlayer();
         return;
       }
     }
@@ -249,6 +260,8 @@ class EluvioPlayer {
   }
 
   async Initialize(target, parameters) {
+    this.DestroyPlayer();
+
     this.originalParameters = MergeWith({}, parameters);
 
     parameters = MergeWith(
@@ -393,8 +406,6 @@ class EluvioPlayer {
               hlsPlayer.recoverMediaError();
               this.errors = 0;
             } else {
-              hlsPlayer.destroy();
-
               this.HardReload(error);
             }
           }
