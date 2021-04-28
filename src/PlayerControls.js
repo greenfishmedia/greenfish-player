@@ -51,13 +51,13 @@ const ToggleFullscreen = (target) => {
     }
   } else {
     if(target.requestFullscreen) {
-      target.requestFullscreen();
+      target.requestFullscreen({navigationUI: "hide"});
     } else if(target.mozRequestFullScreen) {
-      target.mozRequestFullScreen();
+      target.mozRequestFullScreen({navigationUI: "hide"});
     } else if(target.webkitRequestFullscreen) {
-      target.webkitRequestFullscreen();
+      target.webkitRequestFullscreen({navigationUI: "hide"});
     } else if(target.msRequestFullscreen) {
-      target.msRequestFullscreen();
+      target.msRequestFullscreen({navigationUI: "hide"});
     } else {
       // iPhone - Use native fullscreen on video element only
       target.querySelector("video").webkitEnterFullScreen();
@@ -416,13 +416,12 @@ class PlayerControls {
           ControlsOut();
         }
       }), 2000);
-      /*
-      controls.addEventListener("mouseenter", ControlsIn);
-      controls.addEventListener("mouseleave", ControlsOut);
-      this.settingsMenu.addEventListener("mouseenter", ControlsIn);
-      this.settingsMenu.addEventListener("mouseleave", ControlsOut);
 
-       */
+      window.addEventListener("blur", () => { PlayerOut(); ControlsOut(); });
+
+      Array.from(this.target.querySelectorAll("button, input")).forEach(button => {
+        button.addEventListener("focus", () => { PlayerMove(); ControlsIn(); });
+      });
     }
   }
 
@@ -529,6 +528,14 @@ class PlayerControls {
   }
 
   SetQualityControls({GetLevels, SetLevel}) {
+    if(
+      this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT ||
+      this.playerOptions.controls === EluvioPlayerParameters.controls.OFF
+    ) {
+      // Controls disabled
+      return;
+    }
+
     this.InitializeSettingsButton();
 
     this.GetLevels = GetLevels;

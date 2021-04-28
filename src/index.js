@@ -120,6 +120,16 @@ class EluvioPlayer {
     this.Initialize(target, parameters);
   }
 
+  Log(message, error=false) {
+    if(error) {
+      // eslint-disable-next-line no-console
+      console.error("ELUVIO PLAYER:", message);
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn("ELUVIO PLAYER:", message);
+    }
+  }
+
   RegisterVisibilityCallback() {
     if(
       this.playerOptions.autoplay !== EluvioPlayerParameters.autoplay.WHEN_VISIBLE &&
@@ -243,7 +253,15 @@ class EluvioPlayer {
     }
   }
 
-  async HardReload(error) {
+  DetectRemoval() {
+    this.mutationTimeout = undefined;
+    if(!Array.from(document.querySelectorAll(".eluvio-player__video")).find(video => video === this.video)) {
+      this.DestroyPlayer();
+      this.mutationObserver.disconnect();
+    }
+  }
+
+  async HardReload(error, delay=6000) {
     if(this.playerOptions.restartCallback) {
       const abort = await this.playerOptions.restartCallback(error);
 
@@ -253,19 +271,11 @@ class EluvioPlayer {
       }
     }
 
-    await new Promise(resolve => setTimeout(resolve, 6000));
+    await new Promise(resolve => setTimeout(resolve, delay));
 
-    // eslint-disable-next-line no-console
-    console.warn("ELUVIO PLAYER: Retrying stream");
+    this.Log("Retrying stream");
 
     this.Initialize(this.target, this.originalParameters);
-  }
-
-  DetectRemoval() {
-    if(!Array.from(document.querySelectorAll(".eluvio-player__video")).find(video => video === this.video)) {
-      this.DestroyPlayer();
-      this.mutationObserver.disconnect();
-    }
   }
 
   async Initialize(target, parameters) {
@@ -319,7 +329,11 @@ class EluvioPlayer {
       this.video.setAttribute("playsinline", "playsinline");
 
       // Detect removal of video to ensure player is properly destroyed
-      this.mutationObserver = new MutationObserver(this.DetectRemoval);
+      this.mutationObserver = new MutationObserver(() => {
+        if(this.mutationTimeout) { return; }
+
+        this.mutationTimeout = setTimeout(this.DetectRemoval, 2000);
+      });
       this.mutationObserver.observe(document.body, {childList: true, subtree: true});
 
       const controlsPromise = this.PosterUrl().then(posterUrl => {
@@ -389,32 +403,35 @@ class EluvioPlayer {
         hlsPlayer.on(HLSPlayer.Events.ERROR, async (event, error) => {
           this.errors += 1;
 
-          // eslint-disable-next-line no-console
-          console.warn(`ELUVIO PLAYER: Encountered ${error.details}`);
-          // eslint-disable-next-line no-console
-          console.warn(error);
+          this.Log(`Encountered ${error.details}`);
+          this.Log(error);
 
           if(error.details === "bufferFullError") {
-            // eslint-disable-next-line no-console
-            console.warn("ELUVIO PLAYER: Buffer full error - Restarting player");
+            this.Log("Buffer full error - Restarting player", true);
             this.HardReload(error);
           }
 
-          if(error.fatal || this.errors === 3) {
-            // eslint-disable-next-line no-console
-            console.warn("ELUVIO PLAYER: Encountered error", error);
+          if(error.details === "bufferStalledError") {
+            const stallTime = this.video.currentTime;
 
+            setTimeout(() => {
+              if(!this.video.paused && this.video.currentTime === stallTime) {
+                this.Log("Buffer stalled error, no progress in 5 seconds - Restarting player", true);
+                this.HardReload(error, 1000);
+              }
+            }, 5000);
+          }
+
+          if(error.fatal || this.errors === 3) {
             const recentRecoveryAttempt = Date.now() - this.lastRecovery < 10 * 1000;
 
             if(!recentRecoveryAttempt && error.type === HLSPlayer.ErrorTypes.NETWORK_ERROR) {
-              // eslint-disable-next-line no-console
-              console.warn("ELUVIO PLAYER: Restarting from network error", error);
+              this.Log("Restarting from network error");
               this.lastRecovery = Date.now();
               hlsPlayer.startLoad();
               this.errors = 0;
             } else if(!recentRecoveryAttempt && error.type === HLSPlayer.ErrorTypes.MEDIA_ERROR) {
-              // eslint-disable-next-line no-console
-              console.warn("ELUVIO PLAYER: Recovering from media error", error);
+              this.Log("Recovering from media error");
               this.lastRecovery = Date.now();
               hlsPlayer.recoverMediaError();
               this.errors = 0;
