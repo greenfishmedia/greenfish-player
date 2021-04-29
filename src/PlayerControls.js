@@ -167,10 +167,15 @@ class PlayerControls {
       alt: "Play"
     });
 
-    this.video.addEventListener("play", () => this.FadeOut("big-play-button", [bigPlayButton]));
+    this.video.addEventListener("play", () => {
+      this.FadeOut("big-play-button", [bigPlayButton]);
+
+      // Prevent big play button from flashing
+      setTimeout(() => this.target.classList.remove("eluvio-player-restarted"), 1000);
+    });
     this.video.addEventListener("pause", () => this.FadeIn("big-play-button", [bigPlayButton]));
 
-    bigPlayButton.style.display = this.video.paused ? "block" : "none";
+    bigPlayButton.style.display = this.video.paused ? null : "none";
     bigPlayButton.addEventListener("click", () => this.video.play());
 
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF) {

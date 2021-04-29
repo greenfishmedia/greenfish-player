@@ -15,6 +15,12 @@ $focus-color: rgba(225, 225, 255, 0.7);
   position: relative;
   width: 100%;
 
+  &.eluvio-player-restarted {
+    .eluvio-player__big-play-button {
+      display: none;
+    }
+  }
+
   * {
     box-sizing: border-box;
     font-family: "Helvetica Neue", Helvetica, sans-serif;

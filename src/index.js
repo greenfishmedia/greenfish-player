@@ -130,6 +130,17 @@ class EluvioPlayer {
     }
   }
 
+  Destroy() {
+    this.__destroyed = true;
+
+    if(this.mutationObserver) {
+      this.mutationObserver.disconnect();
+    }
+
+    this.__DestroyPlayer();
+    this.target.innerHTML = "";
+  }
+
   RegisterVisibilityCallback() {
     if(
       this.playerOptions.autoplay !== EluvioPlayerParameters.autoplay.WHEN_VISIBLE &&
@@ -243,43 +254,63 @@ class EluvioPlayer {
     };
   }
 
-  DestroyPlayer() {
+  __DestroyPlayer() {
     if(!this.player) { return; }
+
+    this.Log("Destroying player");
 
     if(this.player.destroy) {
       this.player.destroy();
     } else if(this.player.reset) {
       this.player.reset();
     }
+
+    this.player = undefined;
   }
 
   DetectRemoval() {
     this.mutationTimeout = undefined;
     if(!Array.from(document.querySelectorAll(".eluvio-player__video")).find(video => video === this.video)) {
-      this.DestroyPlayer();
-      this.mutationObserver.disconnect();
+      this.Destroy();
     }
   }
 
   async HardReload(error, delay=6000) {
-    if(this.playerOptions.restartCallback) {
-      const abort = await this.playerOptions.restartCallback(error);
+    if(this.reloading) { return; }
 
-      if(abort && typeof abort === "boolean") {
-        this.DestroyPlayer();
-        return;
+    this.reloading = true;
+    try {
+      if(this.playerOptions.restartCallback) {
+        try {
+          const abort = await this.playerOptions.restartCallback(error);
+
+          if(abort && typeof abort === "boolean") {
+            this.Destroy();
+            return;
+          }
+        } catch (error) {
+          this.Log("Restart callback failed:");
+          this.Log(error);
+        }
       }
+
+      if(this.__destroyed) { return; }
+
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+      this.Log("Retrying stream");
+
+      this.restarted = true;
+      this.Initialize(this.target, this.originalParameters);
+    } finally {
+      this.reloading = false;
     }
-
-    await new Promise(resolve => setTimeout(resolve, delay));
-
-    this.Log("Retrying stream");
-
-    this.Initialize(this.target, this.originalParameters);
   }
 
   async Initialize(target, parameters) {
-    this.DestroyPlayer();
+    if(this.__destroyed) { return; }
+
+    this.__DestroyPlayer();
 
     this.originalParameters = MergeWith({}, parameters);
 
@@ -297,12 +328,16 @@ class EluvioPlayer {
     this.playerOptions = parameters.playerOptions;
 
     this.errors = 0;
-    this.lastRecovery = 0;
 
     try {
       const playoutOptionsPromise = this.PlayoutOptions();
 
       this.target.classList.add("eluvio-player");
+
+      if(this.restarted) {
+        // Prevent big play button from flashing on restart
+        this.target.classList.add("eluvio-player-restarted");
+      }
 
       if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
         this.target.classList.add("eluvio-player-autohide");
@@ -423,21 +458,7 @@ class EluvioPlayer {
           }
 
           if(error.fatal || this.errors === 3) {
-            const recentRecoveryAttempt = Date.now() - this.lastRecovery < 10 * 1000;
-
-            if(!recentRecoveryAttempt && error.type === HLSPlayer.ErrorTypes.NETWORK_ERROR) {
-              this.Log("Restarting from network error");
-              this.lastRecovery = Date.now();
-              hlsPlayer.startLoad();
-              this.errors = 0;
-            } else if(!recentRecoveryAttempt && error.type === HLSPlayer.ErrorTypes.MEDIA_ERROR) {
-              this.Log("Recovering from media error");
-              this.lastRecovery = Date.now();
-              hlsPlayer.recoverMediaError();
-              this.errors = 0;
-            } else {
-              this.HardReload(error);
-            }
+            this.HardReload(error);
           }
         });
 
