@@ -462,7 +462,7 @@ class EluvioPlayer {
           }
         });
 
-        this.player = HLSPlayer;
+        this.player = hlsPlayer;
       } else {
         const DashPlayer = (await import("dashjs")).default;
         dashPlayer = DashPlayer.MediaPlayer().create();
