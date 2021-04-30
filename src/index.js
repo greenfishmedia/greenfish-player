@@ -300,6 +300,12 @@ class EluvioPlayer {
 
       this.Log("Retrying stream");
 
+      // Recall config to get new nodes
+      const client = await this.Client();
+      if(client) {
+        await client.ResetRegion();
+      }
+
       this.restarted = true;
       this.Initialize(this.target, this.originalParameters);
     } finally {
