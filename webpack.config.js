@@ -27,6 +27,21 @@ if(process.env.TEST_PAGE) {
   );
 }
 
+if(process.env.EXAMPLE_PAGE) {
+  entry = "./examples/index.js";
+
+  plugins.push(
+    new HtmlWebpackPlugin({
+      title: "Eluvio Player Example",
+      template: Path.join(__dirname, "examples", "index.html"),
+      inject: "body",
+      cache: false,
+      filename: "index.html",
+      inlineSource: ".(js|css)$"
+    })
+  );
+}
+
 module.exports = {
   entry,
   target: "web",

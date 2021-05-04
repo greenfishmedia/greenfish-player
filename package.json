@@ -8,6 +8,7 @@
   "scripts": {
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
     "serve": "TEST_PAGE=true webpack-dev-server --hot --port 8088 --host=0.0.0.0 --disable-host-check --useLocalIp",
+    "serve-example": "EXAMPLE_PAGE=true webpack-dev-server --hot --port 8088 --host=0.0.0.0 --disable-host-check --useLocalIp",
     "build": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
     "build-analyze": "rm -rf dist/* && NODE_ENV=production ANALYZE_BUNDLE=true node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
     "build-test": " rm -rf test/dist/* && TEST_PAGE=true NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",

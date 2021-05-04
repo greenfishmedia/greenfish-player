@@ -113,7 +113,7 @@ const DefaultParameters = {
   }
 };
 
-class EluvioPlayer {
+export class EluvioPlayer {
   constructor(target, parameters) {
     this.DetectRemoval = this.DetectRemoval.bind(this);
 
