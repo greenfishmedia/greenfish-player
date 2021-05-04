@@ -8,18 +8,18 @@ const Initialize = async () => {
     configUrl: "https://demov3.net955210.contentfabric.io/config"
   });
 
-  const tenantId = "iten3HEEASRTo2rNLeeKw4cfq4sPuX6";
+  const tenantId = "iten4QaRLK2y5zwYoWSoY5MdMqKXeSCV";
 
   await client.RedeemCode({
     tenantId,
-    code: "wVFVYV8"
+    code: "WT4hQHt"
   });
 
-  const objectId = "iq__2AmSgrs62phyLTd3WF9anZrUD8QY";
+  const mainSiteId = "iq__2ceszcvMaRggH9pTLbsVGu5yhpE5";
 
   const availableOfferings = await client.AvailableOfferings({
-    objectId,
-    linkPath: "public/asset_metadata/offerings",
+    objectId: mainSiteId,
+    linkPath: "public/asset_metadata/tenants/fox/sites/fox-live/channels/default/offerings",
     directLink: true
   });
 

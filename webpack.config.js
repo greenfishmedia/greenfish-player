@@ -7,6 +7,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 let plugins = [];
 let entry = "./src/index.js";
+let path = Path.resolve(__dirname, "dist");
 
 if(process.env.ANALYZE_BUNDLE) {
   plugins.push(new BundleAnalyzerPlugin());
@@ -14,6 +15,7 @@ if(process.env.ANALYZE_BUNDLE) {
 
 if(process.env.TEST_PAGE) {
   entry = "./test/index.js";
+  path = Path.resolve(__dirname, "test", "dist");
 
   plugins.push(
     new HtmlWebpackPlugin({
@@ -29,6 +31,7 @@ if(process.env.TEST_PAGE) {
 
 if(process.env.EXAMPLE_PAGE) {
   entry = "./examples/index.js";
+  path = Path.resolve(__dirname, "examples", "dist");
 
   plugins.push(
     new HtmlWebpackPlugin({
@@ -46,7 +49,7 @@ module.exports = {
   entry,
   target: "web",
   output: {
-    path: process.env.TEST_PAGE ? Path.resolve(__dirname, "test", "dist") : Path.resolve(__dirname, "dist"),
+    path,
     filename: "index.js",
     chunkFilename: "[name].bundle.js"
   },

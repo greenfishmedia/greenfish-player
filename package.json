@@ -12,6 +12,7 @@
     "build": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
     "build-analyze": "rm -rf dist/* && NODE_ENV=production ANALYZE_BUNDLE=true node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
     "build-test": " rm -rf test/dist/* && TEST_PAGE=true NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
+    "build-example": " rm -rf examples/dist/* && EXAMPLE_PAGE=true NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
     "lint": "npm run fix-scss ; npm run lint-scss ; npm run fix-js",
     "lint-show": "npm run lint-scss ; npm run lint-js",
