@@ -19,12 +19,27 @@
     "fix-js": "npm run lint-js -- --fix",
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
   },
+  "pre-commit": {
+    "run": [
+      "build"
+    ]
+  },
+  "files": [
+    "/dist",
+    "/src",
+    "LICENSE",
+    "README.md",
+    "package.json",
+    "package-lock.json",
+    "webpack.config.js"
+  ],
   "dependencies": {
     "@eluvio/elv-client-js": "^3.1.50",
     "dashjs": "^3.2.1",
     "focus-visible": "^5.2.0",
     "hls-fix": "git+https://github.com/elv-peter/hls.js.git#prebuilt/multi-ext-x-map-init-1.0.1",
     "lodash": "^4.17.21",
+    "pre-commit": "^1.2.2",
     "urijs": "^1.19.6",
     "url-join": "^4.0.1"
   },
