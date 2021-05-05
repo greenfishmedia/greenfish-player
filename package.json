@@ -41,7 +41,6 @@
     "focus-visible": "^5.2.0",
     "hls-fix": "git+https://github.com/elv-peter/hls.js.git#prebuilt/multi-ext-x-map-init-1.0.1",
     "lodash": "^4.17.21",
-    "pre-commit": "^1.2.2",
     "urijs": "^1.19.6",
     "url-join": "^4.0.1"
   },
@@ -73,6 +72,7 @@
     "image-webpack-loader": "^4.6.0",
     "node-sass": "^4.13.1",
     "postcss-loader": "^3.0.0",
+    "pre-commit": "^1.2.2",
     "raw-loader": "^0.5.1",
     "regenerator-runtime": "^0.12.1",
     "sass-lint": "^1.12.1",
