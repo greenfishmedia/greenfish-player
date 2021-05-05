@@ -61,7 +61,10 @@ const DefaultParameters = {
   clientOptions: {
     network: EluvioPlayerParameters.networks.MAIN,
     client: undefined,
-    staticToken: undefined
+    staticToken: undefined,
+    tenantId: undefined,
+    ticketCode: undefined,
+    ticketSubject: undefined
   },
   sourceOptions: {
     protocols: [
@@ -190,11 +193,21 @@ export class EluvioPlayer {
           configUrl: this.clientOptions.network
         });
 
-        this.clientOptions.client.SetStaticToken({
-          token:
-            this.clientOptions.staticToken ||
-            this.clientOptions.client.utils.B64(JSON.stringify({qspace_id: await this.clientOptions.client.ContentSpaceId()}))
-        });
+        if(this.clientOptions.ticketCode) {
+          if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is specified."); }
+
+          await this.clientOptions.client.RedeemCode({
+            tenantId: this.clientOptions.tenantId,
+            code: this.clientOptions.ticketCode,
+            email: this.clientOptions.ticketSubject
+          });
+        } else {
+          this.clientOptions.client.SetStaticToken({
+            token:
+              this.clientOptions.staticToken ||
+              this.clientOptions.client.utils.B64(JSON.stringify({qspace_id: await this.clientOptions.client.ContentSpaceId()}))
+          });
+        }
 
         resolve();
       });
