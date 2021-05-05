@@ -15,11 +15,11 @@ const Initialize = async () => {
     code: "WT4hQHt"
   });
 
-  const mainSiteId = "iq__2ceszcvMaRggH9pTLbsVGu5yhpE5";
+  const siteId = "iq__AHq2NNDujj4M89xVFHTUGQMwgG8";
 
   const availableOfferings = await client.AvailableOfferings({
-    objectId: mainSiteId,
-    linkPath: "public/asset_metadata/tenants/fox/sites/fox-live/channels/default/offerings",
+    objectId: siteId,
+    linkPath: "public/asset_metadata/channels/default/offerings",
     directLink: true
   });
 
