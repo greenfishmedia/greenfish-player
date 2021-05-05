@@ -411,14 +411,14 @@ $border-color: #252525;
 
     &__ticket-modal {
       &__form {
-        width: 70%;
-        height: 70%;
+        max-width: 70%;
+        max-height: 70%;
 
         &__text,
         &__error-text,
         &__input,
         &__submit {
-          font-size: 12px;
+          //font-size: 12px;
           margin-bottom: 8px;
         }
 

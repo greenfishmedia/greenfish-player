@@ -608,7 +608,9 @@ class PlayerControls {
   }
 
   InitializeTicketPrompt(callback) {
-    this.bigPlayButton.parentNode.removeChild(this.bigPlayButton);
+    if(this.bigPlayButton) {
+      this.bigPlayButton.parentNode.removeChild(this.bigPlayButton);
+    }
 
     const ticketModal = CreateElement({
       parent: this.target,
