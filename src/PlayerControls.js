@@ -160,7 +160,7 @@ class PlayerControls {
     });
 
     // Big play icon
-    const bigPlayButton = CreateImageButton({
+    this.bigPlayButton = CreateImageButton({
       parent: this.target,
       svg: PlayCircleIcon,
       classes: ["eluvio-player__big-play-button"],
@@ -168,24 +168,23 @@ class PlayerControls {
     });
 
     this.video.addEventListener("play", () => {
-      this.FadeOut("big-play-button", [bigPlayButton]);
+      this.FadeOut("big-play-button", [this.bigPlayButton]);
 
       // Prevent big play button from flashing
       setTimeout(() => this.target.classList.remove("eluvio-player-restarted"), 1000);
     });
-    this.video.addEventListener("pause", () => this.FadeIn("big-play-button", [bigPlayButton]));
+    this.video.addEventListener("pause", () => this.FadeIn("big-play-button", [this.bigPlayButton]));
 
-    bigPlayButton.style.display = this.video.paused ? null : "none";
-    bigPlayButton.addEventListener("click", () => this.video.play());
+    this.bigPlayButton.style.display = this.video.paused ? null : "none";
+    this.bigPlayButton.addEventListener("click", () => this.video.play());
 
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
       return;
     }
 
     // Poster
-    let poster;
     if(this.posterUrl) {
-      poster = CreateElement({
+      this.poster = CreateElement({
         parent: this.target,
         type: "img",
         classes: ["eluvio-player__poster-image"],
@@ -195,7 +194,11 @@ class PlayerControls {
         }
       });
 
-      poster.addEventListener("click", () => this.video.play());
+      this.poster.addEventListener("click", () => this.video.play());
+      this.poster.addEventListener("error", () => {
+        this.poster.parentNode.removeChild(this.poster);
+        this.poster = undefined;
+      });
     }
 
     // Controls container
@@ -334,9 +337,9 @@ class PlayerControls {
     this.video.addEventListener("play", () => {
       this.played = true;
 
-      if(poster) {
-        poster.remove();
-        poster = undefined;
+      if(this.poster) {
+        this.poster.parentNode.removeChild(this.poster);
+        this.poster = undefined;
       }
 
       playPauseButton.innerHTML = PauseIcon;
@@ -602,6 +605,72 @@ class PlayerControls {
     if(firstItem) {
       firstItem.focus();
     }
+  }
+
+  InitializeTicketPrompt(callback) {
+    this.bigPlayButton.parentNode.removeChild(this.bigPlayButton);
+
+    const ticketModal = CreateElement({
+      parent: this.target,
+      type: "div",
+      classes: ["eluvio-player__ticket-modal"]
+    });
+
+    ticketModal.addEventListener("dblclick", event => event.stopPropagation());
+
+    const form = CreateElement({
+      parent: ticketModal,
+      type: "form",
+      classes: ["eluvio-player__ticket-modal__form"]
+    });
+
+    const text = CreateElement({
+      parent: form,
+      type: "div",
+      classes: ["eluvio-player__ticket-modal__form__text"]
+    });
+
+    text.innerHTML = "Enter your code";
+
+    const errorMessage = CreateElement({
+      parent: form,
+      type: "div",
+      classes: ["eluvio-player__ticket-modal__form__error-text"]
+    });
+
+    const input = CreateElement({
+      parent: form,
+      type: "input",
+      classes: ["eluvio-player__ticket-modal__form__input"]
+    });
+
+    const submit = CreateElement({
+      parent: form,
+      type: "button",
+      classes: ["eluvio-player__ticket-modal__form__submit"]
+    });
+
+    input.focus();
+
+    submit.innerHTML = "Submit";
+
+    submit.addEventListener("click", async event => {
+      try {
+        submit.setAttribute("disabled", true);
+        event.preventDefault();
+        errorMessage.innerHTML = "";
+
+        await callback(input.value);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("ELUVIO PLAYER: Invalid Code");
+        // eslint-disable-next-line no-console
+        console.error(error);
+
+        errorMessage.innerHTML = "Invalid Code";
+        submit.removeAttribute("disabled");
+      }
+    });
   }
 }
 

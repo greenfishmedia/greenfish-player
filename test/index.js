@@ -15,7 +15,6 @@ const Initialize = async () => {
   const staticToken = btoa(JSON.stringify({qspace_id: client.contentSpaceId}));
   client.SetStaticToken({token: staticToken});
 
-   */
 
   const tenantId = "iten3HEEASRTo2rNLeeKw4cfq4sPuX6";
 
@@ -40,16 +39,36 @@ const Initialize = async () => {
   const offeringId = Object.keys(availableOfferings)[0];
   const offeringURI = availableOfferings[offeringId].uri;
 
+  console.log(offeringURI);
+
+
+
+  const offeringURI = "/q/hq__2PhXXyC8eKD1pz3kKJtymktgErJAXBJsqQVfhTM9xMnFdDcihXyaXRV4tNNR9Y3yarz6HTJZ7W/rep/channel/ga/options.json?link_depth=1&resolve_ignore_errors=false";
+
+   */
+
+  //https://embed.v3.contentfabric.io/?net=main&p&ct=d&ttl=RXhhbXBsZSBGYWJyaWMgQWNjZXNzIENvZGUtYmFzZWQgTkZU&oid=&ten=/&tk=Q2h4b2dOSw==&sbj=
+
+  const tenantId = "iten3DGVgP9qhxHLUo4YVF6mm2uAjPij";
+  const ntpId = "QOTPYRdu569UHSk";
+  const objectId = "iq__DrHJFbT77taS4UqxqzPeRyjWkCJ";
+  const ticketSubject = "0001";
+
   window.player = new EluvioPlayer(
     document.getElementById("player-target"),
     {
       clientOptions: {
-        network: EluvioPlayerParameters.networks.DEMO,
-        client
+        //client,
+        network: EluvioPlayerParameters.networks.MAIN,
+        tenantId,
+        ntpId,
+        ticketSubject,
+        promptTicket: true
       },
       sourceOptions: {
+        drms: ["clear"],
         playoutParameters: {
-          offeringURI
+          objectId
         }
       },
       playerOptions: {

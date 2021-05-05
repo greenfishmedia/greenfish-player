@@ -3,6 +3,7 @@ $controls-color: rgba(0, 0, 0, 0.4);
 $button-color: #fff;
 $slider-color: #717171;
 $focus-color: rgba(225, 225, 255, 0.7);
+$border-color: #252525;
 
 .eluvio-player {
   align-items: center;
@@ -314,6 +315,83 @@ $focus-color: rgba(225, 225, 255, 0.7);
     }
   }
 
+  &__ticket-modal {
+    align-items: center;
+    background: $controls-color;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+
+    &__form {
+      align-items: center;
+      background: #121212;
+      border: 2px solid $border-color;
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 30px;
+      width: 300px;
+
+      &__text,
+      &__error-text,
+      &__input {
+        margin-bottom: 10px;
+      }
+
+      &__text {
+        color: #ffffff;
+        font-size: 16px;
+        letter-spacing: 0.08em;
+      }
+
+      &__error-text {
+        color: #ff0000;
+
+        &:empty {
+          display: none;
+        }
+      }
+
+      &__input {
+        background: #ffffff;
+        border: 0;
+        border-radius: 3px;
+        font-size: 18px;
+        font-weight: bold;
+        min-height: 35px;
+        //height: 2.2em;
+        letter-spacing: 0.16em;
+        padding: 0 10px;
+        text-align: center;
+        width: 100%;
+      }
+
+      &__submit {
+        border-radius: 3px;
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        padding: 10px 20px;
+
+        &:disabled {
+          color: $slider-color;
+        }
+      }
+
+      button {
+        &.eluvio-player__ticket-modal__form__submit {
+          // Higher specificity
+          background: $border-color;
+          margin: 0;
+        }
+      }
+    }
+  }
+
   @media only screen and (max-device-width: 900px) {
     &__watermark {
       height: 10px;
@@ -324,15 +402,34 @@ $focus-color: rgba(225, 225, 255, 0.7);
       &__volume-slider {
         display: none !important;
       }
-
-      &__multiview-options {
-        background-color: rgba(0, 0, 0, 0.7);
-      }
     }
 
     &__big-play-button {
       height: 25%;
       width: 25%;
+    }
+
+    &__ticket-modal {
+      &__form {
+        width: 70%;
+        height: 70%;
+
+        &__text,
+        &__error-text,
+        &__input,
+        &__submit {
+          font-size: 12px;
+          margin-bottom: 8px;
+        }
+
+        &__input {
+          min-height: 30px;
+        }
+
+        &__submit {
+          padding: 5px 20px;
+        }
+      }
     }
   }
 }
