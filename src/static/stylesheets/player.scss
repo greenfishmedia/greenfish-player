@@ -117,6 +117,7 @@ $border-color: #252525;
     position: absolute;
     top: 15px;
     width: auto;
+    z-index: 10;
 
     svg {
       height: 100%;
@@ -392,7 +393,7 @@ $border-color: #252525;
     }
   }
 
-  @media only screen and (max-device-width: 900px) {
+  @media screen and (max-width: 900px) {
     &__watermark {
       height: 10px;
       top: 5px;
@@ -405,8 +406,8 @@ $border-color: #252525;
     }
 
     &__big-play-button {
-      height: 25%;
-      width: 25%;
+      height: 35%;
+      width: 35%;
     }
 
     &__ticket-modal {
@@ -418,7 +419,6 @@ $border-color: #252525;
         &__error-text,
         &__input,
         &__submit {
-          //font-size: 12px;
           margin-bottom: 8px;
         }
 
@@ -429,6 +429,26 @@ $border-color: #252525;
         &__submit {
           padding: 5px 20px;
         }
+      }
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    &__controls {
+      padding: 5px;
+
+      &__button {
+        min-width: 10px;
+        min-height: 10px;
+        padding: 0 10px;
+      }
+
+      &__button-pause {
+        padding: 0 13px 0 12px;
+      }
+
+      &__time {
+        display: none;
       }
     }
   }
