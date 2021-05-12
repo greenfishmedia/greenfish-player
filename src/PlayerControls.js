@@ -1,5 +1,3 @@
-// TODO: Stop autohide when tabbing
-
 import PlayCircleIcon from "./static/icons/play circle.svg";
 
 import PlayIcon from "./static/icons/play.svg";
@@ -12,7 +10,7 @@ import VolumeLowIcon from "./static/icons/unmuted.svg";
 import VolumeHighIcon from "./static/icons/unmuted.svg";
 import MultiViewIcon from "./static/icons/multiview.svg";
 
-import LogoSVG from "./static/images/ELUVIO white.svg";
+import LogoSVG from "./static/images/ELUV.IO logo embed player.svg";
 
 import {EluvioPlayerParameters} from "./index";
 
