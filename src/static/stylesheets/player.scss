@@ -94,11 +94,12 @@ $border-color: #252525;
     cursor: pointer;
     height: 100%;
     left: 0;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
     position: absolute;
     top: 0;
     width: 100%;
+    background: black;
   }
 
   &__video {
