@@ -119,16 +119,6 @@ $border-color: #252525;
     top: 15px;
     width: auto;
     z-index: 10;
-
-    svg {
-      height: 100%;
-      width: auto;
-
-      * {
-        fill: $button-color;
-        stroke: $button-color;
-      }
-    }
   }
 
   &__controls {
@@ -397,7 +387,7 @@ $border-color: #252525;
   @media screen and (max-width: 900px) {
     &__watermark {
       height: 10px;
-      top: 5px;
+      top: 10px;
     }
 
     &__controls {

@@ -10,7 +10,7 @@ import VolumeLowIcon from "./static/icons/unmuted.svg";
 import VolumeHighIcon from "./static/icons/unmuted.svg";
 import MultiViewIcon from "./static/icons/multiview.svg";
 
-import LogoSVG from "./static/images/ELUV.IO logo embed player.svg";
+import Logo from "./static/images/ELUV.IO logo embed player.png";
 
 import {EluvioPlayerParameters} from "./index";
 
@@ -132,11 +132,11 @@ class PlayerControls {
       // Watermark
       const watermark = CreateElement({
         parent: this.target,
-        type: "div",
+        type: "img",
         classes: ["eluvio-player__watermark"]
       });
 
-      watermark.innerHTML = LogoSVG;
+      watermark.src = Logo;
     }
 
     if(
