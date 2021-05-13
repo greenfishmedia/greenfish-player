@@ -381,7 +381,7 @@ class PlayerControls {
       };
 
       const PlayerMove = () => {
-        if(!this.played || this.controlsHover) { return; }
+        if(this.controlsHover) { return; }
 
         this.FadeIn("controls", [controls, this.settingsMenu]);
         this.FadeOut("controls", [controls, this.settingsMenu], 3000, () => this.target.style.cursor = "none");
@@ -395,6 +395,10 @@ class PlayerControls {
       };
 
       const ControlsOut = () => this.controlsHover = false;
+
+      // Play / Pause
+      this.video.addEventListener("play", () => PlayerMove);
+      this.video.addEventListener("pause", () => PlayerMove);
 
       // Mouse events
       this.target.addEventListener("mousemove", PlayerMove);
