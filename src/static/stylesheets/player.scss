@@ -91,6 +91,7 @@ $border-color: #252525;
   }
 
   &__poster-image {
+    background: #000000;
     cursor: pointer;
     height: 100%;
     left: 0;
@@ -99,7 +100,6 @@ $border-color: #252525;
     position: absolute;
     top: 0;
     width: 100%;
-    background: black;
   }
 
   &__video {
@@ -334,13 +334,14 @@ $border-color: #252525;
       }
 
       &__text {
-        color: #ffffff;
-        font-size: 16px;
-        letter-spacing: 0.08em;
+        color: #fff;
+        font-size: 20px;
+        font-weight: 300;
+        letter-spacing: 0.05em;
       }
 
       &__error-text {
-        color: #ff0000;
+        color: #f00;
 
         &:empty {
           display: none;
@@ -348,14 +349,14 @@ $border-color: #252525;
       }
 
       &__input {
-        background: #ffffff;
+        background: #fff;
         border: 0;
         border-radius: 3px;
         font-size: 18px;
         font-weight: bold;
-        min-height: 35px;
-        //height: 2.2em;
         letter-spacing: 0.16em;
+        margin: 5px 0 15px;
+        min-height: 40px;
         padding: 0 10px;
         text-align: center;
         width: 100%;
@@ -363,11 +364,13 @@ $border-color: #252525;
 
       &__submit {
         border-radius: 3px;
-        color: #ffffff;
+        color: #fff;
         font-size: 16px;
         font-weight: 500;
+        height: 40px;
         letter-spacing: 0.1em;
-        padding: 10px 20px;
+        text-transform: uppercase;
+        width: 100%;
 
         &:disabled {
           color: $slider-color;
@@ -398,28 +401,15 @@ $border-color: #252525;
 
     &__big-play-button {
       height: 35%;
+      max-height: 150px;
+      max-width: 150px;
       width: 35%;
     }
 
     &__ticket-modal {
       &__form {
-        max-width: 70%;
         max-height: 70%;
-
-        &__text,
-        &__error-text,
-        &__input,
-        &__submit {
-          margin-bottom: 8px;
-        }
-
-        &__input {
-          min-height: 30px;
-        }
-
-        &__submit {
-          padding: 5px 20px;
-        }
+        max-width: 70%;
       }
     }
   }
@@ -429,8 +419,8 @@ $border-color: #252525;
       padding: 5px;
 
       &__button {
-        min-width: 10px;
         min-height: 10px;
+        min-width: 10px;
         padding: 0 10px;
       }
 
