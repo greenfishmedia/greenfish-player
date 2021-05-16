@@ -628,6 +628,12 @@ class PlayerControls {
       classes: ["eluvio-player__ticket-modal__form"]
     });
 
+    const errorMessage = CreateElement({
+      parent: form,
+      type: "div",
+      classes: ["eluvio-player__ticket-modal__form__error-text", "eluvio-player__ticket-modal__form__text"]
+    });
+
     const text = CreateElement({
       parent: form,
       type: "div",
@@ -635,12 +641,6 @@ class PlayerControls {
     });
 
     text.innerHTML = "Enter your code";
-
-    const errorMessage = CreateElement({
-      parent: form,
-      type: "div",
-      classes: ["eluvio-player__ticket-modal__form__error-text"]
-    });
 
     const input = CreateElement({
       parent: form,

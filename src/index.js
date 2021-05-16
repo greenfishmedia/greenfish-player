@@ -210,11 +210,18 @@ export class EluvioPlayer {
     if(!this.clientOptions.ticketInitialized && this.clientOptions.ticketCode) {
       if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is specified."); }
 
+      let code = this.clientOptions.ticketCode;
+      let subject = this.clientOptions.ticketSubject;
+      if(code.includes(":")) {
+        subject = code.split(":")[0];
+        code = code.split(":")[1];
+      }
+
       await this.clientOptions.client.RedeemCode({
         tenantId: this.clientOptions.tenantId,
         ntpId: this.clientOptions.ntpId,
-        code: this.clientOptions.ticketCode,
-        email: this.clientOptions.ticketSubject
+        code,
+        email: subject
       });
 
       this.ticketInitialized = true;
@@ -405,11 +412,18 @@ export class EluvioPlayer {
 
         controlsPromise.then(() =>
           this.controls.InitializeTicketPrompt(async (code) => {
+            code = (code || "").trim();
+            let subject = this.clientOptions.ticketSubject;
+            if(code.includes(":")) {
+              subject = code.split(":")[0];
+              code = code.split(":")[1];
+            }
+
             await this.clientOptions.client.RedeemCode({
               tenantId: this.clientOptions.tenantId,
               ntpId: this.clientOptions.ntpId,
-              code: (code || "").trim(),
-              email: this.clientOptions.ticketSubject
+              code,
+              email: subject
             });
 
             this.ticketInitialized = true;

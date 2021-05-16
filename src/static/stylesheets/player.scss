@@ -91,7 +91,7 @@ $border-color: #252525;
   }
 
   &__poster-image {
-    background: #000000;
+    background: #000;
     cursor: pointer;
     height: 100%;
     left: 0;
@@ -342,6 +342,7 @@ $border-color: #252525;
 
       &__error-text {
         color: #f00;
+        font-size: 16px;
 
         &:empty {
           display: none;
