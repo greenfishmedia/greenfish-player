@@ -120,6 +120,8 @@ const DefaultParameters = {
 
 export class EluvioPlayer {
   constructor(target, parameters) {
+    this.warnings = false;
+
     this.DetectRemoval = this.DetectRemoval.bind(this);
 
     this.Initialize(target, parameters);
@@ -130,8 +132,10 @@ export class EluvioPlayer {
       // eslint-disable-next-line no-console
       console.error("ELUVIO PLAYER:", message);
     } else {
-      // eslint-disable-next-line no-console
-      console.warn("ELUVIO PLAYER:", message);
+      if(this.warnings) {
+        // eslint-disable-next-line no-console
+        //console.warn("ELUVIO PLAYER:", message);
+      }
     }
   }
 
@@ -445,7 +449,7 @@ export class EluvioPlayer {
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
 
-      const HLSPlayer = (await import("hls-fix")).default;
+      const HLSPlayer = (await import("hls.js")).default;
 
       let hlsPlayer, dashPlayer;
       if(drm === "fairplay") {

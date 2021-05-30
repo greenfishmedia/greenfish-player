@@ -39,7 +39,7 @@
     "@eluvio/elv-client-js": "^3.1.50",
     "dashjs": "^3.2.1",
     "focus-visible": "^5.2.0",
-    "hls-fix": "git+https://github.com/elv-peter/hls.js.git#prebuilt/multi-ext-x-map-init-1.0.1",
+    "hls.js": "^1.0.4",
     "lodash": "^4.17.21",
     "urijs": "^1.19.6",
     "url-join": "^4.0.1"
