@@ -121,6 +121,7 @@ const DefaultParameters = {
 export class EluvioPlayer {
   constructor(target, parameters) {
     this.warnings = false;
+    this.reloads = [];
 
     this.DetectRemoval = this.DetectRemoval.bind(this);
 
@@ -308,6 +309,17 @@ export class EluvioPlayer {
     if(this.reloading) { return; }
 
     this.reloading = true;
+
+    /*
+    if(this.reloads.filter(reload => Date.now() - reload < 60 * 1000).length > 3) {
+      this.Log("Too many reloads, destroying player", true);
+      this.Destroy();
+      return;
+    }
+
+    this.reloads.push(Date.now());
+
+     */
     try {
       if(this.playerOptions.restartCallback) {
         try {
@@ -449,7 +461,8 @@ export class EluvioPlayer {
       playoutUrl = URI(playoutUrl);
       const authorizationToken = playoutUrl.query(true).authorization;
 
-      const HLSPlayer = (await import("hls.js")).default;
+      //const HLSPlayer = (await import("hls.js")).default;
+      const HLSPlayer = (await import("hls-fix")).default;
 
       let hlsPlayer, dashPlayer;
       if(drm === "fairplay") {
