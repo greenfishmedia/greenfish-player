@@ -131,6 +131,7 @@ $border-color: #252525;
     position: absolute;
     transition: opacity 0.25s linear;
     width: 100%;
+    z-index: 10;
 
     &__button {
       -webkit-tap-highlight-color: transparent;
@@ -258,9 +259,9 @@ $border-color: #252525;
   }
 
   &__big-play-button {
-    height: 15%;
+    height: 100px;
     position: absolute;
-    width: 15%;
+    width: 100px;
     z-index: 10;
 
     svg {
@@ -388,6 +389,57 @@ $border-color: #252525;
     }
   }
 
+  &__hotspot-overlay {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 5;
+
+    &__target {
+      align-items: center;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      transition: background-color 0.3s;
+
+      &__title {
+        color: #fff;
+        display: none;
+        font-size: 24px;
+        font-weight: 300;
+        letter-spacing: 0.08em;
+        transition: letter-spacing 5s;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+
+        .eluvio-player__hotspot-overlay__target__title {
+          display: block;
+          text-shadow: 1px 1px #808080;
+        }
+      }
+
+      &-switching {
+        animation: hotspot-select 1s ease-out;
+      }
+    }
+
+    &-visible {
+      .eluvio-player__hotspot-overlay__target {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .eluvio-player__hotspot-overlay__target__title {
+        display: block;
+        text-shadow: 1px 1px #808080;
+      }
+    }
+  }
+
   @media screen and (max-width: 900px) {
     &__watermark {
       height: 10px;
@@ -402,8 +454,8 @@ $border-color: #252525;
 
     &__big-play-button {
       height: 35%;
-      max-height: 150px;
-      max-width: 150px;
+      max-height: 75px;
+      max-width: 75px;
       width: 35%;
     }
 
@@ -433,6 +485,23 @@ $border-color: #252525;
         display: none;
       }
     }
+  }
+}
+
+@keyframes hotspot-select {
+  0% {
+    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 1;
+  }
+
+  50% {
+    background-color: rgba(255, 255, 255, 0.4);
+    opacity: 0.7;
+  }
+
+  100% {
+    background-color: rgba(255, 255, 255, 0);
+    opacity: 0;
   }
 }
 

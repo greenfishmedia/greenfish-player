@@ -576,7 +576,8 @@ class PlayerControls {
     this.settingsMenuContent = "multiview";
     this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");
 
-    (await AvailableViews()).map(({view, view_display_label, currently_selected}, i) => {
+    const views = await AvailableViews();
+    views.map(({view, view_display_label, currently_selected, hot_spots}, i) => {
       const selection = CreateElement({
         parent: this.settingsMenu,
         type: "button",
@@ -585,10 +586,21 @@ class PlayerControls {
 
       selection.innerHTML = view_display_label;
 
+      if(hot_spots) {
+        hot_spots = hot_spots.map(spot => ({
+          ...spot,
+          target: views.find(view => view.view === spot.next_view)
+        }));
+      }
+
       selection.addEventListener("click", () => {
         this.HideSettingsMenu();
 
         SwitchView(view);
+
+        if(hot_spots) {
+          setTimeout(() => this.InitializeMultiviewHotspots(hot_spots, SwitchView), 3000);
+        }
 
         // Make button spin to show something is happening
         clearTimeout(this.timeouts["spin"]);
@@ -607,6 +619,49 @@ class PlayerControls {
     if(firstItem) {
       firstItem.focus();
     }
+  }
+
+  InitializeMultiviewHotspots(hotSpots, SwitchView) {
+    this.hotspotOverlay = CreateElement({
+      parent: this.target,
+      type: "div",
+      classes: ["eluvio-player__hotspot-overlay"]
+    });
+
+    hotSpots.forEach(({top, right, bottom, left, target, next_view}) => {
+      const spot = CreateElement({
+        parent: this.hotspotOverlay,
+        type: "div",
+        classes: ["eluvio-player__hotspot-overlay__target"]
+      });
+
+      const title = CreateElement({
+        parent: spot,
+        type: "h2",
+        classes: ["eluvio-player__hotspot-overlay__target__title"]
+      });
+
+      title.innerHTML = target.view_display_label;
+
+      spot.style.top = `${top * 100}%`;
+      spot.style.right = `${(1-right) * 100}%`;
+      spot.style.bottom = `${(1-bottom) * 100}%`;
+      spot.style.left = `${left * 100}%`;
+
+      spot.addEventListener("click", async () => {
+        // On mobile devices, first touch should show the options
+        if("ontouchstart" in window && !this.hotspotOverlay.classList.contains("eluvio-player__hotspot-overlay-visible")) {
+          this.hotspotOverlay.classList.add("eluvio-player__hotspot-overlay-visible");
+          setTimeout(() => this.hotspotOverlay.classList.remove("eluvio-player__hotspot-overlay-visible"), 3000);
+          return;
+        }
+
+        this.hotspotOverlay.classList.remove("eluvio-player__hotspot-overlay-visible");
+        spot.classList.add("eluvio-player__hotspot-overlay__target-switching");
+        setTimeout(() => this.hotspotOverlay.parentNode.removeChild(this.hotspotOverlay), 1000);
+        await SwitchView(next_view);
+      });
+    });
   }
 
   InitializeTicketPrompt(callback) {

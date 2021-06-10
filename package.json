@@ -36,11 +36,11 @@
     "webpack.config.js"
   ],
   "dependencies": {
-    "@eluvio/elv-client-js": "^3.1.50",
+    "@eluvio/elv-client-js": "^3.1.52",
     "dashjs": "^3.2.1",
     "focus-visible": "^5.2.0",
-    "hls.js": "^1.0.4",
     "hls-fix": "git@github.com:elv-peter/hls.js.git#prebuilt/bugfix/live-init-cache",
+    "hls.js": "^1.0.4",
     "lodash": "^4.17.21",
     "urijs": "^1.19.6",
     "url-join": "^4.0.1"
