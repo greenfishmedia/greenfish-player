@@ -147,6 +147,10 @@ export class EluvioPlayer {
       this.mutationObserver.disconnect();
     }
 
+    if(this.resizeObserver) {
+      this.resizeObserver.unobserve(this.target);
+    }
+
     this.__DestroyPlayer();
     this.target.innerHTML = "";
   }
@@ -417,6 +421,17 @@ export class EluvioPlayer {
         this.mutationTimeout = setTimeout(this.DetectRemoval, 2000);
       });
       this.mutationObserver.observe(document.body, {childList: true, subtree: true});
+
+      this.resizeObserver = new ResizeObserver(entries => {
+        if(this.__destroyed) { return; }
+
+        const dimensions = entries[0].contentRect;
+
+        if(this.controls) {
+          this.controls.HandleResize(dimensions);
+        }
+      });
+      this.resizeObserver.observe(this.target);
 
       const controlsPromise = this.PosterUrl().then(posterUrl => {
         this.posterUrl = posterUrl;

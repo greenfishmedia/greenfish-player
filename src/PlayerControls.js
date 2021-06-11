@@ -596,6 +596,11 @@ class PlayerControls {
       selection.addEventListener("click", () => {
         this.HideSettingsMenu();
 
+        if(this.hotspotOverlay) {
+          this.hotspotOverlay.parentNode.removeChild(this.hotspotOverlay);
+          this.hotspotOverlay = undefined;
+        }
+
         SwitchView(view);
 
         if(hot_spots) {
@@ -628,6 +633,8 @@ class PlayerControls {
       classes: ["eluvio-player__hotspot-overlay"]
     });
 
+    this.HandleResize(this.target.getBoundingClientRect());
+
     hotSpots.forEach(({top, right, bottom, left, target, next_view}) => {
       const spot = CreateElement({
         parent: this.hotspotOverlay,
@@ -658,7 +665,11 @@ class PlayerControls {
 
         this.hotspotOverlay.classList.remove("eluvio-player__hotspot-overlay-visible");
         spot.classList.add("eluvio-player__hotspot-overlay__target-switching");
-        setTimeout(() => this.hotspotOverlay.parentNode.removeChild(this.hotspotOverlay), 1000);
+        setTimeout(() => {
+          this.hotspotOverlay.parentNode.removeChild(this.hotspotOverlay);
+          this.hotspotOverlay = undefined;
+        }, 1000);
+
         await SwitchView(next_view);
       });
     });
@@ -730,6 +741,30 @@ class PlayerControls {
         submit.removeAttribute("disabled");
       }
     });
+  }
+
+  HandleResize({width, height}) {
+    const ratio = width / height;
+    const targetRatio = 16 / 9;
+
+    if(this.hotspotOverlay) {
+      let top = 0, right = 0, bottom = 0, left = 0;
+      if(Math.abs(ratio - targetRatio) > 0.05) {
+        if(ratio < 16 / 9) {
+          // Taller
+          const heightDiff = Math.floor((height - (width * 9 / 16)) / 2);
+          top = heightDiff;
+          bottom = heightDiff;
+        } else if(ratio > 16 / 9) {
+          // Wider
+          const widthDiff = Math.floor((width - (height * 16 / 9)) / 2);
+          left = widthDiff;
+          right = widthDiff;
+        }
+      }
+
+      this.hotspotOverlay.style.inset = `${top}px ${right}px ${bottom}px ${left}px`;
+    }
   }
 }
 
