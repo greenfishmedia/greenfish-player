@@ -42,6 +42,7 @@
     "hls-fix": "git@github.com:elv-peter/hls.js.git#prebuilt/bugfix/live-init-cache",
     "hls.js": "^1.0.4",
     "lodash": "^4.17.21",
+    "resize-observer-polyfill": "^1.5.1",
     "urijs": "^1.19.6",
     "url-join": "^4.0.1"
   },

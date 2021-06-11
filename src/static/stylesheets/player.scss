@@ -390,7 +390,11 @@ $border-color: #252525;
   }
 
   &__hotspot-overlay {
+    bottom: 0;
+    left: 0;
     position: absolute;
+    right: 0;
+    top: 0;
     z-index: 5;
 
     &__target {
@@ -461,6 +465,14 @@ $border-color: #252525;
         max-width: 70%;
       }
     }
+
+    &__hotspot-overlay {
+      &__target {
+        &__title {
+          font-size: 16px;
+        }
+      }
+    }
   }
 
   @media screen and (max-width: 600px) {
@@ -479,6 +491,14 @@ $border-color: #252525;
 
       &__time {
         display: none;
+      }
+    }
+
+    &__hotspot-overlay {
+      &__target {
+        &__title {
+          font-size: 14px;
+        }
       }
     }
   }

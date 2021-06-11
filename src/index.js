@@ -6,6 +6,7 @@ import MergeWith from "lodash/mergeWith";
 import Clone from "lodash/cloneDeep";
 
 import URI from "urijs";
+import ResizeObserver from "resize-observer-polyfill";
 
 import {InitializeFairPlayStream} from "./FairPlay";
 import PlayerControls, {CreateElement} from "./PlayerControls";
