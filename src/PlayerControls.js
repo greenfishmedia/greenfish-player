@@ -763,7 +763,10 @@ class PlayerControls {
         }
       }
 
-      this.hotspotOverlay.style.inset = `${top}px ${right}px ${bottom}px ${left}px`;
+      this.hotspotOverlay.style.top = `${top}px`;
+      this.hotspotOverlay.style.right = `${right}px`;
+      this.hotspotOverlay.style.bottom = `${bottom}px`;
+      this.hotspotOverlay.style.left = `${left}px`;
     }
   }
 }
