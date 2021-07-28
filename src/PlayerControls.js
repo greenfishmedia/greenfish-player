@@ -10,7 +10,7 @@ import VolumeLowIcon from "./static/icons/unmuted.svg";
 import VolumeHighIcon from "./static/icons/unmuted.svg";
 import MultiViewIcon from "./static/icons/multiview.svg";
 
-import Logo from "./static/images/ELUV.IO logo embed player.png";
+import Logo from "./static/images/ELUV.IO white 20 px V2.png";
 
 import {EluvioPlayerParameters} from "./index";
 

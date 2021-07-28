@@ -259,12 +259,40 @@ export class EluvioPlayer {
 
   async PlayoutOptions() {
     const client = await this.Client();
-    if(!this.sourceOptions.playoutOptions) {
-      this.sourceOptions.playoutOptions = await client.PlayoutOptions({
-        ...this.sourceOptions.playoutParameters
+
+    let offeringURI;
+    if(this.sourceOptions.playoutParameters.directLink) {
+      const availableOfferings = await client.AvailableOfferings({
+        objectId: this.sourceOptions.playoutParameters.objectId,
+        versionHash: this.sourceOptions.playoutParameters.versionHash,
+        writeToken: this.sourceOptions.playoutParameters.writeToken,
+        linkPath: this.sourceOptions.playoutParameters.linkPath,
+        directLink: true,
+        resolveIncludeSource: true,
+        authorizationToken: this.sourceOptions.playoutParameters.authorizationToken
       });
 
-      window.playoutOptions = this.sourceOptions.playoutOptions;
+      const offeringId = Object.keys(availableOfferings || {})[0];
+
+      if(!offeringId) { return; }
+
+      offeringURI = availableOfferings[offeringId].uri;
+
+      if(!this.sourceOptions.playoutOptions) {
+        this.sourceOptions.playoutOptions = await client.PlayoutOptions({
+          offeringURI
+        });
+
+        window.playoutOptions = this.sourceOptions.playoutOptions;
+      }
+    } else {
+      if(!this.sourceOptions.playoutOptions) {
+        this.sourceOptions.playoutOptions = await client.PlayoutOptions({
+          ...this.sourceOptions.playoutParameters
+        });
+
+        window.playoutOptions = this.sourceOptions.playoutOptions;
+      }
     }
 
     let availableDRMs = (await client.AvailableDRMs()).filter(drm => (this.sourceOptions.drms || []).includes(drm));
@@ -280,6 +308,7 @@ export class EluvioPlayer {
       playoutUrl,
       drms,
       availableDRMs,
+      offeringURI,
       sessionId: this.sourceOptions.playoutOptions.sessionId,
       multiviewOptions: {
         enabled: this.sourceOptions.playoutOptions.multiview,

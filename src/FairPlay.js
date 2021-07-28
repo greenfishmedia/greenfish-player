@@ -203,6 +203,11 @@ export function InitializeFairPlayStream({playoutOptions, video}) {
     console.log("Error initializing FairPlay video:");
     // eslint-disable-next-line no-console
     console.log(error);
+
+    // eslint-disable-next-line no-console
+    console.log("Certificate:", cert);
+    // eslint-disable-next-line no-console
+    console.log("License URLs:", licenseURLs);
     video.src = "";
   });
 
