@@ -563,6 +563,19 @@ class PlayerControls {
     });
 
     this.multiviewButton.addEventListener("click", () => this.ToggleMultiviewControls({AvailableViews, SwitchView}));
+
+    AvailableViews().then(views => {
+      const currentView = views.find(view => view.currently_selected);
+
+      if(currentView.hot_spots) {
+        const hot_spots = currentView.hot_spots.map(spot => ({
+          ...spot,
+          target: views.find(view => view.view === spot.next_view)
+        }));
+
+        this.InitializeMultiviewHotspots(hot_spots, SwitchView);
+      }
+    });
   }
 
   async ToggleMultiviewControls({AvailableViews, SwitchView}={}) {
