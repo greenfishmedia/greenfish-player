@@ -504,7 +504,9 @@ export class EluvioPlayer {
       multiviewOptions.target = this.target;
 
       playoutUrl = URI(playoutUrl);
-      const authorizationToken = playoutUrl.query(true).authorization;
+      const authorizationToken =
+        this.sourceOptions.playoutParameters.authorizationToken ||
+        playoutUrl.query(true).authorization;
 
       //const HLSPlayer = (await import("hls.js")).default;
       const HLSPlayer = (await import("hls-fix")).default;
