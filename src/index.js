@@ -462,11 +462,11 @@ export class EluvioPlayer {
         }
 
         // Use actual player size instead of media queries
-        if(dimensions.width > 900) {
+        if(dimensions.width > 750) {
           this.target.classList.add("eluvio-player-l");
           this.target.classList.remove("eluvio-player-m");
           this.target.classList.remove("eluvio-player-s");
-        } else if(dimensions.width > 600) {
+        } else if(dimensions.width > 500) {
           this.target.classList.add("eluvio-player-m");
           this.target.classList.remove("eluvio-player-l");
           this.target.classList.remove("eluvio-player-s");
