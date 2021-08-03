@@ -440,63 +440,64 @@ $border-color: #252525;
     }
   }
 
-  @media screen and (max-width: 900px) {
-    &__watermark {
+  &.eluvio-player-m,
+  &.eluvio-player-s {
+    .eluvio-player__watermark {
       height: 10px;
       top: 10px;
     }
 
-    &__controls {
-      &__volume-slider {
+    .eluvio-player__controls {
+      .eluvio-player__controls__volume-slider {
         display: none !important;
       }
     }
 
-    &__big-play-button {
+    .eluvio-player__big-play-button {
       height: 35%;
       max-height: 75px;
       max-width: 75px;
       width: 35%;
     }
 
-    &__ticket-modal {
-      &__form {
+    .eluvio-player__ticket-modal {
+      .eluvio-player___ticket-modal__form {
         max-height: 70%;
         max-width: 70%;
       }
     }
 
-    &__hotspot-overlay {
-      &__target {
-        &__title {
+    .eluvio-player__hotspot-overlay {
+      .eluvio-player__hotspot-overlay__target {
+        .eluvio-player__hotspot-overlay__target__title {
           font-size: 16px;
         }
       }
     }
   }
 
-  @media screen and (max-width: 600px) {
-    &__controls {
+  &.eluvio-player-s {
+    .eluvio-player__controls {
       padding: 5px;
 
-      &__button {
+      .eluvio-player__controls__button {
         min-height: 10px;
         min-width: 10px;
         padding: 0 10px;
       }
 
-      &__button-pause {
+      .eluvio-player__controls__button-pause {
         padding: 0 13px 0 12px;
       }
 
-      &__time {
+      .eluvio-player__controls__time {
         display: none;
       }
     }
 
-    &__hotspot-overlay {
-      &__target {
-        &__title {
+    .eluvio-player__hotspot-overlay {
+      .eluvio-player__hotspot-overlay__target {
+        .eluvio-player__hotspot-overlay__target__title {
           font-size: 14px;
         }
       }

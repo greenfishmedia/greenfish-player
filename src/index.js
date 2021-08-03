@@ -460,6 +460,21 @@ export class EluvioPlayer {
         if(this.controls) {
           this.controls.HandleResize(dimensions);
         }
+
+        // Use actual player size instead of media queries
+        if(dimensions.width > 900) {
+          this.target.classList.add("eluvio-player-l");
+          this.target.classList.remove("eluvio-player-m");
+          this.target.classList.remove("eluvio-player-s");
+        } else if(dimensions.width > 600) {
+          this.target.classList.add("eluvio-player-m");
+          this.target.classList.remove("eluvio-player-l");
+          this.target.classList.remove("eluvio-player-s");
+        } else {
+          this.target.classList.add("eluvio-player-s");
+          this.target.classList.remove("eluvio-player-l");
+          this.target.classList.remove("eluvio-player-m");
+        }
       });
       this.resizeObserver.observe(this.target);
 
