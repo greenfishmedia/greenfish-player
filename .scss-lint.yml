@@ -3,6 +3,9 @@ files:
   ignore:
     - "src/static/stylesheets/fonts.scss"
 rules:
+  class-name-format:
+    - 2
+    - convention: hyphenatedbem
   leading-zero:
   - 0
   nesting-depth:
@@ -12,3 +15,5 @@ rules:
   quotes:
   - 1
   - style: double
+  no-vendor-prefixes:
+  - 0

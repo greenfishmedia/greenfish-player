@@ -14,22 +14,26 @@ import Logo from "./static/images/ELUV.IO white 20 px V2.png";
 
 import {EluvioPlayerParameters} from "./index";
 
-export const CreateElement = ({parent, type="div", options={}, classes=[], prepend=false}) => {
+export const CreateElement = ({parent, type="div", label, options={}, classes=[], prepend=false}) => {
   const element = document.createElement(type);
   classes.filter(c => c).forEach(c => element.classList.add(c));
   prepend ? parent.prepend(element) : parent.appendChild(element);
+
+  if(label) {
+    element.setAttribute("aria-label", label);
+  }
 
   Object.keys(options).forEach(key => element[key] = options[key]);
 
   return element;
 };
 
-const CreateImageButton = ({parent, svg, alt, options={}, classes=[], prepend=false}) => {
+const CreateImageButton = ({parent, svg, label, options={}, classes=[], prepend=false}) => {
   classes.unshift("eluvio-player__controls__button");
-  const button = CreateElement({parent, type: "button", options, classes, prepend});
+  const button = CreateElement({parent, type: "button", label, options, classes, prepend});
   button.innerHTML = svg;
 
-  button.querySelector("svg").setAttribute("alt", alt);
+  button.querySelector("svg").setAttribute("alt", label);
 
   return button;
 };
@@ -162,7 +166,7 @@ class PlayerControls {
       parent: this.target,
       svg: PlayCircleIcon,
       classes: ["eluvio-player__big-play-button"],
-      alt: "Play"
+      label: "Play"
     });
 
     this.video.addEventListener("play", () => {
@@ -186,9 +190,9 @@ class PlayerControls {
         parent: this.target,
         type: "img",
         classes: ["eluvio-player__poster-image"],
+        label: "Poster Image",
         options: {
-          src: this.posterUrl,
-          alt: "Poster Image"
+          src: this.posterUrl
         }
       });
 
@@ -211,24 +215,30 @@ class PlayerControls {
       parent: controls,
       svg: this.video.paused ? PlayIcon : PauseIcon,
       classes: ["eluvio-player__controls__button-play", this.video.paused ? "" : "eluvio-player__controls__button-pause"],
-      alt: "Play"
+      label: this.video.paused ? "Play" : "Pause"
     });
 
-    playPauseButton.addEventListener("click", () => this.video.paused ? this.video.play() : this.video.pause());
+    playPauseButton.addEventListener("click", () => {
+      this.video.paused ? this.video.play() : this.video.pause();
+    });
 
     // Volume
     const volumeButton = CreateImageButton({
       parent: controls,
       svg: this.video.muted || this.video.volume === 0 ? MutedIcon : (this.video.volume < 0.5 ? VolumeLowIcon : VolumeHighIcon),
       classes: ["eluvio-player__controls__button-volume"],
-      alt: this.video.muted ? "Unmute" : "Mute"
+      label: this.video.muted ? "Unmute" : "Mute"
     });
 
-    volumeButton.addEventListener("click", () => this.video.muted = !this.video.muted);
+    const volumeContainer = CreateElement({
+      parent: controls,
+      type: "div",
+      classes: ["eluvio-player__controls__volume-container", "eluvio-player__controls__slider-container"]
+    });
 
     // Volume Slider
     const volumeSlider = CreateElement({
-      parent: controls,
+      parent: volumeContainer,
       type: "input",
       options: {
         type: "range",
@@ -237,12 +247,36 @@ class PlayerControls {
         max: 1,
         value: this.video.muted ? 0 : this.video.volume
       },
-      classes: ["eluvio-player__controls__volume-slider"]
+      classes: ["eluvio-player__controls__volume-slider", "eluvio-player__controls__slider-container__input"]
+    });
+
+    // Progress Bar
+    const volumeBar = CreateElement({
+      parent: volumeContainer,
+      type: "progress",
+      options: {
+        min: 0,
+        max: 1,
+        value: this.video.muted ? 0 : this.video.volume
+      },
+      classes: ["eluvio-player__controls__volume", "eluvio-player__controls__slider-container__progress"]
+    });
+
+    volumeButton.addEventListener("click", () => {
+      this.video.muted = !this.video.muted;
+      volumeBar.value = this.video.muted ? 0 : this.video.volume;
+    });
+
+    volumeSlider.addEventListener("change", () => {
+      this.video.muted = parseFloat(volumeSlider.value) === 0;
+      this.video.volume = parseFloat(volumeSlider.value);
+      volumeBar.value = volumeSlider.value;
     });
 
     volumeSlider.addEventListener("input", () => {
       this.video.muted = parseFloat(volumeSlider.value) === 0;
       this.video.volume = parseFloat(volumeSlider.value);
+      volumeBar.value = volumeSlider.value;
     });
 
     const progressTime = CreateElement({
@@ -253,9 +287,15 @@ class PlayerControls {
 
     progressTime.innerHTML = "00:00";
 
+    const progressContainer = CreateElement({
+      parent: controls,
+      type: "div",
+      classes: ["eluvio-player__controls__slider-container", "eluvio-player__controls__progress-container"]
+    });
+
     // Progress Bar
     const progressSlider = CreateElement({
-      parent: controls,
+      parent: progressContainer,
       type: "input",
       options: {
         type: "range",
@@ -264,10 +304,51 @@ class PlayerControls {
         max: 1,
         value: 0
       },
-      classes: ["eluvio-player__controls__progress-slider"]
+      classes: ["eluvio-player__controls__slider-container__input", "eluvio-player__controls__progress-slider"]
     });
 
     progressSlider.addEventListener("input", () => this.video.currentTime = this.video.duration * parseFloat(progressSlider.value));
+
+    // Progress Bar
+    const progressBar = CreateElement({
+      parent: progressContainer,
+      type: "progress",
+      options: {
+        min: 0,
+        max: 1,
+        value: 0
+      },
+      classes: ["eluvio-player__controls__slider-container__progress", "eluvio-player__controls__progress"]
+    });
+
+    // Progress Bar
+    const bufferProgressBar = CreateElement({
+      parent: progressContainer,
+      type: "progress",
+      options: {
+        min: 0,
+        step: 0.0001,
+        max: 1,
+        value: 0
+      },
+      classes: ["eluvio-player__controls__slider-container__progress", "eluvio-player__controls__progress-buffer"]
+    });
+
+    this.video.addEventListener("progress", () => {
+      if(isNaN(this.video.duration)) { return; }
+
+      const buffer = this.video.buffered;
+      let end = 0;
+      for(let i = 0; i < buffer.length; i++) {
+        if(buffer.start(i) > this.video.currentTime) { continue; }
+
+        if(buffer.end(i) > end) {
+          end = buffer.end(i);
+        }
+      }
+
+      bufferProgressBar.value = 1 - (this.video.duration - end) / this.video.duration;
+    });
 
     const totalTime = CreateElement({
       parent: controls,
@@ -289,7 +370,7 @@ class PlayerControls {
       parent: this.rightButtonsContainer,
       svg: FullscreenIcon,
       classes: ["eluvio-player__controls__button-fullscreen"],
-      alt: "Full Screen"
+      label: "Full Screen"
     });
 
     fullscreenButton.addEventListener("click", () => ToggleFullscreen(this.target));
@@ -305,7 +386,21 @@ class PlayerControls {
 
     // Event Listeners
 
-    const Progress = () => {
+    const ProgressSlider = () => {
+      progressSlider.value = isNaN(this.video.duration) ? 0 : this.video.currentTime / this.video.duration;
+      progressBar.value = isNaN(this.video.duration) ? 0 : this.video.currentTime / this.video.duration;
+    };
+
+    const ProgressTime = () => {
+      progressTime.innerHTML = Time(this.video.currentTime, this.video.duration);
+    };
+
+    this.video.addEventListener("seeking", () => {
+      ProgressSlider();
+      ProgressTime();
+    });
+
+    this.video.addEventListener("durationchange", () => {
       if(isNaN(this.video.duration) || !isFinite(this.video.duration)) {
         if(!this.progressHidden) {
           controls.classList.add("eluvio-player__controls-no-progress");
@@ -317,12 +412,11 @@ class PlayerControls {
         controls.classList.remove("eluvio-player__controls-no-progress");
       }
 
-      progressSlider.value = isNaN(this.video.duration) ? 0 : this.video.currentTime / this.video.duration;
-      progressTime.innerHTML = Time(this.video.currentTime, this.video.duration);
       totalTime.innerHTML = Time(this.video.duration, this.video.duration);
-    };
 
-    this.video.addEventListener("durationchange", Progress);
+      ProgressTime();
+      ProgressSlider();
+    });
 
     this.target.addEventListener("dblclick", () => {
       clearTimeout(this.timeouts.playPause);
@@ -342,9 +436,12 @@ class PlayerControls {
 
       playPauseButton.innerHTML = PauseIcon;
       playPauseButton.classList.add("eluvio-player__controls__button-pause");
+      playPauseButton.setAttribute("aria-label", "Pause");
 
-      clearTimeout(this.timeouts.progress);
-      this.timeouts.progress = setInterval(Progress, 50);
+      clearTimeout(this.timeouts.progressTime);
+      clearTimeout(this.timeouts.progressSlider);
+      this.timeouts.progressTime = setInterval(ProgressTime, 100);
+      this.timeouts.progressSlider = setInterval(ProgressSlider, 16.6);
 
       if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
         this.target.dispatchEvent(new Event("mousemove"));
@@ -354,12 +451,16 @@ class PlayerControls {
     this.video.addEventListener("pause", () => {
       playPauseButton.innerHTML = PlayIcon;
       playPauseButton.classList.remove("eluvio-player__controls__button-pause");
-      clearTimeout(this.timeouts.progress);
+      playPauseButton.setAttribute("aria-label", "Play");
+
+      clearTimeout(this.timeouts.progressTime);
+      clearTimeout(this.timeouts.progressSlider);
     });
 
     this.video.addEventListener("volumechange", () => {
       volumeButton.innerHTML = this.video.muted || this.video.volume === 0 ? MutedIcon : (this.video.volume < 0.5 ? VolumeLowIcon : VolumeHighIcon);
       volumeSlider.value = this.video.muted ? 0 : Math.min(1, Math.max(0, this.video.volume));
+      volumeBar.value = this.video.muted ? 0 : Math.min(1, Math.max(0, this.video.volume));
     });
 
     this.video.addEventListener("seeked", () => progressSlider.value = this.video.currentTime / this.video.duration);
@@ -419,7 +520,6 @@ class PlayerControls {
       this.settingsMenu.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
 
       // Keyboard events
-      this.target.addEventListener("focus", () => { PlayerMove(); ControlsIn(); });
       this.target.addEventListener("blur", () => setTimeout(() => {
         if(!this.target.contains(document.activeElement)) {
           PlayerOut();
@@ -531,7 +631,7 @@ class PlayerControls {
       svg: SettingsIcon,
       classes: ["eluvio-player__controls__button-settings"],
       prepend: true,
-      alt: "Settings"
+      label: "Settings"
     });
 
     this.settingsButton.addEventListener("click", () => this.ToggleSettings());
@@ -559,7 +659,7 @@ class PlayerControls {
       svg: MultiViewIcon,
       classes: ["eluvio-player__controls__button-multiview"],
       prepend: true,
-      alt: "Select View"
+      label: "Select View"
     });
 
     this.multiviewButton.addEventListener("click", () => this.ToggleMultiviewControls({AvailableViews, SwitchView}));

@@ -1,9 +1,19 @@
-$background-color: #000;
+$white: #fff;
+$gray: #717171;
+$black: #000;
+
+$background-color: $black;
 $controls-color: rgba(0, 0, 0, 0.4);
-$button-color: #fff;
-$slider-color: #717171;
+$button-color: rgba($white, 0.8);
+$progress-color: #0885fb;
+$slider-color: rgba($gray, 0.5);
+$hotspot-color: rgba($gray, 0.3);
 $focus-color: rgba(225, 225, 255, 0.7);
 $border-color: #252525;
+$modal-color: #121212;
+$error-color: #a32;
+$controls-height: 35px;
+$button-height: 32px;
 
 .eluvio-player {
   align-items: center;
@@ -27,6 +37,7 @@ $border-color: #252525;
     font-family: "Helvetica Neue", Helvetica, sans-serif;
   }
 
+  // sass-lint:disable force-attribute-nesting no-qualifying-elements
   input[type="range"],
   button {
     background: transparent;
@@ -54,27 +65,22 @@ $border-color: #252525;
     appearance: none;
     background: transparent;
     border-radius: 3px;
+    height: 3px;
+    margin: 0;
     padding: 15px 0;
 
     &::-webkit-slider-thumb {
       appearance: none;
-      background-color: $button-color;
-      border: 0;
-      border-radius: 100%;
-      height: 11px;
-      margin-top: -4px;
-      opacity: 1;
-      width: 11px;
+      height: 0;
+      opacity: 0;
+      width: 0;
     }
 
     &::-moz-range-thumb {
       appearance: none;
-      background-color: $button-color;
-      border: 0;
-      border-radius: 100%;
-      height: 11px;
-      opacity: 1;
-      width: 11px;
+      height: 0;
+      opacity: 0;
+      width: 0;
     }
 
     &::-webkit-slider-runnable-track {
@@ -90,12 +96,34 @@ $border-color: #252525;
     }
   }
 
+  // sass-lint:enable force-attribute-nesting no-qualifying-elements
+
+  progress {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    border-radius: 3px;
+    height: 3px;
+  }
+
+  ::-webkit-progress-value {
+    background-color: $progress-color;
+  }
+
+  ::-webkit-progress-bar {
+    background-color: transparent;
+  }
+
+  ::-moz-progress-bar {
+    background-color: $progress-color;
+  }
+
   &__poster-image {
-    background: #000;
+    background: $background-color;
     cursor: pointer;
     height: 100%;
     left: 0;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     position: absolute;
     top: 0;
@@ -112,7 +140,7 @@ $border-color: #252525;
   }
 
   &__watermark {
-    height: 20px;
+    height: 15px;
     left: 15px;
     pointer-events: none;
     position: absolute;
@@ -126,8 +154,8 @@ $border-color: #252525;
     background: $controls-color;
     bottom: 0;
     display: flex;
-    height: 50px;
-    padding: 0 15px;
+    height: $controls-height;
+    padding: 0 5px 0 3px;
     position: absolute;
     transition: opacity 0.25s linear;
     width: 100%;
@@ -135,13 +163,15 @@ $border-color: #252525;
 
     &__button {
       -webkit-tap-highlight-color: transparent;
-      height: 100%;
-      min-height: 20px;
-      min-width: 20px;
+      height: $button-height;
+      max-height: $button-height;
+      max-width: $button-height;
+      min-height: $button-height;
+      min-width: $button-height;
       overflow: visible;
-      padding: 0 10px;
+      padding: 6px;
       transition: opacity 0.25s linear;
-      width: 40px;
+      width: $button-height;
 
       svg {
         height: 100%;
@@ -163,23 +193,59 @@ $border-color: #252525;
       }
     }
 
-    &__button-play {
-      padding: 0 12px;
-    }
-
-    &__button-pause {
-      padding: 0 13px 0 12px;
-    }
-
-    &__volume-slider {
+    &__volume-container {
       flex: 1 1 auto;
       max-width: 75px;
       min-width: 0;
     }
 
-    &__progress-slider {
+    &__volume {
+      &::-webkit-progress-value {
+        background-color: $button-color;
+      }
+
+      &::-moz-progress-bar {
+        background-color: $button-color;
+      }
+    }
+
+    &__slider-container {
+      align-items: center;
+      display: flex;
       flex: 1 1 auto;
+      justify-content: center;
       min-width: 0;
+      position: relative;
+    }
+
+    &__slider-container__input,
+    &__slider-container__progress {
+      flex: 1 1 auto;
+      left: 0;
+      min-width: 0;
+      position: absolute;
+      width: 100%;
+    }
+
+    &__slider-container__input {
+      z-index: 0;
+    }
+
+    &__slider-container__progress {
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    &__progress-buffer {
+      z-index: 1;
+
+      &::-webkit-progress-value {
+        background-color: $slider-color;
+      }
+
+      &::-moz-progress-bar {
+        background-color: $slider-color;
+      }
     }
 
     &__time {
@@ -215,7 +281,7 @@ $border-color: #252525;
       background: $controls-color;
       border-radius: 3px;
       bottom: 52px;
-      color: #fff;
+      color: $button-color;
       max-height: calc(100% - 54px);
       min-height: 20px;
       overflow-y: auto;
@@ -234,7 +300,7 @@ $border-color: #252525;
 
       &__option {
         border: 1px solid transparent;
-        color: #ccc;
+        color: $button-color;
         cursor: pointer;
         display: block;
         font-size: 14px;
@@ -243,12 +309,12 @@ $border-color: #252525;
         width: 100%;
 
         &-selected {
-          color: #fff;
+          color: $button-color;
         }
 
         &:hover {
-          background: rgba(25, 25, 25, 0.7);
-          color: #fff;
+          background: $controls-color;
+          color: $button-color;
         }
 
         &.focus-visible {
@@ -259,9 +325,11 @@ $border-color: #252525;
   }
 
   &__big-play-button {
-    height: 100px;
+    max-height: 100px;
+    max-width: 100px;
+    min-height: 100px;
+    min-width: 100px;
     position: absolute;
-    width: 100px;
     z-index: 10;
 
     svg {
@@ -276,6 +344,11 @@ $border-color: #252525;
       * {
         stroke: $button-color;
         stroke-width: 4px;
+      }
+
+      polygon {
+        fill: $button-color;
+        stroke: $button-color;
       }
     }
 
@@ -319,7 +392,7 @@ $border-color: #252525;
 
     &__form {
       align-items: center;
-      background: #121212;
+      background: $modal-color;
       border: 2px solid $border-color;
       border-radius: 3px;
       display: flex;
@@ -335,14 +408,14 @@ $border-color: #252525;
       }
 
       &__text {
-        color: #fff;
+        color: $button-color;
         font-size: 20px;
         font-weight: 300;
         letter-spacing: 0.05em;
       }
 
       &__error-text {
-        color: #f00;
+        color: $error-color;
         font-size: 16px;
 
         &:empty {
@@ -351,7 +424,7 @@ $border-color: #252525;
       }
 
       &__input {
-        background: #fff;
+        background: $button-color;
         border: 0;
         border-radius: 3px;
         font-size: 18px;
@@ -366,7 +439,7 @@ $border-color: #252525;
 
       &__submit {
         border-radius: 3px;
-        color: #fff;
+        color: $button-color;
         font-size: 16px;
         font-weight: 500;
         height: 40px;
@@ -406,7 +479,7 @@ $border-color: #252525;
       transition: background-color 0.3s;
 
       &__title {
-        color: #fff;
+        color: $button-color;
         display: none;
         font-size: 24px;
         font-weight: 300;
@@ -415,11 +488,11 @@ $border-color: #252525;
       }
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: $hotspot-color;
 
         .eluvio-player__hotspot-overlay__target__title {
           display: block;
-          text-shadow: 1px 1px #808080;
+          text-shadow: 1px 1px $gray;
         }
       }
 
@@ -430,12 +503,12 @@ $border-color: #252525;
 
     &-visible {
       .eluvio-player__hotspot-overlay__target {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: $hotspot-color;
       }
 
       .eluvio-player__hotspot-overlay__target__title {
         display: block;
-        text-shadow: 1px 1px #808080;
+        text-shadow: 1px 1px $gray;
       }
     }
   }
@@ -448,20 +521,20 @@ $border-color: #252525;
     }
 
     .eluvio-player__controls {
-      .eluvio-player__controls__volume-slider {
-        display: none !important;
+      .eluvio-player__controls__volume-container {
+        display: none;
       }
     }
 
     .eluvio-player__big-play-button {
-      height: 35%;
       max-height: 75px;
       max-width: 75px;
-      width: 35%;
+      min-height: 75px;
+      min-width: 75px;
     }
 
     .eluvio-player__ticket-modal {
-      .eluvio-player___ticket-modal__form {
+      &__form {
         max-height: 70%;
         max-width: 70%;
       }
@@ -480,18 +553,12 @@ $border-color: #252525;
     .eluvio-player__controls {
       padding: 5px;
 
-      .eluvio-player__controls__button {
-        min-height: 10px;
-        min-width: 10px;
-        padding: 0 10px;
-      }
-
-      .eluvio-player__controls__button-pause {
-        padding: 0 13px 0 12px;
-      }
-
       .eluvio-player__controls__time {
         display: none;
+      }
+
+      .eluvio-player__controls__button {
+        padding: 8px;
       }
     }
 
@@ -505,6 +572,7 @@ $border-color: #252525;
   }
 }
 
+// sass-lint:disable no-color-literals
 @keyframes hotspot-select {
   0% {
     background-color: rgba(255, 255, 255, 0.2);

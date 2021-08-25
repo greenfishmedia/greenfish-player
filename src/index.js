@@ -382,13 +382,23 @@ export class EluvioPlayer {
       }
 
       this.restarted = true;
-      this.Initialize(this.target, this.originalParameters);
+      this.Initialize(
+        this.target,
+        this.originalParameters,
+        !this.video ? null :
+          {
+            muted: this.video.muted,
+            volume: this.video.volume,
+            currentTime: this.video.currentTime,
+            playing: !this.video.paused
+          }
+      );
     } finally {
       this.reloading = false;
     }
   }
 
-  async Initialize(target, parameters) {
+  async Initialize(target, parameters, restartParameters) {
     if(this.__destroyed) { return; }
 
     this.__DestroyPlayer();
@@ -443,6 +453,18 @@ export class EluvioPlayer {
       });
 
       this.video.setAttribute("playsinline", "playsinline");
+
+      if(restartParameters) {
+        this.video.addEventListener("loadedmetadata", () => {
+          this.video.volume = restartParameters.volume;
+          this.video.muted = restartParameters.muted;
+          this.video.currentTime = restartParameters.currentTime;
+
+          if(restartParameters.playing) {
+            this.video.play();
+          }
+        });
+      }
 
       // Detect removal of video to ensure player is properly destroyed
       this.mutationObserver = new MutationObserver(() => {
@@ -574,7 +596,10 @@ export class EluvioPlayer {
           SetLevel: levelIndex => hlsPlayer.nextLevel = levelIndex
         });
 
-        hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => this.errors = 0);
+        hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => {
+          this.errors = 0;
+          clearTimeout(this.bufferFullRestartTimeout);
+        });
 
         hlsPlayer.on(HLSPlayer.Events.ERROR, async (event, error) => {
           this.errors += 1;
@@ -583,8 +608,10 @@ export class EluvioPlayer {
           this.Log(error);
 
           if(error.details === "bufferFullError") {
-            this.Log("Buffer full error - Restarting player", true);
-            this.HardReload(error);
+            this.bufferFullRestartTimeout = setTimeout(() => {
+              this.Log("Buffer full error - Restarting player", true);
+              this.HardReload(error, 0);
+            }, 3000);
           }
 
           if(error.details === "bufferStalledError") {
@@ -593,7 +620,6 @@ export class EluvioPlayer {
             setTimeout(() => {
               if(!this.video.paused && this.video.currentTime === stallTime) {
                 this.Log("Buffer stalled error, no progress in 5 seconds - Restarting player", true);
-                this.HardReload(error, 1000);
               }
             }, 5000);
           }
