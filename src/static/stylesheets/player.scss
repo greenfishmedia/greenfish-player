@@ -12,8 +12,8 @@ $focus-color: rgba(225, 225, 255, 0.7);
 $border-color: #252525;
 $modal-color: #121212;
 $error-color: #a32;
-$controls-height: 35px;
-$button-height: 32px;
+$controls-height: 30px;
+$button-height: 27px;
 
 .eluvio-player {
   align-items: center;
@@ -68,30 +68,31 @@ $button-height: 32px;
     height: 3px;
     margin: 0;
     padding: 15px 0;
+    z-index: 100;
 
     &::-webkit-slider-thumb {
       appearance: none;
-      height: 0;
+      height: 15px;
       opacity: 0;
-      width: 0;
+      width: 15px;
     }
 
     &::-moz-range-thumb {
       appearance: none;
-      height: 0;
+      height: 15px;
       opacity: 0;
-      width: 0;
+      width: 15px;
     }
 
     &::-webkit-slider-runnable-track {
       -webkit-tap-highlight-color: transparent;
-      background: $slider-color;
+      background: transparent;
       height: 3px;
     }
 
     &::-moz-range-track {
       -webkit-tap-highlight-color: transparent;
-      background: $slider-color;
+      background: transparent;
       height: 3px;
     }
   }
@@ -200,6 +201,10 @@ $button-height: 32px;
     }
 
     &__volume {
+      // sass-lint:disable no-important
+      background-color: $slider-color !important;
+      // sass-lint:enable no-important
+
       &::-webkit-progress-value {
         background-color: $button-color;
       }
@@ -213,6 +218,7 @@ $button-height: 32px;
       align-items: center;
       display: flex;
       flex: 1 1 auto;
+      height: 100%;
       justify-content: center;
       min-width: 0;
       position: relative;
@@ -222,9 +228,10 @@ $button-height: 32px;
     &__slider-container__progress {
       flex: 1 1 auto;
       left: 0;
+      margin: 0 5px;
       min-width: 0;
       position: absolute;
-      width: 100%;
+      width: calc(100% - 10px);
     }
 
     &__slider-container__input {
@@ -237,6 +244,9 @@ $button-height: 32px;
     }
 
     &__progress-buffer {
+      // sass-lint:disable no-important
+      background-color: $slider-color !important;
+      // sass-lint:enable no-important
       z-index: 1;
 
       &::-webkit-progress-value {
@@ -555,10 +565,6 @@ $button-height: 32px;
 
       .eluvio-player__controls__time {
         display: none;
-      }
-
-      .eluvio-player__controls__button {
-        padding: 8px;
       }
     }
 
