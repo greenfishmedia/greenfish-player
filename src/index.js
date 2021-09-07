@@ -475,7 +475,9 @@ export class EluvioPlayer {
       this.mutationObserver.observe(document.body, {childList: true, subtree: true});
 
       this.resizeObserver = new ResizeObserver(entries => {
-        if(this.__destroyed) { return; }
+        if(this.__destroyed) {
+          return;
+        }
 
         const dimensions = entries[0].contentRect;
 
@@ -483,19 +485,18 @@ export class EluvioPlayer {
           this.controls.HandleResize(dimensions);
         }
 
+        const sizes = ["xl", "l", "m", "s"];
+        sizes.forEach(size => this.target.classList.remove(`eluvio-player-${size}`));
+
         // Use actual player size instead of media queries
-        if(dimensions.width > 750) {
+        if(dimensions.width > 1400) {
+          this.target.classList.add("eluvio-player-xl");
+        } else if(dimensions.width > 750) {
           this.target.classList.add("eluvio-player-l");
-          this.target.classList.remove("eluvio-player-m");
-          this.target.classList.remove("eluvio-player-s");
         } else if(dimensions.width > 500) {
           this.target.classList.add("eluvio-player-m");
-          this.target.classList.remove("eluvio-player-l");
-          this.target.classList.remove("eluvio-player-s");
         } else {
           this.target.classList.add("eluvio-player-s");
-          this.target.classList.remove("eluvio-player-l");
-          this.target.classList.remove("eluvio-player-m");
         }
       });
       this.resizeObserver.observe(this.target);

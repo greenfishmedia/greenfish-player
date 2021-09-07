@@ -1,3 +1,5 @@
+// sass-lint:disable function-name-format
+
 $white: #fff;
 $gray: #717171;
 $black: #000;
@@ -12,8 +14,9 @@ $focus-color: rgba(225, 225, 255, 0.7);
 $border-color: #252525;
 $modal-color: #121212;
 $error-color: #a32;
-$controls-height: 30px;
-$button-height: 27px;
+$controls-height: 40px;
+$controls-padding: 10px;
+$button-height: 35px;
 
 .eluvio-player {
   align-items: center;
@@ -35,6 +38,7 @@ $button-height: 27px;
   * {
     box-sizing: border-box;
     font-family: "Helvetica Neue", Helvetica, sans-serif;
+    line-height: 1;
   }
 
   // sass-lint:disable force-attribute-nesting no-qualifying-elements
@@ -156,7 +160,7 @@ $button-height: 27px;
     bottom: 0;
     display: flex;
     height: $controls-height;
-    padding: 0 5px 0 3px;
+    padding: 0 $controls-padding;
     position: absolute;
     transition: opacity 0.25s linear;
     width: 100%;
@@ -173,6 +177,10 @@ $button-height: 27px;
       padding: 6px;
       transition: opacity 0.25s linear;
       width: $button-height;
+
+      &:not(:last-child) {
+        margin-right: 2px;
+      }
 
       svg {
         height: 100%;
@@ -523,6 +531,13 @@ $button-height: 27px;
     }
   }
 
+  &.eluvio-player-xl {
+    .eluvio-player__controls {
+      height: CALC(#{$controls-height} * 1.5);
+      padding: 0 CALC(#{$controls-padding} * 1.5);
+    }
+  }
+
   &.eluvio-player-m,
   &.eluvio-player-s {
     .eluvio-player__watermark {
@@ -531,10 +546,22 @@ $button-height: 27px;
     }
 
     .eluvio-player__controls {
-      .eluvio-player__controls__volume-container {
-        display: none;
-      }
+      //height: CALC(#{$controls-height} * 0.65);
+      padding: 0 CALC(#{$controls-padding} * 0.5);
     }
+
+    .eluvio-player__controls__button {
+      height: CALC(#{$button-height} * 0.9);
+      max-height: CALC(#{$button-height} * 0.9);
+      max-width: CALC(#{$button-height} * 0.9);
+      min-height: CALC(#{$button-height} * 0.9);
+      min-width: CALC(#{$button-height} * 0.9);
+    }
+
+    .eluvio-player__controls__volume-container {
+      display: none;
+    }
+
 
     .eluvio-player__big-play-button {
       max-height: 75px;
