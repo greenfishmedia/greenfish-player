@@ -198,7 +198,10 @@ class PlayerControls {
 
       this.poster.addEventListener("click", () => this.video.play());
       this.poster.addEventListener("error", () => {
-        this.poster.parentNode.removeChild(this.poster);
+        if(this.poster.parentNode) {
+          this.poster.parentNode.removeChild(this.poster);
+        }
+
         this.poster = undefined;
       });
     }
@@ -430,7 +433,10 @@ class PlayerControls {
       this.played = true;
 
       if(this.poster) {
-        this.poster.parentNode.removeChild(this.poster);
+        if(this.poster.parentNode) {
+          this.poster.parentNode.removeChild(this.poster);
+        }
+
         this.poster = undefined;
       }
 

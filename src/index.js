@@ -170,6 +170,7 @@ export class EluvioPlayer {
       // Play / pause when entering / leaving viewport
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.WHEN_VISIBLE) {
         if(lastPlayPauseAction !== "play" && bodyElement.isIntersecting && this.video.paused) {
+          this.video.load();
           this.video.play();
           lastPlayPauseAction = "play";
         } else if(lastPlayPauseAction !== "pause" && !bodyElement.isIntersecting && !this.video.paused) {
@@ -461,6 +462,7 @@ export class EluvioPlayer {
           this.video.currentTime = restartParameters.currentTime;
 
           if(restartParameters.playing) {
+            this.video.load();
             this.video.play();
           }
         });
@@ -679,6 +681,7 @@ export class EluvioPlayer {
       }
 
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON) {
+        this.video.load();
         this.video.play();
       }
 
