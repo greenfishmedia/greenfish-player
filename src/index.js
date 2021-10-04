@@ -251,7 +251,20 @@ export class EluvioPlayer {
           await client.LatestVersionHash({objectId: this.sourceOptions.playoutParameters.objectId});
 
       if(targetHash) {
-        return await client.ContentObjectImageUrl({versionHash: targetHash});
+        const imageMetadata = await client.ContentObjectMetadata({
+          versionHash: targetHash,
+          metadataSubtree: "public",
+          select: [
+            "display_image",
+            "asset_metadata/nft/image"
+          ]
+        });
+        
+        if(imageMetadata && imageMetadata.asset_metadata && imageMetadata.asset_metadata.nft && imageMetadata.asset_metadata.nft.image) {
+          return imageMetadata.asset_metadata.nft.image;
+        } else if(imageMetadata && imageMetadata.display_image) {
+          return await client.ContentObjectImageUrl({versionHash: targetHash});
+        }
       }
     // eslint-disable-next-line no-empty
     } catch (error) {}
