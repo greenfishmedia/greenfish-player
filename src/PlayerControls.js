@@ -14,6 +14,28 @@ import Logo from "./static/images/ELUV.IO white 20 px V2.png";
 
 import {EluvioPlayerParameters} from "./index";
 
+const lsKeyPrefix = "@eluvio/elv-player";
+export const LocalStorage = {
+  getItem: (key) => {
+    try {
+      return localStorage.getItem(`${lsKeyPrefix}-${key}`);
+    // eslint-disable-next-line no-empty
+    } catch (error) {}
+  },
+  setItem: (key, value) => {
+    try {
+      localStorage.setItem(`${lsKeyPrefix}-${key}`, value);
+    // eslint-disable-next-line no-empty
+    } catch (error) {}
+  },
+  removeItem: (key) => {
+    try {
+      localStorage.removeItem(`${lsKeyPrefix}-${key}`);
+    // eslint-disable-next-line no-empty
+    } catch (error) {}
+  }
+};
+
 export const CreateElement = ({parent, type="div", label, options={}, classes=[], prepend=false}) => {
   const element = document.createElement(type);
   classes.filter(c => c).forEach(c => element.classList.add(c));
@@ -213,6 +235,8 @@ class PlayerControls {
       classes: ["eluvio-player__controls"]
     });
 
+    this.controls = controls;
+
     // Play / Pause
     const playPauseButton = CreateImageButton({
       parent: controls,
@@ -387,6 +411,13 @@ class PlayerControls {
 
     this.target.addEventListener("keydown", event => event && (event.key || "").toLowerCase() === "escape" && this.HideSettingsMenu());
 
+    // Settings Menu
+    this.toolTip = CreateElement({
+      parent: this.target,
+      type: "div",
+      classes: ["eluvio-player__controls__tooltip"]
+    });
+
     // Event Listeners
 
     const ProgressSlider = () => {
@@ -479,19 +510,33 @@ class PlayerControls {
       }
     });
 
+    if(!LocalStorage.getItem("multiview-tooltip")) {
+      setTimeout(() => {
+        this.toolTip.innerHTML = `${MultiViewIcon}<div>This stream has multiple views! Click this button to switch between them.</div>`;
+
+        const ClearTooltip = () => {
+          this.toolTip.innerHTML = "";
+          LocalStorage.setItem("multiview-tooltip", "1");
+        };
+
+        this.toolTip.addEventListener("click", ClearTooltip);
+        this.controls.addEventListener("click", ClearTooltip);
+      }, 2000);
+    }
+
     // Autohide controls
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
       const PlayerOut = () => {
         if(!this.played) { return; }
 
-        this.FadeOut("controls", [controls, this.settingsMenu], 2000);
+        this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 2000);
       };
 
       const PlayerMove = () => {
         if(this.controlsHover) { return; }
 
-        this.FadeIn("controls", [controls, this.settingsMenu]);
-        this.FadeOut("controls", [controls, this.settingsMenu], 3000, () => this.target.style.cursor = "none");
+        this.FadeIn("controls", [controls, this.settingsMenu, this.toolTip]);
+        this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 3000, () => this.target.style.cursor = "none");
 
         this.target.style.cursor = "unset";
       };
@@ -514,6 +559,8 @@ class PlayerControls {
       controls.addEventListener("mouseleave", ControlsOut);
       this.settingsMenu.addEventListener("mouseenter", ControlsIn);
       this.settingsMenu.addEventListener("mouseleave", ControlsOut);
+      this.toolTip.addEventListener("mouseenter", ControlsIn);
+      this.toolTip.addEventListener("mouseleave", ControlsOut);
 
       // Touch events
       this.target.addEventListener("touchmove", PlayerMove);
@@ -524,6 +571,9 @@ class PlayerControls {
       this.settingsMenu.addEventListener("touchmove", ControlsIn);
       this.settingsMenu.addEventListener("touchleave", ControlsOut);
       this.settingsMenu.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
+      this.toolTip.addEventListener("touchmove", ControlsIn);
+      this.toolTip.addEventListener("touchleave", ControlsOut);
+      this.toolTip.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
 
       // Keyboard events
       this.target.addEventListener("blur", () => setTimeout(() => {
@@ -682,6 +732,20 @@ class PlayerControls {
         this.InitializeMultiviewHotspots(hot_spots, SwitchView);
       }
     });
+
+    if(!LocalStorage.getItem("multiview-tooltip")) {
+      setTimeout(() => {
+        this.toolTip.innerHTML = `${MultiViewIcon}<div>This stream has multiple views! Click this button to switch between them.</div>`;
+
+        const ClearTooltip = () => {
+          this.toolTip.innerHTML = "";
+          LocalStorage.setItem("multiview-tooltip", "1");
+        };
+
+        this.toolTip.addEventListener("click", ClearTooltip);
+        this.controls.addEventListener("click", ClearTooltip);
+      }, 2000);
+    }
   }
 
   async ToggleMultiviewControls({AvailableViews, SwitchView}={}) {
