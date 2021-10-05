@@ -510,20 +510,6 @@ class PlayerControls {
       }
     });
 
-    if(!LocalStorage.getItem("multiview-tooltip")) {
-      setTimeout(() => {
-        this.toolTip.innerHTML = `${MultiViewIcon}<div>This stream has multiple views! Click this button to switch between them.</div>`;
-
-        const ClearTooltip = () => {
-          this.toolTip.innerHTML = "";
-          LocalStorage.setItem("multiview-tooltip", "1");
-        };
-
-        this.toolTip.addEventListener("click", ClearTooltip);
-        this.controls.addEventListener("click", ClearTooltip);
-      }, 2000);
-    }
-
     // Autohide controls
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
       const PlayerOut = () => {
