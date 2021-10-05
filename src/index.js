@@ -259,7 +259,7 @@ export class EluvioPlayer {
             "asset_metadata/nft/image"
           ]
         });
-        
+
         if(imageMetadata && imageMetadata.asset_metadata && imageMetadata.asset_metadata.nft && imageMetadata.asset_metadata.nft.image) {
           return imageMetadata.asset_metadata.nft.image;
         } else if(imageMetadata && imageMetadata.display_image) {
@@ -382,9 +382,9 @@ export class EluvioPlayer {
         }
       }
 
-      if(this.__destroyed) { return; }
-
       await new Promise(resolve => setTimeout(resolve, delay));
+
+      if(this.__destroyed) { return; }
 
       this.Log("Retrying stream");
 
@@ -624,7 +624,7 @@ export class EluvioPlayer {
           if(error.details === "bufferFullError") {
             this.bufferFullRestartTimeout = setTimeout(() => {
               this.Log("Buffer full error - Restarting player", true);
-              this.HardReload(error, 0);
+              this.HardReload(error, 5000);
             }, 3000);
           }
 
@@ -700,7 +700,7 @@ export class EluvioPlayer {
       this.playerOptions.errorCallback(error);
 
       if(error.status === 500) {
-        this.HardReload(error);
+        this.HardReload(error, 10000);
       }
     }
   }
