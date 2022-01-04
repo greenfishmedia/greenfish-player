@@ -55,6 +55,10 @@ export const EluvioPlayerParameters = {
   settings: {
     OFF: false,
     ON: true
+  },
+  capLevelToPlayerSize: {
+    OFF: false,
+    ON: true
   }
 };
 
@@ -580,6 +584,7 @@ export class EluvioPlayer {
           maxBufferLength: 30,
           maxBufferSize: 300,
           enableWorker: true,
+          capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
           xhrSetup: xhr => {
             xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
 
@@ -647,6 +652,16 @@ export class EluvioPlayer {
       } else {
         const DashPlayer = (await import("dashjs")).default;
         dashPlayer = DashPlayer.MediaPlayer().create();
+
+        if(this.playerOptions.capLevelToPlayerSize) {
+          dashPlayer.updateSettings({
+            "streaming": {
+              "abr": {
+                "limitBitrateByPortal": true
+              }
+            }
+          });
+        }
 
         playoutUrl.removeQuery("authorization");
         dashPlayer.extend("RequestModifier", function () {
