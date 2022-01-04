@@ -114,6 +114,15 @@ class PlayerControls {
     this.playerOptions = playerOptions;
     this.posterUrl = posterUrl;
 
+    if(posterUrl) {
+      // Preload poster before setting it
+      const imagePreload = new Image();
+      imagePreload.src = posterUrl;
+      imagePreload.onload = () => {
+        this.video.poster = posterUrl;
+      };
+    }
+
     this.settingsMenuContent = "none";
     this.timeouts = {};
     this.played = false;
@@ -165,6 +174,41 @@ class PlayerControls {
       watermark.src = Logo;
     }
 
+    // Poster
+    /*
+    if(this.posterUrl) {
+      this.poster = CreateElement({
+        parent: this.target,
+        type: "img",
+        classes: ["eluvio-player__poster-image"],
+        label: "Poster Image",
+        options: {
+          src: this.posterUrl
+        }
+      });
+
+      this.video.addEventListener("play", () => {
+        if(this.poster) {
+          if(this.poster.parentNode) {
+            this.poster.parentNode.removeChild(this.poster);
+          }
+
+          this.poster = undefined;
+        }
+      });
+
+      this.poster.addEventListener("click", () => this.video.play());
+      this.poster.addEventListener("error", () => {
+        if(this.poster.parentNode) {
+          this.poster.parentNode.removeChild(this.poster);
+        }
+
+        this.poster = undefined;
+      });
+    }
+
+     */
+
     if(
       this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT ||
       this.playerOptions.controls === EluvioPlayerParameters.controls.OFF
@@ -204,28 +248,6 @@ class PlayerControls {
 
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
       return;
-    }
-
-    // Poster
-    if(this.posterUrl) {
-      this.poster = CreateElement({
-        parent: this.target,
-        type: "img",
-        classes: ["eluvio-player__poster-image"],
-        label: "Poster Image",
-        options: {
-          src: this.posterUrl
-        }
-      });
-
-      this.poster.addEventListener("click", () => this.video.play());
-      this.poster.addEventListener("error", () => {
-        if(this.poster.parentNode) {
-          this.poster.parentNode.removeChild(this.poster);
-        }
-
-        this.poster = undefined;
-      });
     }
 
     // Controls container
@@ -462,14 +484,6 @@ class PlayerControls {
 
     this.video.addEventListener("play", () => {
       this.played = true;
-
-      if(this.poster) {
-        if(this.poster.parentNode) {
-          this.poster.parentNode.removeChild(this.poster);
-        }
-
-        this.poster = undefined;
-      }
 
       playPauseButton.innerHTML = PauseIcon;
       playPauseButton.classList.add("eluvio-player__controls__button-pause");
