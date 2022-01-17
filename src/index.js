@@ -644,7 +644,12 @@ export class EluvioPlayer {
           }
 
           if(error.fatal || this.errors === 3) {
-            this.HardReload(error);
+            if(error.response.code === 403) {
+              // Not allowed to access
+              this.Destroy();
+            } else {
+              this.HardReload(error);
+            }
           }
         });
 
