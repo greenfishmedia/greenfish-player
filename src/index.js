@@ -610,10 +610,17 @@ export class EluvioPlayer {
           controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions));
         }
 
-        this.controls.SetQualityControls({
-          GetLevels: () => hlsPlayer.levels.map((level, index) => ({index, active: index === hlsPlayer.currentLevel, resolution: level.attrs.RESOLUTION, bitrate: level.bitrate})),
-          SetLevel: levelIndex => hlsPlayer.nextLevel = levelIndex
-        });
+        if(this.controls) {
+          this.controls.SetQualityControls({
+            GetLevels: () => hlsPlayer.levels.map((level, index) => ({
+              index,
+              active: index === hlsPlayer.currentLevel,
+              resolution: level.attrs.RESOLUTION,
+              bitrate: level.bitrate
+            })),
+            SetLevel: levelIndex => hlsPlayer.nextLevel = levelIndex
+          });
+        }
 
         hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => {
           this.errors = 0;

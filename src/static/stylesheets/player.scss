@@ -15,7 +15,7 @@ $border-color: #252525;
 $modal-color: #121212;
 $error-color: #a32;
 $controls-height: 40px;
-$controls-padding: 10px;
+$controls-padding: 5px;
 $button-height: 35px;
 
 .eluvio-player {
@@ -182,17 +182,17 @@ $button-height: 35px;
         margin-right: 2px;
       }
 
+      &-volume {
+        // Move volume button closer to volume slider
+        padding-right: 0;
+      }
+
       svg {
         height: 100%;
         max-height: 100%;
         max-width: 100%;
         overflow: visible;
         width: 100%;
-
-        * {
-          stroke: $button-color;
-          stroke-width: 3px;
-        }
       }
     }
 
@@ -279,14 +279,6 @@ $button-height: 35px;
       display: flex;
       flex-wrap: nowrap;
       height: 100%;
-    }
-
-    &__button-settings {
-      svg {
-        * {
-          stroke-width: 2px;
-        }
-      }
     }
 
     &.eluvio-player__controls-no-progress {
@@ -395,16 +387,6 @@ $button-height: 35px;
       transition: opacity 0.1s linear;
       width: 100%;
       z-index: 11;
-
-      * {
-        stroke: $button-color;
-        stroke-width: 4px;
-      }
-
-      polygon {
-        fill: $button-color;
-        stroke: $button-color;
-      }
     }
 
     &:hover {

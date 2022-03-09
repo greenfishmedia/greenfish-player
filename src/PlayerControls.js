@@ -1,13 +1,12 @@
-import PlayCircleIcon from "./static/icons/play circle.svg";
-
-import PlayIcon from "./static/icons/play.svg";
-import PauseIcon from "./static/icons/pause.svg";
-import FullscreenIcon from "./static/icons/full screen.svg";
+import PlayCircleIcon from "./static/icons/media/LargePlayIcon.svg";
+import PlayIcon from "./static/icons/media/Play icon.svg";
+import PauseIcon from "./static/icons/media/Pause icon.svg";
+import FullscreenIcon from "./static/icons/media/Full Screen icon.svg";
 import ExitFullscreenIcon from "./static/icons/minimize.svg";
-import SettingsIcon from "./static/icons/settings.svg";
-import MutedIcon from "./static/icons/muted.svg";
-import VolumeLowIcon from "./static/icons/unmuted.svg";
-import VolumeHighIcon from "./static/icons/unmuted.svg";
+import SettingsIcon from "./static/icons/media/Settings icon.svg";
+import MutedIcon from "./static/icons/media/no volume icon.svg";
+import VolumeLowIcon from "./static/icons/media/low volume icon.svg";
+import VolumeHighIcon from "./static/icons/media/Volume icon.svg";
 import MultiViewIcon from "./static/icons/multiview.svg";
 
 import Logo from "./static/images/ELUV.IO white 20 px V2.png";
