@@ -576,7 +576,6 @@ export class EluvioPlayer {
 
         if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
       } else if(protocol === "hls") {
-
         playoutUrl.removeQuery("authorization");
 
         // Inject
@@ -723,6 +722,11 @@ export class EluvioPlayer {
       }
 
       this.RegisterVisibilityCallback();
+
+      if(this.__destroyed) {
+        // If Destroy was called during the initialization process, ensure that the player is properly destroyed
+        this.Destroy();
+      }
     } catch (error) {
       this.playerOptions.errorCallback(error);
 
