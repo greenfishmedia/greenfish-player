@@ -107,6 +107,7 @@ const DefaultParameters = {
     loop: EluvioPlayerParameters.loop.OFF,
     watermark: EluvioPlayerParameters.watermark.ON,
     settings: EluvioPlayerParameters.settings.ON,
+    posterUrl: undefined,
     className: undefined,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
@@ -245,6 +246,10 @@ export class EluvioPlayer {
   }
 
   async PosterUrl() {
+    if(this.playerOptions.posterUrl) {
+      return this.playerOptions.posterUrl;
+    }
+
     const client = await this.Client();
 
     try {
