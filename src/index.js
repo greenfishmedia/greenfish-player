@@ -615,12 +615,14 @@ export class EluvioPlayer {
         }
 
         if(this.controls) {
+          window.hls = hlsPlayer;
           this.controls.SetQualityControls({
             GetLevels: () => hlsPlayer.levels.map((level, index) => ({
               index,
               active: index === hlsPlayer.currentLevel,
               resolution: level.attrs.RESOLUTION,
-              bitrate: level.bitrate
+              bitrate: level.bitrate,
+              audioTrack: !level.videoCodec
             })),
             SetLevel: levelIndex => hlsPlayer.nextLevel = levelIndex
           });

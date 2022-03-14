@@ -626,7 +626,11 @@ class PlayerControls {
           classes: ["eluvio-player__controls__settings-menu__option"]
         });
 
-        resolutionButton.innerHTML = `Resolution: ${currentLevel.resolution}`;
+        if(currentLevel.audioTrack) {
+          resolutionButton.innerHTML = `Quality: ${currentLevel.bitrate / 1000}kbps`;
+        } else {
+          resolutionButton.innerHTML = `Resolution: ${currentLevel.resolution}`;
+        }
 
         if(this.SetLevel) {
           resolutionButton.addEventListener("click", () => {
@@ -653,7 +657,11 @@ class PlayerControls {
                   classes: ["eluvio-player__controls__settings-menu__option", level.active ? "eluvio-player__controls__settings-menu__option-selected" : ""]
                 });
 
-                levelOption.innerHTML = `${level.resolution} (${(level.bitrate / 1000 / 1000).toFixed(1)}Mbps)`;
+                if(level.audioTrack) {
+                  levelOption.innerHTML = `${level.bitrate / 1000}kbps`;
+                } else {
+                  levelOption.innerHTML = `${level.resolution} (${(level.bitrate / 1000 / 1000).toFixed(1)}Mbps)`;
+                }
 
                 levelOption.addEventListener("click", () => {
                   this.SetLevel(level.index);
