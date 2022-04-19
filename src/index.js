@@ -97,7 +97,9 @@ const DefaultParameters = {
       playoutType: undefined,
       context: undefined,
       hlsjsProfile: true,
-      authorizationToken: undefined
+      authorizationToken: undefined,
+      clipStart: undefined,
+      clipEnd: undefined
     }
   },
   playerOptions: {
@@ -282,7 +284,15 @@ export class EluvioPlayer {
   async PlayoutOptions() {
     const client = await this.Client();
 
-    let offeringURI;
+    let offeringURI, options = {};
+    if(this.sourceOptions.playoutParameters.clipStart || this.sourceOptions.playoutParameters.clipEnd) {
+      options.clip_start = parseFloat(this.sourceOptions.playoutParameters.clipStart || 0);
+
+      if(this.sourceOptions.playoutParameters.clipEnd) {
+        options.clip_end = parseFloat(this.sourceOptions.playoutParameters.clipEnd);
+      }
+    }
+
     if(this.sourceOptions.playoutParameters.directLink) {
       const availableOfferings = await client.AvailableOfferings({
         objectId: this.sourceOptions.playoutParameters.objectId,
@@ -302,7 +312,8 @@ export class EluvioPlayer {
 
       if(!this.sourceOptions.playoutOptions) {
         this.sourceOptions.playoutOptions = await client.PlayoutOptions({
-          offeringURI
+          offeringURI,
+          options
         });
 
         window.playoutOptions = this.sourceOptions.playoutOptions;
@@ -310,7 +321,8 @@ export class EluvioPlayer {
     } else {
       if(!this.sourceOptions.playoutOptions) {
         this.sourceOptions.playoutOptions = await client.PlayoutOptions({
-          ...this.sourceOptions.playoutParameters
+          ...this.sourceOptions.playoutParameters,
+          options
         });
 
         window.playoutOptions = this.sourceOptions.playoutOptions;
