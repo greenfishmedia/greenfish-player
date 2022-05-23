@@ -46,6 +46,7 @@ export const EluvioPlayerParameters = {
   muted: {
     OFF: false,
     WHEN_NOT_VISIBLE: "when_not_visible",
+    OFF_IF_POSSIBLE: "off_if_possible",
     ON: true
   },
   watermark: {
@@ -738,6 +739,13 @@ export class EluvioPlayer {
 
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON) {
         this.video.play();
+
+        setTimeout(() => {
+          if(this.playerOptions.muted === EluvioPlayerParameters.muted.OFF_IF_POSSIBLE && this.video.paused && !this.video.muted) {
+            this.video.muted = true;
+            this.video.play();
+          }
+        }, 250);
       }
 
       this.RegisterVisibilityCallback();
