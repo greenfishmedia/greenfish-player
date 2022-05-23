@@ -4,7 +4,7 @@
   "description": "![Eluvio Logo](src/static/images/Logo.png \"Eluvio Logo\")",
   "main": "src/index.js",
   "license": "MIT",
-  "homepage": "https://github.com/eluv-io/elv-fabric-browser-app-template",
+  "homepage": "https://github.com/eluv-io/elv-player-js",
   "scripts": {
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
     "serve": "TEST_PAGE=true webpack-dev-server --hot --port 8089 --host=0.0.0.0 --disable-host-check --useLocalIp",
