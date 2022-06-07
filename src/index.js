@@ -16,6 +16,7 @@ export const EluvioPlayerParameters = {
     MAIN: "https://main.net955305.contentfabric.io/config",
     DEMO: "https://demov3.net955210.contentfabric.io/config",
     TEST: "https://test.net955203.contentfabric.io/config",
+    TESTV4: "https://test.net955205.contentfabric.io/config"
   },
   drms: {
     FAIRPLAY: "fairplay",
