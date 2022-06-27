@@ -154,6 +154,22 @@ $button-height: 35px;
     z-index: 10;
   }
 
+  &__hidden-audio-controls {
+    bottom: 5px;
+    height: max-content;
+    left: 5px;
+    position: absolute;
+    width: max-content;
+    opacity: 1;
+    transition: opacity 0.25s linear;
+
+    button {
+      background: $controls-color;
+      border-radius: 100%;
+      padding: $controls-padding;
+    }
+  }
+
   &__controls {
     align-items: center;
     background: $controls-color;
@@ -575,11 +591,13 @@ $button-height: 35px;
     }
 
     .eluvio-player__controls__button {
-      height: CALC(#{$button-height} * 0.9);
-      max-height: CALC(#{$button-height} * 0.9);
-      max-width: CALC(#{$button-height} * 0.9);
-      min-height: CALC(#{$button-height} * 0.9);
-      min-width: CALC(#{$button-height} * 0.9);
+      &:not(&--fixed-size) {
+        height: CALC(#{$button-height} * 0.9);
+        max-height: CALC(#{$button-height} * 0.9);
+        max-width: CALC(#{$button-height} * 0.9);
+        min-height: CALC(#{$button-height} * 0.9);
+        min-width: CALC(#{$button-height} * 0.9);
+      }
     }
 
     .eluvio-player__controls__volume-container {

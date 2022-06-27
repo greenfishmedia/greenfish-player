@@ -159,6 +159,98 @@ class PlayerControls {
     });
   }
 
+
+  AutohideControls(controls) {
+    this.video.addEventListener("play", () => {
+      this.played = true;
+    });
+
+    const PlayerOut = () => {
+      if(!this.played && this.video.paused) { return; }
+
+      this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 2000);
+    };
+
+    const PlayerMove = () => {
+      if(this.controlsHover) { return; }
+
+      this.FadeIn("controls", [controls, this.settingsMenu, this.toolTip]);
+      this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 3000, () => this.target.style.cursor = "none");
+
+      this.target.style.cursor = "unset";
+    };
+
+    const ControlsIn = () => {
+      clearTimeout(this.timeouts.controls);
+      this.controlsHover = true;
+    };
+
+    const ControlsOut = () => this.controlsHover = false;
+
+    // Play / Pause
+    this.video.addEventListener("play", () => PlayerMove);
+    this.video.addEventListener("pause", () => PlayerMove);
+
+    // Mouse events
+    this.target.addEventListener("mousemove", PlayerMove);
+    this.target.addEventListener("mouseleave", PlayerOut);
+    controls.addEventListener("mouseenter", ControlsIn);
+    controls.addEventListener("mouseleave", ControlsOut);
+
+    if(this.settingsMenu) {
+      this.settingsMenu.addEventListener("mouseenter", ControlsIn);
+      this.settingsMenu.addEventListener("mouseleave", ControlsOut);
+    }
+
+    if(this.toolTip) {
+      this.toolTip.addEventListener("mouseenter", ControlsIn);
+      this.toolTip.addEventListener("mouseleave", ControlsOut);
+    }
+
+    // Touch events
+    this.target.addEventListener("touchmove", PlayerMove);
+    this.target.addEventListener("touchleave", PlayerOut);
+    controls.addEventListener("touchmove", ControlsIn);
+    controls.addEventListener("touchleave", ControlsOut);
+    controls.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
+
+    if(this.settingsMenu) {
+      this.settingsMenu.addEventListener("touchmove", ControlsIn);
+      this.settingsMenu.addEventListener("touchleave", ControlsOut);
+      this.settingsMenu.addEventListener("touchend", () => {
+        ControlsOut();
+        PlayerOut();
+      });
+    }
+
+    if(this.toolTip) {
+      this.toolTip.addEventListener("touchmove", ControlsIn);
+      this.toolTip.addEventListener("touchleave", ControlsOut);
+      this.toolTip.addEventListener("touchend", () => {
+        ControlsOut();
+        PlayerOut();
+      });
+    }
+
+    // Keyboard events
+    this.target.addEventListener("blur", () => setTimeout(() => {
+      if(!this.target.contains(document.activeElement)) {
+        PlayerOut();
+        ControlsOut();
+      }
+    }), 2000);
+
+    window.addEventListener("blur", () => { PlayerOut(); ControlsOut(); });
+
+    Array.from(this.target.querySelectorAll("button, input")).forEach(button => {
+      button.addEventListener("focus", () => { PlayerMove(); ControlsIn(); });
+    });
+
+    if(!this.controlsHover) {
+      PlayerOut();
+    }
+  }
+
   InitializeControls() {
     this.target.setAttribute("tabindex", "0");
 
@@ -208,11 +300,8 @@ class PlayerControls {
 
      */
 
-    if(
-      this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT ||
-      this.playerOptions.controls === EluvioPlayerParameters.controls.OFF
-    ) {
-      // Controls disabled
+    if(this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT) {
+      // Default controls
       return;
     }
 
@@ -225,6 +314,53 @@ class PlayerControls {
       clearTimeout(this.timeouts.playPause);
       this.timeouts.playPause = setTimeout(() => this.video.paused ? this.video.play() : this.video.pause(), 200);
     });
+
+    if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
+      // Controls hidden but need to show volume controls
+
+      let controlsCreated = false;
+      const CreateVolumeControl = () => {
+        if(controlsCreated) { return; }
+
+        controlsCreated = true;
+        const controls = CreateElement({
+          parent: this.target,
+          type: "div",
+          classes: ["eluvio-player__hidden-audio-controls"]
+        });
+
+        const volumeButton = CreateImageButton({
+          parent: controls,
+          svg: this.video.muted || this.video.volume === 0 ? MutedIcon : (this.video.volume < 0.5 ? VolumeLowIcon : VolumeHighIcon),
+          classes: ["eluvio-player__controls__button--fixed-size"],
+          label: this.video.muted ? "Unmute" : "Mute"
+        });
+
+        volumeButton.addEventListener("click", () => {
+          this.video.muted = !this.video.muted;
+        });
+
+        this.video.addEventListener("volumechange", () => {
+          volumeButton.innerHTML = this.video.muted || this.video.volume === 0 ? MutedIcon : (this.video.volume < 0.5 ? VolumeLowIcon : VolumeHighIcon);
+        });
+
+        this.AutohideControls(controls);
+      };
+
+      const HasAudio = () => (this.video.mozHasAudio || Boolean(this.video.webkitAudioDecodedByteCount) || Boolean(this.video.audioTracks && this.video.audioTracks.length));
+
+      if(HasAudio()) {
+        CreateVolumeControl();
+      } else {
+        this.video.addEventListener("loadeddata", function() {
+          if(HasAudio()) {
+            CreateVolumeControl();
+          }
+        });
+      }
+
+      return;
+    }
 
     // Big play icon
     this.bigPlayButton = CreateImageButton({
@@ -244,10 +380,6 @@ class PlayerControls {
 
     this.bigPlayButton.style.display = this.video.paused ? null : "none";
     this.bigPlayButton.addEventListener("click", () => this.video.play());
-
-    if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
-      return;
-    }
 
     // Controls container
     const controls = CreateElement({
@@ -482,8 +614,6 @@ class PlayerControls {
     controls.addEventListener("dblclick", event => event.stopPropagation());
 
     this.video.addEventListener("play", () => {
-      this.played = true;
-
       playPauseButton.innerHTML = PauseIcon;
       playPauseButton.classList.add("eluvio-player__controls__button-pause");
       playPauseButton.setAttribute("aria-label", "Pause");
@@ -523,70 +653,8 @@ class PlayerControls {
       }
     });
 
-    // Autohide controls
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
-      const PlayerOut = () => {
-        if(!this.played) { return; }
-
-        this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 2000);
-      };
-
-      const PlayerMove = () => {
-        if(this.controlsHover) { return; }
-
-        this.FadeIn("controls", [controls, this.settingsMenu, this.toolTip]);
-        this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 3000, () => this.target.style.cursor = "none");
-
-        this.target.style.cursor = "unset";
-      };
-
-      const ControlsIn = () => {
-        clearTimeout(this.timeouts.controls);
-        this.controlsHover = true;
-      };
-
-      const ControlsOut = () => this.controlsHover = false;
-
-      // Play / Pause
-      this.video.addEventListener("play", () => PlayerMove);
-      this.video.addEventListener("pause", () => PlayerMove);
-
-      // Mouse events
-      this.target.addEventListener("mousemove", PlayerMove);
-      this.target.addEventListener("mouseleave", PlayerOut);
-      controls.addEventListener("mouseenter", ControlsIn);
-      controls.addEventListener("mouseleave", ControlsOut);
-      this.settingsMenu.addEventListener("mouseenter", ControlsIn);
-      this.settingsMenu.addEventListener("mouseleave", ControlsOut);
-      this.toolTip.addEventListener("mouseenter", ControlsIn);
-      this.toolTip.addEventListener("mouseleave", ControlsOut);
-
-      // Touch events
-      this.target.addEventListener("touchmove", PlayerMove);
-      this.target.addEventListener("touchleave", PlayerOut);
-      controls.addEventListener("touchmove", ControlsIn);
-      controls.addEventListener("touchleave", ControlsOut);
-      controls.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
-      this.settingsMenu.addEventListener("touchmove", ControlsIn);
-      this.settingsMenu.addEventListener("touchleave", ControlsOut);
-      this.settingsMenu.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
-      this.toolTip.addEventListener("touchmove", ControlsIn);
-      this.toolTip.addEventListener("touchleave", ControlsOut);
-      this.toolTip.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
-
-      // Keyboard events
-      this.target.addEventListener("blur", () => setTimeout(() => {
-        if(!this.target.contains(document.activeElement)) {
-          PlayerOut();
-          ControlsOut();
-        }
-      }), 2000);
-
-      window.addEventListener("blur", () => { PlayerOut(); ControlsOut(); });
-
-      Array.from(this.target.querySelectorAll("button, input")).forEach(button => {
-        button.addEventListener("focus", () => { PlayerMove(); ControlsIn(); });
-      });
+      this.AutohideControls(controls);
     }
   }
 
