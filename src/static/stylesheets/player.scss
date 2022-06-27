@@ -158,10 +158,10 @@ $button-height: 35px;
     bottom: 5px;
     height: max-content;
     left: 5px;
-    position: absolute;
-    width: max-content;
     opacity: 1;
+    position: absolute;
     transition: opacity 0.25s linear;
+    width: max-content;
 
     button {
       background: $controls-color;
