@@ -305,16 +305,6 @@ class PlayerControls {
       return;
     }
 
-    this.video.addEventListener("click", () => {
-      if(window.matchMedia("(hover: none)").matches) {
-        // Touch screen - don't start/stop on video click
-        return;
-      }
-
-      clearTimeout(this.timeouts.playPause);
-      this.timeouts.playPause = setTimeout(() => this.video.paused ? this.video.play() : this.video.pause(), 200);
-    });
-
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
       // Controls hidden but need to show volume controls
 
@@ -361,6 +351,16 @@ class PlayerControls {
 
       return;
     }
+
+    this.video.addEventListener("click", () => {
+      if(window.matchMedia("(hover: none)").matches) {
+        // Touch screen - don't start/stop on video click
+        return;
+      }
+
+      clearTimeout(this.timeouts.playPause);
+      this.timeouts.playPause = setTimeout(() => this.video.paused ? this.video.play() : this.video.pause(), 200);
+    });
 
     // Big play icon
     this.bigPlayButton = CreateImageButton({
