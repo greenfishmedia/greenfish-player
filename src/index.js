@@ -481,7 +481,7 @@ export class EluvioPlayer {
         parent: this.target,
         type: "video",
         options: {
-          muted: [EluvioPlayerParameters.muted.OFF, EluvioPlayerParameters.muted.WHEN_NOT_VISIBLE].includes(this.playerOptions.muted),
+          muted: [EluvioPlayerParameters.muted.ON, EluvioPlayerParameters.muted.WHEN_NOT_VISIBLE].includes(this.playerOptions.muted),
           controls: this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT,
           loop: this.playerOptions.loop === EluvioPlayerParameters.loop.ON
         },
