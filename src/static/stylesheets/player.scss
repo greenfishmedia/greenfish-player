@@ -142,6 +142,7 @@ $button-height: 35px;
     object-fit: contain;
     object-position: center;
     width: 100%;
+    z-index: 1;
   }
 
   &__watermark {
@@ -162,6 +163,7 @@ $button-height: 35px;
     position: absolute;
     transition: opacity 0.25s linear;
     width: max-content;
+    z-index: 10;
 
     button {
       background: $controls-color;
