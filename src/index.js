@@ -36,6 +36,7 @@ export const EluvioPlayerParameters = {
   },
   controls: {
     OFF: false,
+    OFF_WITH_VOLUME_TOGGLE: "off_with_volume_toggle",
     AUTO_HIDE: "autohide",
     ON: true,
     DEFAULT: "default"

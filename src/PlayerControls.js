@@ -300,12 +300,12 @@ class PlayerControls {
 
      */
 
-    if(this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT) {
-      // Default controls
+    if([EluvioPlayerParameters.controls.DEFAULT, EluvioPlayerParameters.controls.OFF].includes(this.playerOptions.controls)) {
+      // Custom controls disabled
       return;
     }
 
-    if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF) {
+    if(this.playerOptions.controls === EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE) {
       // Controls hidden but need to show volume controls
 
       let controlsCreated = false;
@@ -769,10 +769,7 @@ class PlayerControls {
   }
 
   SetQualityControls({GetLevels, SetLevel}) {
-    if(
-      this.playerOptions.controls === EluvioPlayerParameters.controls.DEFAULT ||
-      this.playerOptions.controls === EluvioPlayerParameters.controls.OFF
-    ) {
+    if([EluvioPlayerParameters.controls.OFF, EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE, EluvioPlayerParameters.controls.DEFAULT].includes(this.playerOptions.controls)) {
       // Controls disabled
       return;
     }
