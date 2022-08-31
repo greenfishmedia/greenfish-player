@@ -588,18 +588,15 @@ $button-height: 35px;
     }
 
     .eluvio-player__controls {
-      //height: CALC(#{$controls-height} * 0.65);
       padding: 0 CALC(#{$controls-padding} * 0.5);
     }
 
     .eluvio-player__controls__button {
-      &:not(&--fixed-size) {
-        height: CALC(#{$button-height} * 0.9);
-        max-height: CALC(#{$button-height} * 0.9);
-        max-width: CALC(#{$button-height} * 0.9);
-        min-height: CALC(#{$button-height} * 0.9);
-        min-width: CALC(#{$button-height} * 0.9);
-      }
+      height: CALC(#{$button-height} * 0.9);
+      max-height: CALC(#{$button-height} * 0.9);
+      max-width: CALC(#{$button-height} * 0.9);
+      min-height: CALC(#{$button-height} * 0.9);
+      min-width: CALC(#{$button-height} * 0.9);
     }
 
     .eluvio-player__controls__volume-container {
