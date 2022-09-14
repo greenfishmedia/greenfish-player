@@ -107,7 +107,7 @@ const Time = (time, total) => {
 };
 
 class PlayerControls {
-  constructor(target, video, playerOptions, posterUrl) {
+  constructor(target, video, playerOptions, posterUrl, className) {
     this.target = target;
     this.video = video;
     this.playerOptions = playerOptions;
@@ -128,7 +128,7 @@ class PlayerControls {
     this.controlsHover = false;
     this.progressHidden = false;
 
-    this.InitializeControls();
+    this.InitializeControls(className);
   }
 
   FadeOut(key, elements, delay=250, callback) {
@@ -251,7 +251,7 @@ class PlayerControls {
     }
   }
 
-  InitializeControls() {
+  InitializeControls(className="") {
     this.target.setAttribute("tabindex", "0");
 
     if(this.playerOptions.watermark) {
@@ -385,7 +385,7 @@ class PlayerControls {
     const controls = CreateElement({
       parent: this.target,
       type: "div",
-      classes: ["eluvio-player__controls"]
+      classes: ["eluvio-player__controls", className]
     });
 
     this.controls = controls;

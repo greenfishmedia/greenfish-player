@@ -114,6 +114,7 @@ const DefaultParameters = {
     settings: EluvioPlayerParameters.settings.ON,
     posterUrl: undefined,
     className: undefined,
+    controlsClassName: undefined,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
     // eslint-disable-next-line no-unused-vars
@@ -540,7 +541,7 @@ export class EluvioPlayer {
 
       const controlsPromise = this.PosterUrl().then(posterUrl => {
         this.posterUrl = posterUrl;
-        this.controls = new PlayerControls(this.target, this.video, this.playerOptions, posterUrl);
+        this.controls = new PlayerControls(this.target, this.video, this.playerOptions, posterUrl, this.playerOptions.controlsClassName);
       });
 
       if(this.clientOptions.promptTicket && !this.clientOptions.ticketCode) {
