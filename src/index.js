@@ -118,7 +118,7 @@ const DefaultParameters = {
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
     // eslint-disable-next-line no-unused-vars
-    playerCallback: ({videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
+    playerCallback: ({player, videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
     errorCallback: (error) => {
       // eslint-disable-next-line no-console
       console.error("ELUVIO PLAYER: Error");
@@ -733,6 +733,7 @@ export class EluvioPlayer {
 
       if(this.playerOptions.playerCallback) {
         this.playerOptions.playerCallback({
+          player: this,
           videoElement: this.video,
           hlsPlayer,
           dashPlayer,

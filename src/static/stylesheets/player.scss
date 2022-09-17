@@ -592,11 +592,13 @@ $button-height: 35px;
     }
 
     .eluvio-player__controls__button {
-      height: CALC(#{$button-height} * 0.9);
-      max-height: CALC(#{$button-height} * 0.9);
-      max-width: CALC(#{$button-height} * 0.9);
-      min-height: CALC(#{$button-height} * 0.9);
-      min-width: CALC(#{$button-height} * 0.9);
+      &:not(.eluvio-player__big-play-button) {
+        height: CALC(#{$button-height} * 0.9);
+        max-height: CALC(#{$button-height} * 0.9);
+        max-width: CALC(#{$button-height} * 0.9);
+        min-height: CALC(#{$button-height} * 0.9);
+        min-width: CALC(#{$button-height} * 0.9);
+      }
     }
 
     .eluvio-player__controls__volume-container {
@@ -604,10 +606,10 @@ $button-height: 35px;
     }
 
     .eluvio-player__big-play-button {
-      max-height: 75px;
-      max-width: 75px;
-      min-height: 75px;
-      min-width: 75px;
+      max-height: 55px;
+      max-width: 55px;
+      min-height: 55px;
+      min-width: 55px;
     }
 
     .eluvio-player__ticket-modal {
