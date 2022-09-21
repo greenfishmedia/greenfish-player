@@ -8,6 +8,7 @@ import MutedIcon from "./static/icons/media/no volume icon.svg";
 import VolumeLowIcon from "./static/icons/media/low volume icon.svg";
 import VolumeHighIcon from "./static/icons/media/Volume icon.svg";
 import MultiViewIcon from "./static/icons/multiview.svg";
+import LeftArrow from "./static/icons/arrow-left.svg";
 
 import Logo from "./static/images/ELUV.IO white 20 px V2.png";
 
@@ -122,7 +123,6 @@ class PlayerControls {
       };
     }
 
-    this.settingsMenuContent = "none";
     this.timeouts = {};
     this.played = false;
     this.controlsHover = false;
@@ -561,6 +561,7 @@ class PlayerControls {
       type: "div",
       classes: ["eluvio-player__controls__settings-menu", "eluvio-player__controls__settings-menu-hidden"]
     });
+    this.settingsMenu.setAttribute("data-mode", "hidden");
 
     this.target.addEventListener("keydown", event => event && (event.key || "").toLowerCase() === "escape" && this.HideSettingsMenu());
 
@@ -658,93 +659,79 @@ class PlayerControls {
     }
   }
 
-  HideSettingsMenu() {
-    if(this.settingsMenuContent === "settings") {
-      this.settingsButton.focus();
-    } else if(this.settingsMenuContent === "multiview") {
-      this.multiviewButton.focus();
-    }
+  AddSetting({Retrieve, Set}) {
+    if(!Retrieve) { return; }
 
-    this.settingsMenu.innerHTML = "";
-    this.settingsMenu.classList.add("eluvio-player__controls__settings-menu-hidden");
-    this.settingsMenuContent = "none";
-  }
+    const { label, options } = Retrieve();
 
-  ToggleSettings() {
-    this.settingsMenu.innerHTML = "";
+    const currentOption = options.find(option => option.active);
 
-    if(this.settingsMenuContent === "settings") {
-      this.HideSettingsMenu();
-      return;
-    }
+    const optionSelectionButton = CreateElement({
+      parent: this.settingsMenu,
+      type: Set ? "button" : "div",
+      classes: ["eluvio-player__controls__settings-menu__option"]
+    });
 
-    this.settingsMenuContent = "settings";
-    this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");
+    optionSelectionButton.innerHTML = currentOption && currentOption.activeLabel || label;
 
-    // Resolution settings
-    if(this.GetLevels) {
-      const levels = this.GetLevels();
+    if(Set) {
+      optionSelectionButton.addEventListener("click", () => {
+        this.settingsMenu.innerHTML = "";
+        this.settingsMenu.setAttribute("data-mode", "settings-submenu");
 
-      const currentLevel = levels.find(level => level.active);
-
-      if(currentLevel) {
-        const resolutionButton = CreateElement({
+        const backButton = CreateElement({
           parent: this.settingsMenu,
-          type: this.SetLevel ? "button" : "div",
-          classes: ["eluvio-player__controls__settings-menu__option"]
+          type: "button",
+          classes: ["eluvio-player__controls__settings-menu__option", "eluvio-player__controls__settings-menu__option-back"],
         });
 
-        if(currentLevel.audioTrack) {
-          resolutionButton.innerHTML = `Quality: ${currentLevel.bitrate / 1000}kbps`;
-        } else {
-          resolutionButton.innerHTML = `Resolution: ${currentLevel.resolution}`;
-        }
+        CreateElement({
+          parent: backButton,
+          type: "svg"
+        }).innerHTML = LeftArrow;
 
-        if(this.SetLevel) {
-          resolutionButton.addEventListener("click", () => {
-            this.settingsMenu.innerHTML = "";
+        CreateElement({
+          parent: backButton,
+        }).innerHTML = label;
 
-            const autoLevel = CreateElement({
+        backButton.addEventListener("click", () => this.ShowSettingsMenu());
+
+        options
+          .forEach(option => {
+            const optionButton = CreateElement({
               parent: this.settingsMenu,
               type: "button",
-              classes: ["eluvio-player__controls__settings-menu__option"]
+              classes: ["eluvio-player__controls__settings-menu__option", option.active ? "eluvio-player__controls__settings-menu__option-selected" : ""]
             });
 
-            autoLevel.innerHTML = "Auto";
-            autoLevel.addEventListener("click", () => {
-              this.SetLevel(-1);
+            optionButton.innerHTML = option.label;
+
+            optionButton.addEventListener("click", () => {
+              Set(option.index);
               this.HideSettingsMenu();
             });
-
-            levels
-              .sort((a, b) => a.bitrate < b.bitrate ? 1 : -1)
-              .forEach(level => {
-                const levelOption = CreateElement({
-                  parent: this.settingsMenu,
-                  type: "button",
-                  classes: ["eluvio-player__controls__settings-menu__option", level.active ? "eluvio-player__controls__settings-menu__option-selected" : ""]
-                });
-
-                if(level.audioTrack) {
-                  levelOption.innerHTML = `${level.bitrate / 1000}kbps`;
-                } else {
-                  levelOption.innerHTML = `${level.resolution} (${(level.bitrate / 1000 / 1000).toFixed(1)}Mbps)`;
-                }
-
-                levelOption.addEventListener("click", () => {
-                  this.SetLevel(level.index);
-                  this.HideSettingsMenu();
-                });
-              });
-
-            // Focus on first element in list when menu opened
-            const firstItem = this.settingsMenu.querySelector("button");
-            if(firstItem) {
-              firstItem.focus();
-            }
           });
+
+        // Focus on first element in list when menu opened
+        const firstItem = this.settingsMenu.querySelector("button");
+        if(firstItem) {
+          firstItem.focus();
         }
-      }
+      });
+    }
+  }
+
+  ShowSettingsMenu() {
+    this.settingsMenu.innerHTML = "";
+    this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");
+    this.settingsMenu.setAttribute("data-mode", "settings");
+
+    if(this.GetLevels) {
+      this.AddSetting({Retrieve: this.GetLevels, Set: this.SetLevel});
+    }
+
+    if(this.GetAudioTracks) {
+      this.AddSetting({Retrieve: this.GetAudioTracks, Set: this.SetAudioTrack});
     }
 
     // Focus on first element in list when menu opened
@@ -754,18 +741,51 @@ class PlayerControls {
     }
   }
 
-  InitializeSettingsButton() {
-    if(this.settingsButton) { return; }
+  HideSettingsMenu() {
+    const mode = this.settingsMenu.dataset.mode;
+    if(mode === "settings") {
+      this.settingsButton.focus();
+    } else if(mode === "multiview") {
+      this.multiviewButton.focus();
+    }
 
-    this.settingsButton = CreateImageButton({
-      parent: this.rightButtonsContainer,
-      svg: SettingsIcon,
-      classes: ["eluvio-player__controls__button-settings"],
-      prepend: true,
-      label: "Settings"
-    });
+    this.settingsMenu.innerHTML = "";
+    this.settingsMenu.classList.add("eluvio-player__controls__settings-menu-hidden");
+    this.settingsMenu.setAttribute("data-mode", "hidden");
+  }
 
-    this.settingsButton.addEventListener("click", () => this.ToggleSettings());
+  UpdateSettings() {
+    if(!this.settingsButton) {
+      this.settingsButton = CreateImageButton({
+        parent: this.rightButtonsContainer,
+        svg: SettingsIcon,
+        classes: ["eluvio-player__controls__button-settings"],
+        prepend: true,
+        label: "Settings"
+      });
+
+      this.settingsButton.addEventListener("click", () => {
+        this.settingsMenu.dataset.mode === "hidden" ?
+          this.ShowSettingsMenu() :
+          this.HideSettingsMenu();
+      });
+    }
+
+    if(this.settingsMenu.dataset.mode === "settings") {
+      this.ShowSettingsMenu();
+    }
+  }
+
+  SetAudioTracks({GetAudioTracks, SetAudioTrack}) {
+    if([EluvioPlayerParameters.controls.OFF, EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE, EluvioPlayerParameters.controls.DEFAULT].includes(this.playerOptions.controls)) {
+      // Controls disabled
+      return;
+    }
+
+    this.GetAudioTracks = GetAudioTracks;
+    this.SetAudioTrack = SetAudioTrack;
+
+    this.UpdateSettings();
   }
 
   SetQualityControls({GetLevels, SetLevel}) {
@@ -774,10 +794,10 @@ class PlayerControls {
       return;
     }
 
-    this.InitializeSettingsButton();
-
     this.GetLevels = GetLevels;
     this.SetLevel = SetLevel;
+
+    this.UpdateSettings();
   }
 
   InitializeMultiViewControls({AvailableViews, SwitchView}) {
@@ -823,12 +843,12 @@ class PlayerControls {
   async ToggleMultiviewControls({AvailableViews, SwitchView}={}) {
     this.settingsMenu.innerHTML = "";
 
-    if(this.settingsMenuContent === "multiview") {
+    if(this.settingsMenu.dataset.mode === "multiview") {
       this.HideSettingsMenu();
       return;
     }
 
-    this.settingsMenuContent = "multiview";
+    this.settingsMenu.setAttribute("data-mode", "multiview");
     this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");
 
     const views = await AvailableViews();

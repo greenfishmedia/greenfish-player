@@ -6,6 +6,8 @@ $black: #000;
 
 $background-color: $black;
 $controls-color: rgba(0, 0, 0, 0.4);
+$menu-color: rgba(0, 0, 0, 0.8);
+$menu-active-color: rgba(255, 255, 255, 0.1);
 $button-color: rgba($white, 0.8);
 $progress-color: #0885fb;
 $slider-color: rgba($gray, 0.5);
@@ -343,7 +345,7 @@ $button-height: 35px;
     }
 
     &__settings-menu {
-      background: $controls-color;
+      background: $menu-color;
       border-radius: 3px;
       bottom: 45px;
       color: $button-color;
@@ -370,15 +372,33 @@ $button-height: 35px;
         display: block;
         font-size: 14px;
         height: 100%;
+        line-height: 1.4;
         padding: 9px 20px;
+        text-align: left;
         width: 100%;
+
+        &-back {
+          display: flex;
+          font-weight: 500;
+          width: 100%;
+
+          svg {
+            height: 15px;
+            margin-right: 5px;
+            width: 15px;
+          }
+
+          div {
+            width: 100%;
+          }
+        }
 
         &-selected {
           color: $button-color;
         }
 
         &:hover {
-          background: $controls-color;
+          background: $menu-active-color;
           color: $button-color;
         }
 

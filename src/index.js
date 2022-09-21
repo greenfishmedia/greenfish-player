@@ -631,16 +631,64 @@ export class EluvioPlayer {
         }
 
         if(this.controls) {
+          const UpdateQualityOptions = () => {
+            try {
+              this.controls.SetQualityControls({
+                GetLevels: () => {
+                  let levels = hlsPlayer.levels
+                    .map((level, index) => ({
+                      index,
+                      active: index === hlsPlayer.currentLevel,
+                      resolution: level.attrs.RESOLUTION,
+                      bitrate: level.bitrate,
+                      audioTrack: !level.videoCodec,
+                      label:
+                        level.audioTrack ?
+                          `${level.bitrate / 1000}kbps` :
+                          `${level.attrs.RESOLUTION} (${(level.bitrate / 1000 / 1000).toFixed(1)}Mbps)`,
+                      activeLabel:
+                        level.audioTrack ?
+                          `Quality: ${level.bitrate / 1000}kbps` :
+                          `Quality: ${level.attrs.RESOLUTION}`
+                    }))
+                    .sort((a, b) => a.bitrate < b.bitrate ? 1 : -1);
+
+                  levels.unshift({index: -1, label: "Auto"});
+
+                  return { label: "Quality", options: levels };
+                },
+                SetLevel: levelIndex => {
+                  hlsPlayer.nextLevel = levelIndex;
+                  hlsPlayer.streamController.immediateLevelSwitch();
+                }
+              });
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.error("ELUVIO PLAYER:", error);
+            }
+          };
+
           window.hls = hlsPlayer;
-          this.controls.SetQualityControls({
-            GetLevels: () => hlsPlayer.levels.map((level, index) => ({
-              index,
-              active: index === hlsPlayer.currentLevel,
-              resolution: level.attrs.RESOLUTION,
-              bitrate: level.bitrate,
-              audioTrack: !level.videoCodec
-            })),
-            SetLevel: levelIndex => hlsPlayer.nextLevel = levelIndex
+          hlsPlayer.on(HLSPlayer.Events.LEVEL_LOADED, () => UpdateQualityOptions());
+          hlsPlayer.on(HLSPlayer.Events.LEVEL_SWITCHED, () => UpdateQualityOptions());
+
+          hlsPlayer.on(HLSPlayer.Events.AUDIO_TRACKS_UPDATED, () => {
+            this.controls.SetAudioTracks({
+              GetAudioTracks: () => {
+                const tracks = hlsPlayer.audioTracks.map(track => ({
+                  index: track.id,
+                  label: track.name,
+                  active: track.id === hlsPlayer.audioTrack,
+                  activeLabel: `Audio: ${track.name}`
+                }));
+
+                return { label: "Audio Track", options: tracks };
+              },
+              SetAudioTrack: index => {
+                hlsPlayer.audioTrack = index;
+                hlsPlayer.streamController.immediateLevelSwitch();
+              }
+            });
           });
         }
 
