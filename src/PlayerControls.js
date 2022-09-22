@@ -487,7 +487,11 @@ class PlayerControls {
       classes: ["eluvio-player__controls__slider-container__input", "eluvio-player__controls__progress-slider"]
     });
 
-    progressSlider.addEventListener("input", () => this.video.currentTime = this.video.duration * parseFloat(progressSlider.value));
+    progressSlider.addEventListener("input", () => {
+      if(!this.video.duration) { return; }
+
+      this.video.currentTime = this.video.duration * parseFloat(progressSlider.value || 0);
+    });
 
     // Progress Bar
     const progressBar = CreateElement({
@@ -734,6 +738,10 @@ class PlayerControls {
       this.AddSetting({Retrieve: this.GetAudioTracks, Set: this.SetAudioTrack});
     }
 
+    if(this.GetTextTracks) {
+      this.AddSetting({Retrieve: this.GetTextTracks, Set: this.SetTextTrack});
+    }
+
     // Focus on first element in list when menu opened
     const firstItem = this.settingsMenu.querySelector("button");
     if(firstItem) {
@@ -776,7 +784,7 @@ class PlayerControls {
     }
   }
 
-  SetAudioTracks({GetAudioTracks, SetAudioTrack}) {
+  SetAudioTrackControls({GetAudioTracks, SetAudioTrack}) {
     if([EluvioPlayerParameters.controls.OFF, EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE, EluvioPlayerParameters.controls.DEFAULT].includes(this.playerOptions.controls)) {
       // Controls disabled
       return;
@@ -784,6 +792,18 @@ class PlayerControls {
 
     this.GetAudioTracks = GetAudioTracks;
     this.SetAudioTrack = SetAudioTrack;
+
+    this.UpdateSettings();
+  }
+
+  SetTextTrackControls({GetTextTracks, SetTextTrack}) {
+    if([EluvioPlayerParameters.controls.OFF, EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE, EluvioPlayerParameters.controls.DEFAULT].includes(this.playerOptions.controls)) {
+      // Controls disabled
+      return;
+    }
+
+    this.GetTextTracks = GetTextTracks;
+    this.SetTextTrack = SetTextTrack;
 
     this.UpdateSettings();
   }

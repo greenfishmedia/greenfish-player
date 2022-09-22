@@ -625,13 +625,14 @@ export class EluvioPlayer {
     }
   }
 
-  async InitializeHLS({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise}) {
+  async InitializeHLS({playoutUrl, authorizationToken, drm, multiviewOptions, controlsPromise}) {
     const HLSPlayer = (await import("hls-fix")).default;
 
     if(drm === "fairplay") {
       InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
 
       if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
+      this.UpdateTextTracks();
     } else if(!HLSPlayer.isSupported() || drm === "sample-aes") {
       this.video.src = playoutUrl.toString();
 
@@ -708,11 +709,12 @@ export class EluvioPlayer {
           }
         };
 
+        hlsPlayer.on(HLSPlayer.Events.SUBTITLE_TRACKS_UPDATED, () => this.UpdateTextTracks());
         hlsPlayer.on(HLSPlayer.Events.LEVEL_LOADED, () => UpdateQualityOptions());
         hlsPlayer.on(HLSPlayer.Events.LEVEL_SWITCHED, () => UpdateQualityOptions());
-
+        hlsPlayer.on(HLSPlayer.Events.SUBTITLE_TRACK_SWITCH, () => this.UpdateTextTracks());
         hlsPlayer.on(HLSPlayer.Events.AUDIO_TRACKS_UPDATED, () => {
-          this.controls.SetAudioTracks({
+          this.controls.SetAudioTrackControls({
             GetAudioTracks: () => {
               const tracks = hlsPlayer.audioTracks.map(track => ({
                 index: track.id,
@@ -843,6 +845,7 @@ export class EluvioPlayer {
             dashPlayer.setQualityFor("video", levelIndex);
             dashPlayer.updateSettings({
               streaming: {
+                trackSwitchMode: "alwaysReplace",
                 fastSwitchEnabled: true,
                 abr: {
                   autoSwitchBitrate: {
@@ -860,7 +863,7 @@ export class EluvioPlayer {
     };
 
     const UpdateAudioTracks = () => {
-      this.controls.SetAudioTracks({
+      this.controls.SetAudioTrackControls({
         GetAudioTracks: () => {
           const tracks = this.player.getTracksFor("audio").map(track => ({
             index: track.index,
@@ -879,14 +882,60 @@ export class EluvioPlayer {
     };
 
     dashPlayer.on(DashPlayer.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => UpdateQualityOptions());
-    dashPlayer.on(DashPlayer.MediaPlayer.events.TRACK_CHANGE_RENDERED, () => UpdateAudioTracks());
+    dashPlayer.on(DashPlayer.MediaPlayer.events.TRACK_CHANGE_RENDERED, () => {
+      UpdateAudioTracks();
+      this.UpdateTextTracks({dashPlayer});
+    });
     dashPlayer.on(DashPlayer.MediaPlayer.events.MANIFEST_LOADED, () => {
       UpdateQualityOptions();
       UpdateAudioTracks();
+      this.UpdateTextTracks({dashPlayer});
     });
 
     this.player = dashPlayer;
     this.dashPlayer = dashPlayer;
+  }
+
+  UpdateTextTracks({dashPlayer}={}) {
+    this.controls.SetTextTrackControls({
+      GetTextTracks: () => {
+        const activeTrackIndex = Array.from(this.video.textTracks).findIndex(track => track.mode === "showing");
+
+        let tracks;
+        if(dashPlayer) {
+          tracks = dashPlayer.getTracksFor("text").map((track, index) => ({
+            index: index,
+            label: track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang,
+            active: index === activeTrackIndex,
+            activeLabel: `Subtitles: ${track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang}`
+          }));
+        } else {
+          tracks = Array.from(this.video.textTracks).map((track, index) => ({
+            index: index,
+            label: track.label || track.language,
+            active: track.mode === "showing",
+            activeLabel: `Subtitles: ${track.label || track.language}`
+          }));
+        }
+
+        tracks.unshift({
+          index: -1,
+          label: "Disabled",
+          active: activeTrackIndex < 0,
+          activeLabel: "Subtitles: Disabled"
+        });
+
+        return { label: "Subtitles", options: tracks };
+      },
+      SetTextTrack: index => {
+        const tracks = Array.from(this.video.textTracks);
+        tracks.map(track => track.mode = "disabled");
+
+        if(index >= 0) {
+          tracks[index].mode = "showing";
+        }
+      }
+    });
   }
 }
 
