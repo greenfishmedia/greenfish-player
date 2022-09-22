@@ -138,6 +138,8 @@ export class EluvioPlayer {
     this.DetectRemoval = this.DetectRemoval.bind(this);
 
     this.Initialize(target, parameters);
+
+    window.EluvioPlayer = this;
   }
 
   Log(message, error=false) {
@@ -269,6 +271,7 @@ export class EluvioPlayer {
         const imageMetadata = await client.ContentObjectMetadata({
           versionHash: targetHash,
           metadataSubtree: "public",
+          authorizationToken: this.sourceOptions.playoutParameters.authorizationToken,
           select: [
             "display_image",
             "asset_metadata/nft/image"
@@ -319,8 +322,6 @@ export class EluvioPlayer {
           offeringURI,
           options
         });
-
-        window.playoutOptions = this.sourceOptions.playoutOptions;
       }
     } else {
       if(!this.sourceOptions.playoutOptions) {
@@ -328,8 +329,6 @@ export class EluvioPlayer {
           ...this.sourceOptions.playoutParameters,
           options
         });
-
-        window.playoutOptions = this.sourceOptions.playoutOptions;
       }
     }
 
@@ -584,207 +583,18 @@ export class EluvioPlayer {
         this.sourceOptions.playoutParameters.authorizationToken ||
         playoutUrl.query(true).authorization;
 
-      //const HLSPlayer = (await import("hls.js")).default;
-      const HLSPlayer = (await import("hls-fix")).default;
-
-      let hlsPlayer, dashPlayer;
-      if(drm === "fairplay") {
-        InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
-
-        if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
-      } else if(!HLSPlayer.isSupported() || drm === "sample-aes") {
-        this.video.src = playoutUrl.toString();
-
-        if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
-      } else if(protocol === "hls") {
-        playoutUrl.removeQuery("authorization");
-
-        // Inject
-        hlsPlayer = new HLSPlayer({
-          maxBufferLength: 30,
-          maxBufferSize: 300,
-          enableWorker: true,
-          capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
-          xhrSetup: xhr => {
-            xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
-
-            if((this.playerOptions.hlsjsOptions || {}).xhrSetup) {
-              this.playerOptions.hlsjsOptions.xhrSetup(xhr);
-            }
-
-            return xhr;
-          },
-          ...(this.playerOptions.hlsjsOptions || {})
-        });
-        hlsPlayer.loadSource(playoutUrl.toString());
-        hlsPlayer.attachMedia(this.video);
-
-        if(multiviewOptions.enabled) {
-          const Switch = multiviewOptions.SwitchView;
-
-          multiviewOptions.SwitchView = async (view) => {
-            await Switch(view);
-            hlsPlayer.nextLevel = hlsPlayer.currentLevel;
-          };
-
-          controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions));
-        }
-
-        if(this.controls) {
-          const UpdateQualityOptions = () => {
-            try {
-              this.controls.SetQualityControls({
-                GetLevels: () => {
-                  let levels = hlsPlayer.levels
-                    .map((level, index) => ({
-                      index,
-                      active: index === hlsPlayer.currentLevel,
-                      resolution: level.attrs.RESOLUTION,
-                      bitrate: level.bitrate,
-                      audioTrack: !level.videoCodec,
-                      label:
-                        level.audioTrack ?
-                          `${level.bitrate / 1000}kbps` :
-                          `${level.attrs.RESOLUTION} (${(level.bitrate / 1000 / 1000).toFixed(1)}Mbps)`,
-                      activeLabel:
-                        level.audioTrack ?
-                          `Quality: ${level.bitrate / 1000}kbps` :
-                          `Quality: ${level.attrs.RESOLUTION}`
-                    }))
-                    .sort((a, b) => a.bitrate < b.bitrate ? 1 : -1);
-
-                  levels.unshift({index: -1, label: "Auto"});
-
-                  return { label: "Quality", options: levels };
-                },
-                SetLevel: levelIndex => {
-                  hlsPlayer.nextLevel = levelIndex;
-                  hlsPlayer.streamController.immediateLevelSwitch();
-                }
-              });
-            } catch (error) {
-              // eslint-disable-next-line no-console
-              console.error("ELUVIO PLAYER:", error);
-            }
-          };
-
-          window.hls = hlsPlayer;
-          hlsPlayer.on(HLSPlayer.Events.LEVEL_LOADED, () => UpdateQualityOptions());
-          hlsPlayer.on(HLSPlayer.Events.LEVEL_SWITCHED, () => UpdateQualityOptions());
-
-          hlsPlayer.on(HLSPlayer.Events.AUDIO_TRACKS_UPDATED, () => {
-            this.controls.SetAudioTracks({
-              GetAudioTracks: () => {
-                const tracks = hlsPlayer.audioTracks.map(track => ({
-                  index: track.id,
-                  label: track.name,
-                  active: track.id === hlsPlayer.audioTrack,
-                  activeLabel: `Audio: ${track.name}`
-                }));
-
-                return { label: "Audio Track", options: tracks };
-              },
-              SetAudioTrack: index => {
-                hlsPlayer.audioTrack = index;
-                hlsPlayer.streamController.immediateLevelSwitch();
-              }
-            });
-          });
-        }
-
-        hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => {
-          this.errors = 0;
-          clearTimeout(this.bufferFullRestartTimeout);
-        });
-
-        hlsPlayer.on(HLSPlayer.Events.ERROR, async (event, error) => {
-          this.errors += 1;
-
-          this.Log(`Encountered ${error.details}`);
-          this.Log(error);
-
-          if(error.details === "bufferFullError") {
-            this.bufferFullRestartTimeout = setTimeout(() => {
-              this.Log("Buffer full error - Restarting player", true);
-              this.HardReload(error, 5000);
-            }, 3000);
-          }
-
-          if(error.details === "bufferStalledError") {
-            const stallTime = this.video.currentTime;
-
-            setTimeout(() => {
-              if(!this.video.paused && this.video.currentTime === stallTime) {
-                this.Log("Buffer stalled error, no progress in 5 seconds - Restarting player", true);
-              }
-            }, 5000);
-          }
-
-          if(error.fatal || this.errors === 3) {
-            if(error.response.code === 403) {
-              // Not allowed to access
-              this.Destroy();
-            } else {
-              this.HardReload(error);
-            }
-          }
-        });
-
-        this.player = hlsPlayer;
+      if(protocol === "hls") {
+        await this.InitializeHLS({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise});
       } else {
-        const DashPlayer = (await import("dashjs")).default;
-        dashPlayer = DashPlayer.MediaPlayer().create();
-
-        if(this.playerOptions.capLevelToPlayerSize) {
-          dashPlayer.updateSettings({
-            "streaming": {
-              "abr": {
-                "limitBitrateByPortal": true
-              }
-            }
-          });
-        }
-
-        playoutUrl.removeQuery("authorization");
-        dashPlayer.extend("RequestModifier", function () {
-          return {
-            modifyRequestHeader: xhr => {
-              xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
-
-              return xhr;
-            },
-            modifyRequestURL: url => url
-          };
-        });
-
-        // Widevine
-        if(drm === EluvioPlayerParameters.drms.WIDEVINE) {
-          const widevineUrl = drms.widevine.licenseServers[0];
-
-          dashPlayer.setProtectionData({
-            "com.widevine.alpha": {
-              "serverURL": widevineUrl
-            }
-          });
-        }
-
-        dashPlayer.initialize(
-          this.video,
-          playoutUrl.toString(),
-          this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON
-        );
-
-        if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
-
-        this.player = dashPlayer;
+        await this.InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise});
       }
 
       if(this.playerOptions.playerCallback) {
         this.playerOptions.playerCallback({
           player: this,
           videoElement: this.video,
-          hlsPlayer,
-          dashPlayer,
+          hlsPlayer: this.hlsPlayer,
+          dashPlayer: this.dashPlayer,
           posterUrl: this.posterUrl
         });
       }
@@ -813,6 +623,270 @@ export class EluvioPlayer {
         this.HardReload(error, 10000);
       }
     }
+  }
+
+  async InitializeHLS({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise}) {
+    const HLSPlayer = (await import("hls-fix")).default;
+
+    if(drm === "fairplay") {
+      InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
+
+      if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
+    } else if(!HLSPlayer.isSupported() || drm === "sample-aes") {
+      this.video.src = playoutUrl.toString();
+
+      if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
+    } else {
+      playoutUrl.removeQuery("authorization");
+
+      // Inject
+      const hlsPlayer = new HLSPlayer({
+        maxBufferLength: 30,
+        maxBufferSize: 300,
+        enableWorker: true,
+        capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
+        xhrSetup: xhr => {
+          xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
+
+          if((this.playerOptions.hlsjsOptions || {}).xhrSetup) {
+            this.playerOptions.hlsjsOptions.xhrSetup(xhr);
+          }
+
+          return xhr;
+        },
+        ...(this.playerOptions.hlsjsOptions || {})
+      });
+      hlsPlayer.loadSource(playoutUrl.toString());
+      hlsPlayer.attachMedia(this.video);
+
+      if(multiviewOptions.enabled) {
+        const Switch = multiviewOptions.SwitchView;
+
+        multiviewOptions.SwitchView = async (view) => {
+          await Switch(view);
+          hlsPlayer.nextLevel = hlsPlayer.currentLevel;
+        };
+
+        controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions));
+      }
+
+      if(this.controls) {
+        const UpdateQualityOptions = () => {
+          try {
+            this.controls.SetQualityControls({
+              GetLevels: () => {
+                let levels = hlsPlayer.levels
+                  .map((level, index) => ({
+                    index,
+                    active: hlsPlayer.currentLevel === index,
+                    resolution: level.attrs.RESOLUTION,
+                    bitrate: level.bitrate,
+                    audioTrack: !level.videoCodec,
+                    label:
+                      level.audioTrack ?
+                        `${level.bitrate / 1000}kbps` :
+                        `${level.attrs.RESOLUTION} (${(level.bitrate / 1000 / 1000).toFixed(1)}Mbps)`,
+                    activeLabel:
+                      level.audioTrack ?
+                        `Quality: ${level.bitrate / 1000}kbps` :
+                        `Quality: ${level.attrs.RESOLUTION}`
+                  }))
+                  .sort((a, b) => a.bitrate < b.bitrate ? 1 : -1);
+
+                levels.unshift({index: -1, label: "Auto"});
+
+                return {label: "Quality", options: levels};
+              },
+              SetLevel: levelIndex => {
+                hlsPlayer.nextLevel = levelIndex;
+                hlsPlayer.streamController.immediateLevelSwitch();
+              }
+            });
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error("ELUVIO PLAYER:", error);
+          }
+        };
+
+        hlsPlayer.on(HLSPlayer.Events.LEVEL_LOADED, () => UpdateQualityOptions());
+        hlsPlayer.on(HLSPlayer.Events.LEVEL_SWITCHED, () => UpdateQualityOptions());
+
+        hlsPlayer.on(HLSPlayer.Events.AUDIO_TRACKS_UPDATED, () => {
+          this.controls.SetAudioTracks({
+            GetAudioTracks: () => {
+              const tracks = hlsPlayer.audioTracks.map(track => ({
+                index: track.id,
+                label: track.name,
+                active: track.id === hlsPlayer.audioTrack,
+                activeLabel: `Audio: ${track.name}`
+              }));
+
+              return {label: "Audio Track", options: tracks};
+            },
+            SetAudioTrack: index => {
+              hlsPlayer.audioTrack = index;
+              hlsPlayer.streamController.immediateLevelSwitch();
+            }
+          });
+        });
+      }
+
+      hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => {
+        this.errors = 0;
+        clearTimeout(this.bufferFullRestartTimeout);
+      });
+
+      hlsPlayer.on(HLSPlayer.Events.ERROR, async (event, error) => {
+        this.errors += 1;
+
+        this.Log(`Encountered ${error.details}`);
+        this.Log(error);
+
+        if(error.details === "bufferFullError") {
+          this.bufferFullRestartTimeout = setTimeout(() => {
+            this.Log("Buffer full error - Restarting player", true);
+            this.HardReload(error, 5000);
+          }, 3000);
+        }
+
+        if(error.details === "bufferStalledError") {
+          const stallTime = this.video.currentTime;
+
+          setTimeout(() => {
+            if(!this.video.paused && this.video.currentTime === stallTime) {
+              this.Log("Buffer stalled error, no progress in 5 seconds - Restarting player", true);
+            }
+          }, 5000);
+        }
+
+        if(error.fatal || this.errors === 3) {
+          if(error.response.code === 403) {
+            // Not allowed to access
+            this.Destroy();
+          } else {
+            this.HardReload(error);
+          }
+        }
+      });
+
+      this.hlsPlayer = hlsPlayer;
+      this.player = hlsPlayer;
+    }
+  }
+
+  async InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise}) {
+    const DashPlayer = (await import("dashjs")).default;
+    const dashPlayer = DashPlayer.MediaPlayer().create();
+
+    if(this.playerOptions.capLevelToPlayerSize) {
+      dashPlayer.updateSettings({
+        "streaming": {
+          "fastSwitchEnabled": true,
+          "abr": {
+            "limitBitrateByPortal": true
+          }
+        }
+      });
+    }
+
+    playoutUrl.removeQuery("authorization");
+    dashPlayer.extend("RequestModifier", function () {
+      return {
+        modifyRequestHeader: xhr => {
+          xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
+
+          return xhr;
+        },
+        modifyRequestURL: url => url
+      };
+    });
+
+    // Widevine
+    if(drm === EluvioPlayerParameters.drms.WIDEVINE) {
+      const widevineUrl = drms.widevine.licenseServers[0];
+
+      dashPlayer.setProtectionData({
+        "com.widevine.alpha": {
+          "serverURL": widevineUrl
+        }
+      });
+    }
+
+    dashPlayer.initialize(
+      this.video,
+      playoutUrl.toString(),
+      this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON
+    );
+
+    if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
+
+    const UpdateQualityOptions = () => {
+      try {
+        this.controls.SetQualityControls({
+          GetLevels: () => {
+            let levels = dashPlayer.getBitrateInfoListFor("video")
+              .map((level) => ({
+                index: level.qualityIndex,
+                active: level.qualityIndex === this.player.getQualityFor("video"),
+                resolution: `${level.width}x${level.height}`,
+                bitrate: level.bitrate,
+                label: `${level.width}x${level.height} (${(level.bitrate / 1000 / 1000).toFixed(1)}Mbps)`,
+                activeLabel: `Quality: ${level.width}x${level.height}`,
+              }))
+              .sort((a, b) => a.bitrate < b.bitrate ? 1 : -1);
+
+            levels.unshift({index: -1, label: "Auto"});
+
+            return { label: "Quality", options: levels };
+          },
+          SetLevel: levelIndex => {
+            dashPlayer.setQualityFor("video", levelIndex);
+            dashPlayer.updateSettings({
+              streaming: {
+                fastSwitchEnabled: true,
+                abr: {
+                  autoSwitchBitrate: {
+                    video: levelIndex === -1
+                  }
+                }
+              }
+            });
+          }
+        });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("ELUVIO PLAYER:", error);
+      }
+    };
+
+    const UpdateAudioTracks = () => {
+      this.controls.SetAudioTracks({
+        GetAudioTracks: () => {
+          const tracks = this.player.getTracksFor("audio").map(track => ({
+            index: track.index,
+            label: track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang,
+            active: track.index === dashPlayer.getCurrentTrackFor("audio").index,
+            activeLabel: `Audio: ${track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang}`
+          }));
+
+          return { label: "Audio Track", options: tracks };
+        },
+        SetAudioTrack: index => {
+          const track = dashPlayer.getTracksFor("audio").find(track => track.index === index);
+          dashPlayer.setCurrentTrack(track);
+        }
+      });
+    };
+
+    dashPlayer.on(DashPlayer.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => UpdateQualityOptions());
+    dashPlayer.on(DashPlayer.MediaPlayer.events.TRACK_CHANGE_RENDERED, () => UpdateAudioTracks());
+    dashPlayer.on(DashPlayer.MediaPlayer.events.MANIFEST_LOADED, () => {
+      UpdateQualityOptions();
+      UpdateAudioTracks();
+    });
+
+    this.player = dashPlayer;
+    this.dashPlayer = dashPlayer;
   }
 }
 

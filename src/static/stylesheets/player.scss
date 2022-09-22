@@ -354,7 +354,7 @@ $button-height: 35px;
       overflow-y: auto;
       position: absolute;
       right: 10px;
-      width: 200px;
+      width: 250px;
       z-index: 100;
 
       &-hidden {
@@ -371,11 +371,11 @@ $button-height: 35px;
         cursor: pointer;
         display: block;
         font-size: 14px;
-        height: 100%;
         line-height: 1.4;
         padding: 9px 20px;
         text-align: left;
         width: 100%;
+        height: max-content;
 
         &-back {
           display: flex;
@@ -665,6 +665,14 @@ $button-height: 35px;
         height: 15px;
         width: 15px;
       }
+    }
+
+    .eluvio-player__controls__settings-menu {
+      width: 100%;
+      right: 0;
+      top: 0;
+      padding: 20px 0;
+      height: 100%;
     }
 
     .eluvio-player__hotspot-overlay {
