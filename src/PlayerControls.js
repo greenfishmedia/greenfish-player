@@ -735,7 +735,11 @@ class PlayerControls {
     }
 
     if(this.GetAudioTracks) {
-      this.AddSetting({Retrieve: this.GetAudioTracks, Set: this.SetAudioTrack});
+      const tracks = (this.GetAudioTracks() || {}).options || [];
+
+      if(tracks.length > 1) {
+        this.AddSetting({Retrieve: this.GetAudioTracks, Set: this.SetAudioTrack});
+      }
     }
 
     if(this.GetTextTracks) {
