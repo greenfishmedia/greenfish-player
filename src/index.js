@@ -538,11 +538,6 @@ export class EluvioPlayer {
       });
       this.resizeObserver.observe(this.target);
 
-      const controlsPromise = this.PosterUrl().then(posterUrl => {
-        this.posterUrl = posterUrl;
-        this.controls = new PlayerControls(this.target, this.video, this.playerOptions, posterUrl, this.playerOptions.controlsClassName);
-      });
-
       if(this.clientOptions.promptTicket && !this.clientOptions.ticketCode) {
         if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is needed."); }
 
@@ -575,6 +570,20 @@ export class EluvioPlayer {
       }
 
       let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
+
+      let controlsPromise;
+      if(["fairplay", "sample-aes"].includes(drm)) {
+        // Switch to default controls if using fairplay or sample aes
+        if(this.playerOptions.controls !== EluvioPlayerParameters.controls.OFF) {
+          this.playerOptions.controls = EluvioPlayerParameters.controls.DEFAULT;
+          this.video.controls = true;
+        }
+      } else {
+        controlsPromise = this.PosterUrl().then(posterUrl => {
+          this.posterUrl = posterUrl;
+          this.controls = new PlayerControls(this.target, this.video, this.playerOptions, posterUrl, this.playerOptions.controlsClassName);
+        });
+      }
 
       multiviewOptions.target = this.target;
 
