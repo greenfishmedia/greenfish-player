@@ -541,49 +541,44 @@ export class EluvioPlayer {
       if(this.clientOptions.promptTicket && !this.clientOptions.ticketCode) {
         if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is needed."); }
 
-        controlsPromise.then(() =>
-          this.controls.InitializeTicketPrompt(async (code) => {
-            code = (code || "").trim();
-            let subject = this.clientOptions.ticketSubject;
-            if(code.includes(":")) {
-              subject = code.split(":")[0];
-              code = code.split(":")[1];
-            }
+        this.controls.InitializeTicketPrompt(async (code) => {
+          code = (code || "").trim();
+          let subject = this.clientOptions.ticketSubject;
+          if(code.includes(":")) {
+            subject = code.split(":")[0];
+            code = code.split(":")[1];
+          }
 
-            await this.clientOptions.client.RedeemCode({
-              tenantId: this.clientOptions.tenantId,
-              ntpId: this.clientOptions.ntpId,
-              code,
-              email: subject
-            });
+          await this.clientOptions.client.RedeemCode({
+            tenantId: this.clientOptions.tenantId,
+            ntpId: this.clientOptions.ntpId,
+            code,
+            email: subject
+          });
 
-            this.ticketInitialized = true;
-            this.clientOptions.ticketCode = code;
-            this.originalParameters.clientOptions.client = this.clientOptions.client;
-            this.originalParameters.clientOptions.ticketCode = code;
+          this.ticketInitialized = true;
+          this.clientOptions.ticketCode = code;
+          this.originalParameters.clientOptions.client = this.clientOptions.client;
+          this.originalParameters.clientOptions.ticketCode = code;
 
-            this.Initialize(this.target);
-          })
-        );
+          this.Initialize(this.target);
+        });
 
         return;
       }
 
       let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
 
-      let controlsPromise;
       if(["fairplay", "sample-aes"].includes(drm)) {
         // Switch to default controls if using fairplay or sample aes
         if(this.playerOptions.controls !== EluvioPlayerParameters.controls.OFF) {
           this.playerOptions.controls = EluvioPlayerParameters.controls.DEFAULT;
           this.video.controls = true;
         }
-      } else {
-        controlsPromise = this.PosterUrl().then(posterUrl => {
-          this.posterUrl = posterUrl;
-          this.controls = new PlayerControls(this.target, this.video, this.playerOptions, posterUrl, this.playerOptions.controlsClassName);
-        });
       }
+
+      this.controls = new PlayerControls(this.target, this.video, this.playerOptions, this.playerOptions.controlsClassName);
+      this.PosterUrl().then(posterUrl => this.controls.SetPosterUrl(posterUrl));
 
       multiviewOptions.target = this.target;
 
@@ -593,9 +588,9 @@ export class EluvioPlayer {
         playoutUrl.query(true).authorization;
 
       if(protocol === "hls") {
-        await this.InitializeHLS({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise});
+        await this.InitializeHLS({playoutUrl, authorizationToken, drm, drms, multiviewOptions});
       } else {
-        await this.InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise});
+        await this.InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions});
       }
 
       if(this.playerOptions.playerCallback) {
@@ -634,18 +629,22 @@ export class EluvioPlayer {
     }
   }
 
-  async InitializeHLS({playoutUrl, authorizationToken, drm, multiviewOptions, controlsPromise}) {
+  async InitializeHLS({playoutUrl, authorizationToken, drm, multiviewOptions}) {
     const HLSPlayer = (await import("hls-fix")).default;
 
     if(drm === "fairplay") {
       InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
 
-      if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
+      if(multiviewOptions.enabled) {
+        this.controls.InitializeMultiViewControls(multiviewOptions);
+      }
       this.UpdateTextTracks();
     } else if(!HLSPlayer.isSupported() || drm === "sample-aes") {
       this.video.src = playoutUrl.toString();
 
-      if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
+      if(multiviewOptions.enabled) {
+        this.controls.InitializeMultiViewControls(multiviewOptions);
+      }
     } else {
       playoutUrl.removeQuery("authorization");
 
@@ -677,7 +676,7 @@ export class EluvioPlayer {
           hlsPlayer.nextLevel = hlsPlayer.currentLevel;
         };
 
-        controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions));
+        this.controls.InitializeMultiViewControls(multiviewOptions);
       }
 
       if(this.controls) {
@@ -785,7 +784,7 @@ export class EluvioPlayer {
     }
   }
 
-  async InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions, controlsPromise}) {
+  async InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions}) {
     const DashPlayer = (await import("dashjs")).default;
     const dashPlayer = DashPlayer.MediaPlayer().create();
 
@@ -829,7 +828,9 @@ export class EluvioPlayer {
       this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON
     );
 
-    if(multiviewOptions.enabled) { controlsPromise.then(() => this.controls.InitializeMultiViewControls(multiviewOptions)); }
+    if(multiviewOptions.enabled) {
+      this.controls.InitializeMultiViewControls(multiviewOptions);
+    }
 
     const UpdateQualityOptions = () => {
       try {

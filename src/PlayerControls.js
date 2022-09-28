@@ -112,6 +112,21 @@ class PlayerControls {
     this.target = target;
     this.video = video;
     this.playerOptions = playerOptions;
+    this.timeouts = {};
+    this.played = false;
+    this.controlsHover = false;
+    this.progressHidden = false;
+
+    if(posterUrl) {
+      this.SetPosterUrl(posterUrl);
+    }
+
+    this.InitializeControls(className);
+  }
+
+  SetPosterUrl(posterUrl) {
+    if(!posterUrl) { return; }
+
     this.posterUrl = posterUrl;
 
     if(posterUrl) {
@@ -122,13 +137,6 @@ class PlayerControls {
         this.video.poster = posterUrl;
       };
     }
-
-    this.timeouts = {};
-    this.played = false;
-    this.controlsHover = false;
-    this.progressHidden = false;
-
-    this.InitializeControls(className);
   }
 
   FadeOut(key, elements, delay=250, callback) {
