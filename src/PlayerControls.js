@@ -108,7 +108,7 @@ const Time = (time, total) => {
 };
 
 class PlayerControls {
-  constructor(target, video, playerOptions, posterUrl, className) {
+  constructor({target, video, playerOptions, posterUrl, className}) {
     this.target = target;
     this.video = video;
     this.playerOptions = playerOptions;

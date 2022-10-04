@@ -577,7 +577,13 @@ export class EluvioPlayer {
         }
       }
 
-      this.controls = new PlayerControls(this.target, this.video, this.playerOptions, this.playerOptions.controlsClassName);
+      this.controls = new PlayerControls({
+        target: this.target,
+        video: this.video,
+        playerOptions: this.playerOptions,
+        className: this.playerOptions.controlsClassName
+      });
+
       this.PosterUrl().then(posterUrl => this.controls.SetPosterUrl(posterUrl));
 
       multiviewOptions.target = this.target;
