@@ -119,7 +119,8 @@ const DefaultParameters = {
     dashjsOptions: undefined,
     // eslint-disable-next-line no-unused-vars
     playerCallback: ({player, videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
-    errorCallback: (error) => {
+    // eslint-disable-next-line no-unused-vars
+    errorCallback: (error, player) => {
       // eslint-disable-next-line no-console
       console.error("ELUVIO PLAYER: Error");
       // eslint-disable-next-line no-console
@@ -333,9 +334,21 @@ export class EluvioPlayer {
     }
 
     let availableDRMs = (await client.AvailableDRMs()).filter(drm => (this.sourceOptions.drms || []).includes(drm));
+    let availableProtocols = this.sourceOptions.protocols;
 
-    const protocol = this.sourceOptions.protocols.find(protocol => this.sourceOptions.playoutOptions[protocol]);
-    const drm = this.sourceOptions.drms.find(drm => availableDRMs.includes(drm) && this.sourceOptions.playoutOptions[protocol].playoutMethods[drm]);
+    let protocol, drm;
+    while(!(protocol && drm)) {
+      protocol = availableProtocols.find(protocol => this.sourceOptions.playoutOptions[protocol]);
+      drm = this.sourceOptions.drms.find(drm => availableDRMs.includes(drm) && this.sourceOptions.playoutOptions[protocol].playoutMethods[drm]);
+
+      if(!drm) {
+        availableProtocols = availableProtocols.filter(p => p !== protocol);
+
+        if(availableProtocols.length === 0) {
+          throw Error("No valid protocol / DRM combination available");
+        }
+      }
+    }
 
     const { playoutUrl, drms } = this.sourceOptions.playoutOptions[protocol].playoutMethods[drm];
 
@@ -627,7 +640,9 @@ export class EluvioPlayer {
         this.Destroy();
       }
     } catch (error) {
-      this.playerOptions.errorCallback(error);
+      if(this.playerOptions.errorCallback) {
+        this.playerOptions.errorCallback(error, this);
+      }
 
       if(error.status === 500) {
         this.HardReload(error, 10000);
