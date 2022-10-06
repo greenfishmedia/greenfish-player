@@ -809,10 +809,15 @@ export class EluvioPlayer {
     const DashPlayer = (await import("dashjs")).default;
     const dashPlayer = DashPlayer.MediaPlayer().create();
 
+    dashPlayer.updateSettings({
+      "streaming": {
+        "fastSwitchEnabled": true
+      }
+    });
+
     if(this.playerOptions.capLevelToPlayerSize) {
       dashPlayer.updateSettings({
         "streaming": {
-          "fastSwitchEnabled": true,
           "abr": {
             "limitBitrateByPortal": true
           }
@@ -921,6 +926,16 @@ export class EluvioPlayer {
       UpdateQualityOptions();
       UpdateAudioTracks();
       this.UpdateTextTracks({dashPlayer});
+    });
+
+    // DashJS doesn't automatically handle video track change - Add event listener to handle it
+    this.video.textTracks.addEventListener("change", () => {
+      const dashTracks = dashPlayer.getTracksFor("text");
+      const activeTrack = Array.from(this.video.textTracks).find(track => track.mode === "showing");
+
+      dashPlayer.setTextTrack(
+        !activeTrack ? -1 : dashTracks.findIndex(dashTrack => dashTrack.lang === activeTrack.language || (dashTrack.index || "").toString() === (activeTrack.label || "").toString())
+      );
     });
 
     this.player = dashPlayer;

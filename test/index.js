@@ -25,7 +25,7 @@ const Initialize = async () => {
       },
       playerOptions: {
         muted: true,
-        controls: "autohide",
+        controls: EluvioPlayerParameters.controls.AUTO_HIDE,
         capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON
       }
     }
