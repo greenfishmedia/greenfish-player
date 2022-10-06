@@ -582,14 +582,6 @@ export class EluvioPlayer {
 
       let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
 
-      if(["fairplay", "sample-aes"].includes(drm)) {
-        // Switch to default controls if using fairplay or sample aes
-        if(this.playerOptions.controls !== EluvioPlayerParameters.controls.OFF) {
-          this.playerOptions.controls = EluvioPlayerParameters.controls.DEFAULT;
-          this.video.controls = true;
-        }
-      }
-
       this.controls = new PlayerControls({
         target: this.target,
         video: this.video,
@@ -653,20 +645,59 @@ export class EluvioPlayer {
   async InitializeHLS({playoutUrl, authorizationToken, drm, multiviewOptions}) {
     const HLSPlayer = (await import("hls-fix")).default;
 
-    if(drm === "fairplay") {
-      InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
+    if(["fairplay", "sample-aes"].includes(drm) || !HLSPlayer.isSupported()) {
+      // HLS JS NOT SUPPORTED - Handle native player
 
-      if(multiviewOptions.enabled) {
-        this.controls.InitializeMultiViewControls(multiviewOptions);
+      if(drm === "fairplay") {
+        InitializeFairPlayStream({playoutOptions: this.sourceOptions.playoutOptions, video: this.video});
+      } else {
+        this.video.src = playoutUrl.toString();
       }
-      this.UpdateTextTracks();
-    } else if(!HLSPlayer.isSupported() || drm === "sample-aes") {
-      this.video.src = playoutUrl.toString();
 
       if(multiviewOptions.enabled) {
-        this.controls.InitializeMultiViewControls(multiviewOptions);
+        const Switch = multiviewOptions.SwitchView;
+
+        multiviewOptions.SwitchView = async (view) => {
+          await Switch(view);
+        };
+
+        if(this.controls) {
+          this.controls.InitializeMultiViewControls(multiviewOptions);
+        }
+      }
+
+      const UpdateAudioTracks = () => {
+        if(this.video.audioTracks.length <= 1) { return; }
+
+        this.controls.SetAudioTrackControls({
+          GetAudioTracks: () => {
+            const tracks = Array.from(this.video.audioTracks).map(track => ({
+              index: track.id,
+              label: track.label || track.language,
+              active: track.enabled,
+              activeLabel: `Audio: ${track.label || track.language}`
+            }));
+
+            return {label: "Audio Track", options: tracks};
+          },
+          SetAudioTrack: index => {
+            Array.from(this.video.audioTracks).forEach(track =>
+              track.enabled = index.toString() === track.id
+            );
+          }
+        });
+      };
+
+      // Set up audio and subtitle tracks
+      if(this.controls) {
+        this.video.textTracks.addEventListener("addtrack", this.UpdateTextTracks());
+        this.video.textTracks.addEventListener("removetrack", this.UpdateTextTracks());
+        this.video.audioTracks.addEventListener("addtrack", UpdateAudioTracks);
+        this.video.audioTracks.addEventListener("removetrack", UpdateAudioTracks);
       }
     } else {
+      // HLS JS
+
       playoutUrl.removeQuery("authorization");
 
       // Inject
@@ -689,7 +720,7 @@ export class EluvioPlayer {
       hlsPlayer.loadSource(playoutUrl.toString());
       hlsPlayer.attachMedia(this.video);
 
-      if(multiviewOptions.enabled) {
+      if(this.controls && multiviewOptions.enabled) {
         const Switch = multiviewOptions.SwitchView;
 
         multiviewOptions.SwitchView = async (view) => {
@@ -854,7 +885,7 @@ export class EluvioPlayer {
       this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON
     );
 
-    if(multiviewOptions.enabled) {
+    if(this.controls && multiviewOptions.enabled) {
       this.controls.InitializeMultiViewControls(multiviewOptions);
     }
 
