@@ -607,9 +607,13 @@ class PlayerControls {
         }
 
         this.progressHidden = true;
-      } else if(this.progressHidden) {
-        this.progressHidden = false;
-        controls.classList.remove("eluvio-player__controls-no-progress");
+      } else {
+        progressSlider.step = Math.min(1 / (this.video.duration / 5), 0.01).toFixed(4);
+
+        if(this.progressHidden) {
+          this.progressHidden = false;
+          controls.classList.remove("eluvio-player__controls-no-progress");
+        }
       }
 
       totalTime.innerHTML = Time(this.video.duration, this.video.duration);
