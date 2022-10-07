@@ -508,6 +508,13 @@ export class EluvioPlayer {
 
       this.video.setAttribute("playsinline", "playsinline");
 
+      this.controls = new PlayerControls({
+        target: this.target,
+        video: this.video,
+        playerOptions: this.playerOptions,
+        className: this.playerOptions.controlsClassName
+      });
+
       if(restartParameters) {
         this.video.addEventListener("loadedmetadata", () => {
           this.video.volume = restartParameters.volume;
@@ -585,21 +592,6 @@ export class EluvioPlayer {
       }
 
       let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
-
-      if(["fairplay", "sample-aes"].includes(drm)) {
-        // Switch to default controls if using fairplay or sample aes
-        if(this.playerOptions.controls !== EluvioPlayerParameters.controls.OFF) {
-          this.playerOptions.controls = EluvioPlayerParameters.controls.DEFAULT;
-          this.video.controls = true;
-        }
-      }
-
-      this.controls = new PlayerControls({
-        target: this.target,
-        video: this.video,
-        playerOptions: this.playerOptions,
-        className: this.playerOptions.controlsClassName
-      });
 
       this.PosterUrl().then(posterUrl => this.controls.SetPosterUrl(posterUrl));
 
