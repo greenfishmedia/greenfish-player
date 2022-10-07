@@ -115,7 +115,6 @@ class PlayerControls {
     this.playerOptions = playerOptions;
     this.timeouts = {};
     this.played = false;
-    this.controlsHover = false;
     this.progressHidden = false;
 
     if(posterUrl) {
@@ -140,15 +139,17 @@ class PlayerControls {
     }
   }
 
-  FadeOut(key, elements, delay=250, callback) {
+  FadeOut({key, elements, delay=250, unless, callback}) {
+    if(unless && unless()) { return; }
+
     clearTimeout(this.timeouts[key]);
 
     this.timeouts[key] = setTimeout(() => {
       elements.forEach(element => {
         if(!element) { return; }
 
-        element.style.pointerEvents = "none";
-        element.style.opacity = "0";
+        element.classList.add("-elv-fade-out");
+        element.classList.remove("-elv-fade-in");
       });
 
       if(callback) {
@@ -157,44 +158,60 @@ class PlayerControls {
     }, delay);
   }
 
-  FadeIn(key, elements) {
+  FadeIn({key, elements, callback}) {
     clearTimeout(this.timeouts[key]);
 
     elements.forEach(element => {
       if(!element) { return; }
 
-      element.style.opacity = "1";
-      element.style.pointerEvents = "unset";
+      element.classList.remove("-elv-fade-out");
+      element.classList.add("-elv-fade-in");
     });
-  }
 
+    if(callback) {
+      callback();
+    }
+  }
 
   AutohideControls(controls) {
     this.video.addEventListener("play", () => {
       this.played = true;
     });
 
-    const PlayerOut = () => {
-      if(!this.played && this.video.paused) { return; }
-
-      this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 2000);
-    };
+    /*
+      Controls should stay visible if:
+        - Video hasn't started yet
+        - Settings menu is open
+        - Currently hovering over controls
+        - Currently keyboard-selecting controls
+    */
+    const ControlsShouldShow = () => (
+      (!this.played && this.video.paused) ||
+      (this.settingsMenu && this.settingsMenu.dataset.mode !== "hidden") ||
+      !!Array.from(document.querySelectorAll(":hover")).find(element => this.controls.contains(element)) ||
+      !!this.controls.contains(document.activeElement) && document.activeElement.classList.contains("focus-visible")
+    );
 
     const PlayerMove = () => {
-      if(this.controlsHover) { return; }
-
-      this.FadeIn("controls", [controls, this.settingsMenu, this.toolTip]);
-      this.FadeOut("controls", [controls, this.settingsMenu, this.toolTip], 3000, () => this.target.style.cursor = "none");
+      this.FadeIn({
+        key: "controls",
+        elements: [controls, this.settingsMenu, this.toolTip],
+        callback: () => {
+          this.target.classList.remove("-elv-no-cursor");
+        }
+      });
+      this.FadeOut({
+        key: "controls",
+        elements: [controls, this.settingsMenu, this.toolTip],
+        delay: 3000,
+        unless: () => ControlsShouldShow(),
+        callback: () => {
+          this.target.classList.add("-elv-no-cursor");
+        }
+      });
 
       this.target.style.cursor = "unset";
     };
-
-    const ControlsIn = () => {
-      clearTimeout(this.timeouts.controls);
-      this.controlsHover = true;
-    };
-
-    const ControlsOut = () => this.controlsHover = false;
 
     // Play / Pause
     this.video.addEventListener("play", () => PlayerMove);
@@ -202,62 +219,25 @@ class PlayerControls {
 
     // Mouse events
     this.target.addEventListener("mousemove", PlayerMove);
-    this.target.addEventListener("mouseleave", PlayerOut);
-    controls.addEventListener("mouseenter", ControlsIn);
-    controls.addEventListener("mouseleave", ControlsOut);
 
-    if(this.settingsMenu) {
-      this.settingsMenu.addEventListener("mouseenter", ControlsIn);
-      this.settingsMenu.addEventListener("mouseleave", ControlsOut);
-    }
-
-    if(this.toolTip) {
-      this.toolTip.addEventListener("mouseenter", ControlsIn);
-      this.toolTip.addEventListener("mouseleave", ControlsOut);
-    }
 
     // Touch events
     this.target.addEventListener("touchmove", PlayerMove);
-    this.target.addEventListener("touchleave", PlayerOut);
-    controls.addEventListener("touchmove", ControlsIn);
-    controls.addEventListener("touchleave", ControlsOut);
-    controls.addEventListener("touchend", () => { ControlsOut(); PlayerOut(); });
-
-    if(this.settingsMenu) {
-      this.settingsMenu.addEventListener("touchmove", ControlsIn);
-      this.settingsMenu.addEventListener("touchleave", ControlsOut);
-      this.settingsMenu.addEventListener("touchend", () => {
-        ControlsOut();
-        PlayerOut();
-      });
-    }
-
-    if(this.toolTip) {
-      this.toolTip.addEventListener("touchmove", ControlsIn);
-      this.toolTip.addEventListener("touchleave", ControlsOut);
-      this.toolTip.addEventListener("touchend", () => {
-        ControlsOut();
-        PlayerOut();
-      });
-    }
 
     // Keyboard events
     this.target.addEventListener("blur", () => setTimeout(() => {
       if(!this.target.contains(document.activeElement)) {
-        PlayerOut();
-        ControlsOut();
+        PlayerMove();
       }
     }), 2000);
 
-    window.addEventListener("blur", () => { PlayerOut(); ControlsOut(); });
+    window.addEventListener("blur", () => { PlayerMove(); });
 
     Array.from(this.target.querySelectorAll("button, input")).forEach(button => {
-      button.addEventListener("focus", () => { PlayerMove(); ControlsIn(); });
+      button.addEventListener("focus", () => { PlayerMove(); });
     });
 
-    if(!this.controlsHover) {
-      PlayerOut();
-    }
+    PlayerMove();
   }
 
   InitializeControls(className="") {
@@ -380,12 +360,12 @@ class PlayerControls {
     });
 
     this.video.addEventListener("play", () => {
-      this.FadeOut("big-play-button", [this.bigPlayButton]);
+      this.FadeOut({key: "big-play-button", elements: [this.bigPlayButton]});
 
       // Prevent big play button from flashing
       setTimeout(() => this.target.classList.remove("eluvio-player-restarted"), 1000);
     });
-    this.video.addEventListener("pause", () => this.FadeIn("big-play-button", [this.bigPlayButton]));
+    this.video.addEventListener("pause", () => this.FadeIn({key: "big-play-button", elements: [this.bigPlayButton]}));
 
     this.bigPlayButton.style.display = this.video.paused ? null : "none";
     this.bigPlayButton.addEventListener("click", () => this.video.play());

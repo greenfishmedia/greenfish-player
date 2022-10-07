@@ -41,6 +41,7 @@ $button-height: 35px;
     box-sizing: border-box;
     font-family: "Helvetica Neue", Helvetica, sans-serif;
     line-height: 1;
+    overscroll-behavior-y: contain; // sass-lint:disable-line no-misspelled-properties
   }
 
   // sass-lint:disable force-attribute-nesting no-qualifying-elements
@@ -460,12 +461,6 @@ $button-height: 35px;
     }
   }
 
-  &.eluvio-player-autohide {
-    .eluvio-player__controls {
-      opacity: 0;
-    }
-  }
-
   &:fullscreen {
     margin: 0;
     max-height: unset;
@@ -697,7 +692,7 @@ $button-height: 35px;
       align-items: center;
       height: 100%;
       max-height: 100%;
-      padding: 80px 0 30px;
+      padding: 80px 0 100px;
       right: 0;
       top: 0;
       width: 100%;
@@ -725,6 +720,29 @@ $button-height: 35px;
         }
       }
     }
+  }
+}
+
+// sass-lint:disable no-important
+.-elv-fade-in,
+.-elv-fade-out {
+  transition: opacity 0.25s linear;
+}
+
+.-elv-fade-out {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.-elv-fade-in {
+  opacity: 1;
+}
+
+.-elv-no-cursor {
+  cursor: none !important;
+
+  * {
+    cursor: none !important;
   }
 }
 
