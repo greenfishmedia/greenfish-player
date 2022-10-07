@@ -345,6 +345,7 @@ $button-height: 35px;
     }
 
     &__settings-menu {
+      backdrop-filter: blur(5px);
       background: $menu-color;
       border-radius: 3px;
       bottom: 45px;
@@ -363,6 +364,22 @@ $button-height: 35px;
 
       button {
         border: 1px solid transparent;
+
+        &.eluvio-player__controls__settings-menu__close {
+          border: 1.5px solid $button-color;
+          border-radius: 100%;
+        }
+      }
+
+      &__close {
+        display: none;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+
+        * {
+          color: $button-color;
+        }
       }
 
       &__option {
@@ -378,28 +395,37 @@ $button-height: 35px;
         width: 100%;
 
         &-back {
+          align-items: center;
           display: flex;
-          font-weight: 500;
+          position: relative;
           width: 100%;
+        }
+
+        &-back__icon {
+          height: 15px;
+          left: 20px;
+          margin-right: 5px;
+          position: absolute;
+          width: 15px;
 
           svg {
-            height: 15px;
-            margin-right: 5px;
-            width: 15px;
-          }
-
-          div {
+            height: 100%;
             width: 100%;
           }
         }
 
+        &-back__text {
+          padding-inline: 25px;
+          width: 100%;
+        }
+
         &-selected {
-          color: $button-color;
+          color: $white;
         }
 
         &:hover {
           background: $menu-active-color;
-          color: $button-color;
+          color: $white;
         }
 
         &.focus-visible {
@@ -668,11 +694,28 @@ $button-height: 35px;
     }
 
     .eluvio-player__controls__settings-menu {
+      align-items: center;
       height: 100%;
-      padding: 20px 0;
+      max-height: 100%;
+      padding: 80px 0 30px;
       right: 0;
       top: 0;
       width: 100%;
+
+      &__option {
+        font-size: 20px;
+        margin-bottom: 5px;
+        text-align: center;
+
+        &-back {
+          font-size: 24px;
+          margin-bottom: 20px;
+        }
+      }
+
+      &__close {
+        display: unset;
+      }
     }
 
     .eluvio-player__hotspot-overlay {

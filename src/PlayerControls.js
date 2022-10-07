@@ -4,6 +4,7 @@ import PauseIcon from "./static/icons/media/Pause icon.svg";
 import FullscreenIcon from "./static/icons/media/Full Screen icon.svg";
 import ExitFullscreenIcon from "./static/icons/minimize.svg";
 import SettingsIcon from "./static/icons/media/Settings icon.svg";
+import CloseIcon from "./static/icons/x.svg";
 import MutedIcon from "./static/icons/media/no volume icon.svg";
 import VolumeLowIcon from "./static/icons/media/low volume icon.svg";
 import VolumeHighIcon from "./static/icons/media/Volume icon.svg";
@@ -675,6 +676,21 @@ class PlayerControls {
     }
   }
 
+  InitializeMenu(mode) {
+    this.settingsMenu.innerHTML = "";
+    this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");
+    this.settingsMenu.setAttribute("data-mode", mode);
+
+    const closeButton = CreateImageButton({
+      parent: this.settingsMenu,
+      svg: CloseIcon,
+      type: "button",
+      classes: ["eluvio-player__controls__settings-menu__close"]
+    });
+
+    closeButton.addEventListener("click", () => this.HideSettingsMenu());
+  }
+
   AddSetting({Retrieve, Set}) {
     if(!Retrieve) { return; }
 
@@ -692,8 +708,7 @@ class PlayerControls {
 
     if(Set) {
       optionSelectionButton.addEventListener("click", () => {
-        this.settingsMenu.innerHTML = "";
-        this.settingsMenu.setAttribute("data-mode", "settings-submenu");
+        this.InitializeMenu("settings-submenu");
 
         const backButton = CreateElement({
           parent: this.settingsMenu,
@@ -703,11 +718,12 @@ class PlayerControls {
 
         CreateElement({
           parent: backButton,
-          type: "svg"
+          classes: ["eluvio-player__controls__settings-menu__option-back__icon"]
         }).innerHTML = LeftArrow;
 
         CreateElement({
           parent: backButton,
+          classes: ["eluvio-player__controls__settings-menu__option-back__text"]
         }).innerHTML = label;
 
         backButton.addEventListener("click", () => this.ShowSettingsMenu());
@@ -738,9 +754,7 @@ class PlayerControls {
   }
 
   ShowSettingsMenu() {
-    this.settingsMenu.innerHTML = "";
-    this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");
-    this.settingsMenu.setAttribute("data-mode", "settings");
+    this.InitializeMenu("settings");
 
     if(this.GetLevels) {
       this.AddSetting({Retrieve: this.GetLevels, Set: this.SetLevel});

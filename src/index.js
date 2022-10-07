@@ -667,7 +667,7 @@ export class EluvioPlayer {
       }
 
       const UpdateAudioTracks = () => {
-        if(this.video.audioTracks.length <= 1) { return; }
+        if(!this.video.audioTracks || this.video.audioTracks.length <= 1) { return; }
 
         this.controls.SetAudioTrackControls({
           GetAudioTracks: () => {
