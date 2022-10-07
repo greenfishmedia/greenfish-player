@@ -373,6 +373,10 @@ export class EluvioPlayer {
 
     this.Log("Destroying player");
 
+    if(this.video) {
+      this.video.pause();
+    }
+
     if(this.player.destroy) {
       this.player.destroy();
     } else if(this.player.reset) {
@@ -581,6 +585,14 @@ export class EluvioPlayer {
       }
 
       let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
+
+      if(["fairplay", "sample-aes"].includes(drm)) {
+        // Switch to default controls if using fairplay or sample aes
+        if(this.playerOptions.controls !== EluvioPlayerParameters.controls.OFF) {
+          this.playerOptions.controls = EluvioPlayerParameters.controls.DEFAULT;
+          this.video.controls = true;
+        }
+      }
 
       this.controls = new PlayerControls({
         target: this.target,
