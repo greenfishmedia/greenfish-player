@@ -647,7 +647,7 @@ export class EluvioPlayer {
   }
 
   async InitializeHLS({playoutUrl, authorizationToken, drm, multiviewOptions}) {
-    const HLSPlayer = (await import("hls-fix")).default;
+    const HLSPlayer = (await import("hls.js")).default;
 
     if(["fairplay", "sample-aes"].includes(drm) || !HLSPlayer.isSupported()) {
       // HLS JS NOT SUPPORTED - Handle native player
