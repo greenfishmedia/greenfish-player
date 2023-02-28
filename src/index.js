@@ -255,7 +255,7 @@ export class EluvioPlayer {
   }
 
   async PosterUrl() {
-    if(this.playerOptions.posterUrl) {
+    if(typeof this.playerOptions.posterUrl !== "undefined") {
       return this.playerOptions.posterUrl;
     }
 
