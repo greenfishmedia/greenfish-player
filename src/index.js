@@ -970,16 +970,6 @@ export class EluvioPlayer {
       this.UpdateTextTracks({dashPlayer});
     });
 
-    // DashJS doesn't automatically handle video track change - Add event listener to handle it
-    this.video.textTracks.addEventListener("change", () => {
-      const dashTracks = dashPlayer.getTracksFor("text");
-      const activeTrack = Array.from(this.video.textTracks).find(track => track.mode === "showing");
-
-      dashPlayer.setTextTrack(
-        !activeTrack ? -1 : dashTracks.findIndex(dashTrack => dashTrack.lang === activeTrack.language || (dashTrack.index || "").toString() === (activeTrack.label || "").toString())
-      );
-    });
-
     this.player = dashPlayer;
     this.dashPlayer = dashPlayer;
   }
@@ -994,14 +984,14 @@ export class EluvioPlayer {
         let tracks;
         if(dashPlayer) {
           tracks = dashPlayer.getTracksFor("text").map((track, index) => ({
-            index: index,
+            index,
             label: track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang,
-            active: index === activeTrackIndex,
+            active: track.index === activeTrackIndex,
             activeLabel: `Subtitles: ${track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang}`
           }));
         } else {
           tracks = Array.from(this.video.textTracks).map((track, index) => ({
-            index: index,
+            index,
             label: track.label || track.language,
             active: track.mode === "showing",
             activeLabel: `Subtitles: ${track.label || track.language}`
@@ -1018,11 +1008,15 @@ export class EluvioPlayer {
         return { label: "Subtitles", options: tracks };
       },
       SetTextTrack: index => {
-        const tracks = Array.from(this.video.textTracks);
-        tracks.map(track => track.mode = "disabled");
+        if(dashPlayer) {
+          dashPlayer.setTextTrack(parseInt(index));
+        } else {
+          const tracks = Array.from(this.video.textTracks);
+          tracks.map(track => track.mode = "disabled");
 
-        if(index >= 0) {
-          tracks[index].mode = "showing";
+          if(index >= 0) {
+            tracks[index].mode = "showing";
+          }
         }
       }
     });
