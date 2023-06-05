@@ -694,10 +694,15 @@ export class EluvioPlayer {
 
       // Set up audio and subtitle tracks
       if(this.controls) {
-        this.video.textTracks.addEventListener("addtrack", this.UpdateTextTracks());
-        this.video.textTracks.addEventListener("removetrack", this.UpdateTextTracks());
-        this.video.audioTracks.addEventListener("addtrack", UpdateAudioTracks);
-        this.video.audioTracks.addEventListener("removetrack", UpdateAudioTracks);
+        if(this.video.textTracks) {
+          this.video.textTracks.addEventListener("addtrack", this.UpdateTextTracks());
+          this.video.textTracks.addEventListener("removetrack", this.UpdateTextTracks());
+        }
+
+        if(this.video.audioTracks) {
+          this.video.audioTracks.addEventListener("addtrack", UpdateAudioTracks);
+          this.video.audioTracks.addEventListener("removetrack", UpdateAudioTracks);
+        }
       }
     } else {
       // HLS JS
@@ -846,7 +851,9 @@ export class EluvioPlayer {
 
     dashPlayer.updateSettings({
       "streaming": {
-        "fastSwitchEnabled": true
+        "buffer": {
+          "fastSwitchEnabled": true
+        }
       }
     });
 
@@ -980,7 +987,9 @@ export class EluvioPlayer {
   UpdateTextTracks({dashPlayer}={}) {
     this.controls.SetTextTrackControls({
       GetTextTracks: () => {
-        const activeTrackIndex = Array.from(this.video.textTracks).findIndex(track => track.mode === "showing");
+        const activeTrackIndex = dashPlayer ?
+          dashPlayer.getCurrentTrackFor("text") && dashPlayer.getCurrentTrackFor("text").index || -1 :
+          Array.from(this.video.textTracks).findIndex(track => track.mode === "showing");
 
         let tracks;
         if(dashPlayer) {

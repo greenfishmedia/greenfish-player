@@ -16,8 +16,7 @@ $focus-color: rgba(225, 225, 255, 0.7);
 $border-color: #252525;
 $modal-color: #121212;
 $error-color: #a32;
-$controls-height: 40px;
-$controls-padding: 10px;
+$controls-padding: 8px;
 $button-height: 35px;
 
 .eluvio-player {
@@ -179,7 +178,7 @@ $button-height: 35px;
     background: $controls-color;
     bottom: 0;
     display: flex;
-    height: $controls-height;
+    height: max-content;
     padding: 0 $controls-padding;
     position: absolute;
     transition: opacity 0.25s linear;
@@ -345,7 +344,6 @@ $button-height: 35px;
     }
 
     &__settings-menu {
-      backdrop-filter: blur(5px);
       background: $menu-color;
       border-radius: 3px;
       bottom: 45px;
@@ -599,8 +597,7 @@ $button-height: 35px;
 
   &.eluvio-player-xl {
     .eluvio-player__controls {
-      height: CALC(#{$controls-height} * 1.5);
-      padding: 0 CALC(#{$controls-padding} * 1.5);
+      padding: 0 CALC(#{$controls-padding} * 1.5) CALC(#{$controls-padding} * 1.5);
 
       &__tooltip,
       &__settings-menu {
@@ -617,7 +614,7 @@ $button-height: 35px;
     }
 
     .eluvio-player__controls {
-      padding: 0 CALC(#{$controls-padding} * 0.5);
+      padding: 0 CALC(#{$controls-padding} * 0.5) CALC(#{$controls-padding} * 0.5);
     }
 
     .eluvio-player__controls__button {
@@ -658,10 +655,6 @@ $button-height: 35px;
   }
 
   &.eluvio-player-s {
-    .eluvio-player__controls {
-      padding: 5px;
-    }
-
     .eluvio-player__controls__time {
       display: none;
     }
