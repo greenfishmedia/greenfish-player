@@ -15,9 +15,20 @@ $hotspot-color: rgba($gray, 0.3);
 $focus-color: rgba(225, 225, 255, 0.7);
 $border-color: #252525;
 $modal-color: #121212;
+$seek-indicator-color: rgba(100, 100, 100, 0.5);
 $error-color: #a32;
-$controls-padding: 8px;
+$controls-padding: 5px;
 $button-height: 35px;
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
 
 .eluvio-player {
   align-items: center;
@@ -29,6 +40,34 @@ $button-height: 35px;
   object-fit: contain;
   position: relative;
   width: 100%;
+
+  // Seek indicator
+  &--seek-left,
+  &--seek-right {
+    &::after {
+      animation: fade-out 0.5s ease;
+      content: "";
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      transition: background-color 1s ease;
+      width: 100%;
+      z-index: 100;
+    }
+  }
+
+  &--seek-left {
+    &::after {
+      background: linear-gradient(90deg, $seek-indicator-color, transparent 15%);
+    }
+  }
+
+  &--seek-right {
+    &::after {
+      background: linear-gradient(90deg, transparent 85%, $seek-indicator-color);
+    }
+  }
 
   &.eluvio-player-restarted {
     .eluvio-player__big-play-button {
@@ -179,7 +218,7 @@ $button-height: 35px;
     bottom: 0;
     display: flex;
     height: max-content;
-    padding: 0 $controls-padding;
+    padding: $controls-padding;
     position: absolute;
     transition: opacity 0.25s linear;
     width: 100%;
@@ -597,7 +636,7 @@ $button-height: 35px;
 
   &.eluvio-player-xl {
     .eluvio-player__controls {
-      padding: 0 CALC(#{$controls-padding} * 1.5) CALC(#{$controls-padding} * 1.5);
+      padding: CALC(#{$controls-padding} * 1.5);
 
       &__tooltip,
       &__settings-menu {
@@ -614,7 +653,7 @@ $button-height: 35px;
     }
 
     .eluvio-player__controls {
-      padding: 0 CALC(#{$controls-padding} * 0.5) CALC(#{$controls-padding} * 0.5);
+      padding: CALC(#{$controls-padding} * 0.5);
     }
 
     .eluvio-player__controls__button {

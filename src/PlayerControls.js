@@ -173,6 +173,21 @@ class PlayerControls {
     }
   }
 
+  Seek({relative, absolute}) {
+    if(typeof absolute !== "undefined") {
+      this.video.currentTime = absolute;
+    } else {
+      this.video.currentTime = Math.max(0, Math.min(this.video.duration, (this.video.currentTime || 0) + parseFloat(relative)));
+
+      this.target.classList.remove("eluvio-player--seek-left");
+      this.target.classList.remove("eluvio-player--seek-right");
+
+      setTimeout(() => {
+        this.target.classList.add(relative < 0 ? "eluvio-player--seek-left" : "eluvio-player--seek-right");
+      }, 50);
+    }
+  }
+
   AutohideControls(controls) {
     this.video.addEventListener("play", () => {
       this.played = true;
@@ -603,9 +618,20 @@ class PlayerControls {
       ProgressSlider();
     });
 
-    this.target.addEventListener("dblclick", () => {
+    this.target.addEventListener("dblclick", event => {
       clearTimeout(this.timeouts.playPause);
-      ToggleFullscreen(this.target);
+
+      const { width, left } = event.target.getBoundingClientRect();
+
+      const relativeX = (event.clientX - left) / width;
+
+      if(relativeX < 0.15) {
+        this.Seek({relative: -10});
+      } else if(relativeX > 0.85) {
+        this.Seek({relative: 10});
+      } else {
+        ToggleFullscreen(this.target);
+      }
     });
 
     // Prevent double clicking on controls from going fullscreen
@@ -648,6 +674,30 @@ class PlayerControls {
         fullscreenButton.innerHTML = FullscreenIcon;
       } else if(this.target === document.fullscreenElement) {
         fullscreenButton.innerHTML = ExitFullscreenIcon;
+      }
+    });
+
+    this.target.addEventListener("keydown", event => {
+      switch (event.key) {
+        case "ArrowLeft":
+          this.Seek({relative: -10});
+          break;
+
+        case "ArrowRight":
+          this.Seek({relative: 10});
+          break;
+
+        case "ArrowDown":
+          this.video.volume = Math.max(0, (this.video.volume || 0) - 0.1);
+          break;
+
+        case "ArrowUp":
+          this.video.volume = Math.min(1, (this.video.volume || 0) + 0.1);
+          break;
+
+        case " ":
+          this.video.paused ? this.video.play() : this.video.pause();
+          break;
       }
     });
 

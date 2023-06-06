@@ -54,9 +54,10 @@ module.exports = {
     chunkFilename: "[name].bundle.js"
   },
   devServer: {
+    host: "0.0.0.0",//your ip address
     disableHostCheck: true,
     inline: true,
-    port: 8088,
+    port: 8089,
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type, Accept",
