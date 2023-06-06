@@ -681,22 +681,27 @@ class PlayerControls {
       switch (event.key) {
         case "ArrowLeft":
           this.Seek({relative: -10});
+          event.preventDefault();
           break;
 
         case "ArrowRight":
           this.Seek({relative: 10});
+          event.preventDefault();
           break;
 
         case "ArrowDown":
           this.video.volume = Math.max(0, (this.video.volume || 0) - 0.1);
+          event.preventDefault();
           break;
 
         case "ArrowUp":
           this.video.volume = Math.min(1, (this.video.volume || 0) + 0.1);
+          event.preventDefault();
           break;
 
         case " ":
           this.video.paused ? this.video.play() : this.video.pause();
+          event.preventDefault();
           break;
       }
     });
