@@ -989,7 +989,7 @@ export class EluvioPlayer {
           tracks = dashPlayer.getTracksFor("text").map((track, index) => ({
             index,
             label: track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang,
-            active: track.index === activeTrackIndex,
+            active: index === activeTrackIndex,
             activeLabel: `Subtitles: ${track.labels && track.labels.length > 0 ? track.labels[0].text : track.lang}`
           }));
         } else {
