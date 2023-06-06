@@ -853,6 +853,9 @@ export class EluvioPlayer {
       "streaming": {
         "buffer": {
           "fastSwitchEnabled": true
+        },
+        "text": {
+          "defaultEnabled": false
         }
       }
     });
@@ -978,7 +981,7 @@ export class EluvioPlayer {
     this.controls.SetTextTrackControls({
       GetTextTracks: () => {
         const activeTrackIndex = dashPlayer ?
-          dashPlayer.getCurrentTrackFor("text") && dashPlayer.getCurrentTrackFor("text").index || -1 :
+          dashPlayer.getCurrentTextTrackIndex() :
           Array.from(this.video.textTracks).findIndex(track => track.mode === "showing");
 
         let tracks;
