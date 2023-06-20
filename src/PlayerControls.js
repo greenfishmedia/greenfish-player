@@ -203,7 +203,7 @@ class PlayerControls {
     const ControlsShouldShow = () => (
       (!this.played && this.video.paused) ||
       (this.settingsMenu && this.settingsMenu.dataset.mode !== "hidden") ||
-      !!Array.from(document.querySelectorAll(":hover")).find(element => this.controls.contains(element)) ||
+      (this.controls && !!Array.from(document.querySelectorAll(":hover")).find(element => this.controls.contains(element))) ||
       (this.controls && this.controls.contains(document.activeElement) && document.activeElement.classList.contains("focus-visible"))
     );
 
