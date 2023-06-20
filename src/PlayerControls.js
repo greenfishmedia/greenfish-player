@@ -204,7 +204,7 @@ class PlayerControls {
       (!this.played && this.video.paused) ||
       (this.settingsMenu && this.settingsMenu.dataset.mode !== "hidden") ||
       !!Array.from(document.querySelectorAll(":hover")).find(element => this.controls.contains(element)) ||
-      !!this.controls.contains(document.activeElement) && document.activeElement.classList.contains("focus-visible")
+      (this.controls && this.controls.contains(document.activeElement) && document.activeElement.classList.contains("focus-visible"))
     );
 
     const PlayerMove = () => {

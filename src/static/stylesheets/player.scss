@@ -196,9 +196,9 @@ $button-height: 35px;
   }
 
   &__hidden-audio-controls {
-    bottom: 5px;
+    bottom: 10px;
     height: max-content;
-    left: 5px;
+    left: 10px;
     opacity: 1;
     position: absolute;
     transition: opacity 0.25s linear;
@@ -208,7 +208,7 @@ $button-height: 35px;
     button {
       background: $controls-color;
       border-radius: 100%;
-      padding: $controls-padding;
+      padding: 6px;
     }
   }
 
