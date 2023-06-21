@@ -55,10 +55,6 @@ export const EluvioPlayerParameters = {
     OFF: false,
     ON: true
   },
-  settings: {
-    OFF: false,
-    ON: true
-  },
   capLevelToPlayerSize: {
     OFF: false,
     ON: true
@@ -111,7 +107,7 @@ const DefaultParameters = {
     muted: EluvioPlayerParameters.muted.OFF,
     loop: EluvioPlayerParameters.loop.OFF,
     watermark: EluvioPlayerParameters.watermark.ON,
-    settings: EluvioPlayerParameters.settings.ON,
+    capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF,
     posterUrl: undefined,
     className: undefined,
     controlsClassName: undefined,
