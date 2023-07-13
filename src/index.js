@@ -555,6 +555,14 @@ export class EluvioPlayer {
         } else {
           this.target.classList.add("eluvio-player-s");
         }
+
+        if(dimensions.width > dimensions.height) {
+          this.target.classList.add("eluvio-player-landscape");
+          this.target.classList.remove("eluvio-player-portrait");
+        } else {
+          this.target.classList.add("eluvio-player-portrait");
+          this.target.classList.remove("eluvio-player-landscape");
+        }
       });
       this.resizeObserver.observe(this.target);
 
