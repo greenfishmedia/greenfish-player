@@ -385,7 +385,7 @@ $button-height: 35px;
     &__settings-menu {
       background: $menu-color;
       border-radius: 3px 0 0;
-      bottom: CALC(5px + #{$button-height} + #{$controls-padding} + #{$controls-padding});
+      bottom: CALC(#{$button-height} + #{$controls-padding} + #{$controls-padding});
       color: $button-color;
       max-height: MIN(90%, 100% - CALC(25px + #{$button-height} + #{$controls-padding} + #{$controls-padding}));
       min-height: 20px;
@@ -641,6 +641,10 @@ $button-height: 35px;
       &__tooltip {
         bottom: 65px;
       }
+    }
+
+    .eluvio-player__controls__settings-menu {
+      bottom: CALC(5px + #{$button-height} + #{$controls-padding} + #{$controls-padding});
     }
   }
 
