@@ -41,6 +41,31 @@ $button-height: 35px;
   position: relative;
   width: 100%;
 
+  &--error {
+    .eluvio-player__controls,
+    .eluvio-player__big-play-button {
+      display: none;
+    }
+  }
+
+  &__error-message {
+    position: absolute;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  &__error-message__text {
+    color: $error-color;
+    font-size: 24px;
+    text-align: center;
+    max-width: 600px;
+  }
+
   // Seek indicator
   &--seek-left,
   &--seek-right {
@@ -78,7 +103,6 @@ $button-height: 35px;
   * {
     box-sizing: border-box;
     font-family: "Helvetica Neue", Helvetica, sans-serif;
-    line-height: 1;
     overscroll-behavior-y: contain; // sass-lint:disable-line no-misspelled-properties
   }
 
@@ -650,6 +674,11 @@ $button-height: 35px;
 
   &.eluvio-player-m,
   &.eluvio-player-s {
+    .eluvio-player__error-message__text {
+      font-size: 18px;
+    }
+
+
     .eluvio-player__watermark {
       height: 10px;
       top: 10px;
@@ -703,6 +732,10 @@ $button-height: 35px;
   }
 
   &.eluvio-player-s {
+    .eluvio-player__error-message__text {
+      font-size: 14px;
+    }
+
     .eluvio-player__controls__time {
       display: none;
     }

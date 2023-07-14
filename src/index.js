@@ -640,6 +640,41 @@ export class EluvioPlayer {
         this.Destroy();
       }
     } catch (error) {
+      // If playout failed due to a permission issue, check the content to see if there is a message to display
+      if(error && [401, 403].includes(error.status) || [401, 403].includes(error.code)) {
+        try {
+          const client = await this.Client();
+
+          const targetHash =
+            this.sourceOptions.playoutParameters.linkPath ?
+              await client.LinkTarget({...this.sourceOptions.playoutParameters}) :
+              this.sourceOptions.playoutParameters.versionHash ||
+              await client.LatestVersionHash({objectId: this.sourceOptions.playoutParameters.objectId});
+
+          const permissionErrorMessage = await client.ContentObjectMetadata({
+            versionHash: targetHash,
+            metadataSubtree: "public/asset_metadata/permission_message",
+            authorizationToken: this.sourceOptions.playoutParameters.authorizationToken
+          });
+
+          if(permissionErrorMessage) {
+            const errorMessage = CreateElement({
+              parent: this.target,
+              classes: ["eluvio-player__error-message"]
+            });
+
+            CreateElement({
+              parent: errorMessage,
+              classes: ["eluvio-player__error-message__text"]
+            }).innerHTML = permissionErrorMessage;
+
+            this.target.classList.add("eluvio-player--error");
+          }
+        // eslint-disable-next-line no-empty
+        } catch(error) {}
+      }
+
+
       if(this.playerOptions.errorCallback) {
         this.playerOptions.errorCallback(error, this);
       }
