@@ -641,6 +641,7 @@ export class EluvioPlayer {
       }
     } catch (error) {
       // If playout failed due to a permission issue, check the content to see if there is a message to display
+      let permissionErrorMessage;
       if(error && [401, 403].includes(error.status) || [401, 403].includes(error.code)) {
         try {
           const client = await this.Client();
@@ -651,7 +652,7 @@ export class EluvioPlayer {
               this.sourceOptions.playoutParameters.versionHash ||
               await client.LatestVersionHash({objectId: this.sourceOptions.playoutParameters.objectId});
 
-          const permissionErrorMessage = await client.ContentObjectMetadata({
+          permissionErrorMessage = await client.ContentObjectMetadata({
             versionHash: targetHash,
             metadataSubtree: "public/asset_metadata/permission_message",
             authorizationToken: this.sourceOptions.playoutParameters.authorizationToken
@@ -674,7 +675,7 @@ export class EluvioPlayer {
         } catch(error) {}
       }
 
-
+      error.permission_message = permissionErrorMessage;
       if(this.playerOptions.errorCallback) {
         this.playerOptions.errorCallback(error, this);
       }
