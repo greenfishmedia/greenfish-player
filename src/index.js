@@ -98,7 +98,9 @@ const DefaultParameters = {
       hlsjsProfile: true,
       authorizationToken: undefined,
       clipStart: undefined,
-      clipEnd: undefined
+      clipEnd: undefined,
+      resolve: true,
+      ignoreTrimming: false
     }
   },
   playerOptions: {
@@ -296,6 +298,9 @@ export class EluvioPlayer {
         options.clip_end = parseFloat(this.sourceOptions.playoutParameters.clipEnd);
       }
     }
+
+    options.ignore_trimming = this.sourceOptions.playoutParameters.ignoreTrimming;
+    options.resolve = this.sourceOptions.playoutParameters.resolve;
 
     if(this.sourceOptions.playoutParameters.directLink) {
       const availableOfferings = await client.AvailableOfferings({
