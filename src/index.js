@@ -98,7 +98,9 @@ const DefaultParameters = {
       hlsjsProfile: true,
       authorizationToken: undefined,
       clipStart: undefined,
-      clipEnd: undefined
+      clipEnd: undefined,
+      resolve: true,
+      ignoreTrimming: false
     }
   },
   playerOptions: {
@@ -296,6 +298,9 @@ export class EluvioPlayer {
         options.clip_end = parseFloat(this.sourceOptions.playoutParameters.clipEnd);
       }
     }
+
+    options.ignore_trimming = this.sourceOptions.playoutParameters.ignoreTrimming;
+    options.resolve = this.sourceOptions.playoutParameters.resolve;
 
     if(this.sourceOptions.playoutParameters.directLink) {
       const availableOfferings = await client.AvailableOfferings({
@@ -659,6 +664,7 @@ export class EluvioPlayer {
           });
 
           if(permissionErrorMessage) {
+            error.permission_message = permissionErrorMessage;
             const errorMessage = CreateElement({
               parent: this.target,
               classes: ["eluvio-player__error-message"]
@@ -672,7 +678,7 @@ export class EluvioPlayer {
             this.target.classList.add("eluvio-player--error");
           }
         // eslint-disable-next-line no-empty
-        } catch(error) {}
+        } catch (error) {}
       }
 
       error.permission_message = permissionErrorMessage;
