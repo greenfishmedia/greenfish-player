@@ -1,15 +1,18 @@
-import PlayCircleIcon from "./static/icons/media/LargePlayIcon.svg";
-import PlayIcon from "./static/icons/media/Play icon.svg";
-import PauseIcon from "./static/icons/media/Pause icon.svg";
-import FullscreenIcon from "./static/icons/media/Full Screen icon.svg";
-import ExitFullscreenIcon from "./static/icons/minimize.svg";
-import SettingsIcon from "./static/icons/media/Settings icon.svg";
-import CloseIcon from "./static/icons/x.svg";
-import MutedIcon from "./static/icons/media/no volume icon.svg";
-import VolumeLowIcon from "./static/icons/media/low volume icon.svg";
-import VolumeHighIcon from "./static/icons/media/Volume icon.svg";
-import MultiViewIcon from "./static/icons/multiview.svg";
-import LeftArrow from "./static/icons/arrow-left.svg";
+import {
+  PlayCircleIcon,
+  PlayIcon,
+  PauseIcon,
+  FullscreenIcon,
+  ExitFullscreenIcon,
+  SettingsIcon,
+  CloseIcon,
+  MutedIcon,
+  VolumeLowIcon,
+  VolumeHighIcon,
+  MultiViewIcon,
+  LeftArrowIcon
+} from "./static/icons/Icons";
+// Icons are generated from .svg files to an importable JS file. To add a new icon, modify and run src/BuildIcons.js
 
 import Logo from "./static/images/ELUV.IO white 20 px V2.png";
 
@@ -755,7 +758,7 @@ class PlayerControls {
         CreateElement({
           parent: backButton,
           classes: ["eluvio-player__controls__settings-menu__option-back__icon"]
-        }).innerHTML = LeftArrow;
+        }).innerHTML = LeftArrowIcon;
 
         CreateElement({
           parent: backButton,

@@ -664,6 +664,7 @@ export class EluvioPlayer {
           });
 
           if(permissionErrorMessage) {
+            error.permission_message = permissionErrorMessage;
             const errorMessage = CreateElement({
               parent: this.target,
               classes: ["eluvio-player__error-message"]
@@ -677,7 +678,7 @@ export class EluvioPlayer {
             this.target.classList.add("eluvio-player--error");
           }
         // eslint-disable-next-line no-empty
-        } catch(error) {}
+        } catch (error) {}
       }
 
       error.permission_message = permissionErrorMessage;
