@@ -9,7 +9,7 @@ import URI from "urijs";
 import ResizeObserver from "resize-observer-polyfill";
 
 import {InitializeFairPlayStream} from "./FairPlay";
-import PlayerControls, {CreateElement} from "./PlayerControls";
+import PlayerControls, {CreateElement, PlayPause} from "./PlayerControls";
 
 export const EluvioPlayerParameters = {
   networks: {
@@ -180,10 +180,10 @@ export class EluvioPlayer {
       // Play / pause when entering / leaving viewport
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.WHEN_VISIBLE) {
         if(lastPlayPauseAction !== "play" && bodyElement.isIntersecting && this.video.paused) {
-          await this.video.play();
+          PlayPause(this.video, true);
           lastPlayPauseAction = "play";
         } else if(lastPlayPauseAction !== "pause" && !bodyElement.isIntersecting && !this.video.paused) {
-          await this.video.pause();
+          PlayPause(this.video, false);
           lastPlayPauseAction = "pause";
         }
       }
@@ -373,7 +373,7 @@ export class EluvioPlayer {
     this.Log("Destroying player");
 
     if(this.video) {
-      this.video.pause();
+      PlayPause(this.video, false);
     }
 
     if(this.player.destroy) {
@@ -521,7 +521,7 @@ export class EluvioPlayer {
           this.video.currentTime = restartParameters.currentTime;
 
           if(restartParameters.playing) {
-            await this.video.play();
+            PlayPause(this.video, true);
           }
         });
       }
@@ -626,12 +626,12 @@ export class EluvioPlayer {
       }
 
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON) {
-        await this.video.play();
+        PlayPause(this.video, true);
 
         setTimeout(async () => {
           if(this.playerOptions.muted === EluvioPlayerParameters.muted.OFF_IF_POSSIBLE && this.video.paused && !this.video.muted) {
             this.video.muted = true;
-            await this.video.play();
+            PlayPause(this.video, true);
           }
         }, 250);
       }

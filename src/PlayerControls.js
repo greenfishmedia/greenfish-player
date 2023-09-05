@@ -40,6 +40,15 @@ export const LocalStorage = {
   }
 };
 
+export const PlayPause = async (videoElement, play) => {
+  try {
+    play ? await videoElement.play() : videoElement.pause();
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+  }
+};
+
 export const CreateElement = ({parent, type="div", label, options={}, classes=[], prepend=false}) => {
   const element = document.createElement(type);
   classes.filter(c => c).forEach(c => element.classList.add(c));
@@ -366,7 +375,7 @@ class PlayerControls {
       }
 
       clearTimeout(this.timeouts.playPause);
-      this.timeouts.playPause = setTimeout(async () => this.video.paused ? await this.video.play() : await this.video.pause(), 200);
+      this.timeouts.playPause = setTimeout(() => PlayPause(this.video, this.video.paused), 200);
     });
 
     // Big play icon
@@ -386,7 +395,7 @@ class PlayerControls {
     this.video.addEventListener("pause", () => this.FadeIn({key: "big-play-button", elements: [this.bigPlayButton]}));
 
     this.bigPlayButton.style.display = this.video.paused ? null : "none";
-    this.bigPlayButton.addEventListener("click", async () => await this.video.play());
+    this.bigPlayButton.addEventListener("click", () => PlayPause(this.video, true));
 
     // Controls container
     const controls = CreateElement({
@@ -405,9 +414,7 @@ class PlayerControls {
       label: this.video.paused ? "Play" : "Pause"
     });
 
-    playPauseButton.addEventListener("click", async () => {
-      this.video.paused ? await this.video.play() : await this.video.pause();
-    });
+    playPauseButton.addEventListener("click", () => PlayPause(this.video, this.video.paused));
 
     // Volume
     const volumeButton = CreateImageButton({
@@ -704,7 +711,7 @@ class PlayerControls {
 
         case "Enter":
         case " ":
-          this.video.paused ? await this.video.play() : await this.video.pause();
+          PlayPause(this.video, this.video.paused);
           event.preventDefault();
           break;
       }
