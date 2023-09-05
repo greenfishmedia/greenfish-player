@@ -366,7 +366,7 @@ class PlayerControls {
       }
 
       clearTimeout(this.timeouts.playPause);
-      this.timeouts.playPause = setTimeout(() => this.video.paused ? this.video.play() : this.video.pause(), 200);
+      this.timeouts.playPause = setTimeout(async () => this.video.paused ? await this.video.play() : await this.video.pause(), 200);
     });
 
     // Big play icon
@@ -386,7 +386,7 @@ class PlayerControls {
     this.video.addEventListener("pause", () => this.FadeIn({key: "big-play-button", elements: [this.bigPlayButton]}));
 
     this.bigPlayButton.style.display = this.video.paused ? null : "none";
-    this.bigPlayButton.addEventListener("click", () => this.video.play());
+    this.bigPlayButton.addEventListener("click", async () => await this.video.play());
 
     // Controls container
     const controls = CreateElement({
@@ -405,8 +405,8 @@ class PlayerControls {
       label: this.video.paused ? "Play" : "Pause"
     });
 
-    playPauseButton.addEventListener("click", () => {
-      this.video.paused ? this.video.play() : this.video.pause();
+    playPauseButton.addEventListener("click", async () => {
+      this.video.paused ? await this.video.play() : await this.video.pause();
     });
 
     // Volume
@@ -680,7 +680,7 @@ class PlayerControls {
       }
     });
 
-    this.target.addEventListener("keydown", event => {
+    this.target.addEventListener("keydown", async event => {
       switch (event.key) {
         case "ArrowLeft":
           this.Seek({relative: -10});
@@ -704,7 +704,7 @@ class PlayerControls {
 
         case "Enter":
         case " ":
-          this.video.paused ? this.video.play() : this.video.pause();
+          this.video.paused ? await this.video.play() : await this.video.pause();
           event.preventDefault();
           break;
       }

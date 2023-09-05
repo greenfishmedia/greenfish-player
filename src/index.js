@@ -98,9 +98,7 @@ const DefaultParameters = {
       hlsjsProfile: true,
       authorizationToken: undefined,
       clipStart: undefined,
-      clipEnd: undefined,
-      resolve: true,
-      ignoreTrimming: false
+      clipEnd: undefined
     }
   },
   playerOptions: {
@@ -178,14 +176,14 @@ export class EluvioPlayer {
     }
 
     let lastPlayPauseAction, lastMuteAction;
-    const Callback = ([bodyElement]) => {
+    const Callback = async ([bodyElement]) => {
       // Play / pause when entering / leaving viewport
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.WHEN_VISIBLE) {
         if(lastPlayPauseAction !== "play" && bodyElement.isIntersecting && this.video.paused) {
-          this.video.play();
+          await this.video.play();
           lastPlayPauseAction = "play";
         } else if(lastPlayPauseAction !== "pause" && !bodyElement.isIntersecting && !this.video.paused) {
-          this.video.pause();
+          await this.video.pause();
           lastPlayPauseAction = "pause";
         }
       }
@@ -517,13 +515,13 @@ export class EluvioPlayer {
       });
 
       if(restartParameters) {
-        this.video.addEventListener("loadedmetadata", () => {
+        this.video.addEventListener("loadedmetadata", async () => {
           this.video.volume = restartParameters.volume;
           this.video.muted = restartParameters.muted;
           this.video.currentTime = restartParameters.currentTime;
 
           if(restartParameters.playing) {
-            this.video.play();
+            await this.video.play();
           }
         });
       }
@@ -628,12 +626,12 @@ export class EluvioPlayer {
       }
 
       if(this.playerOptions.autoplay === EluvioPlayerParameters.autoplay.ON) {
-        this.video.play();
+        await this.video.play();
 
-        setTimeout(() => {
+        setTimeout(async () => {
           if(this.playerOptions.muted === EluvioPlayerParameters.muted.OFF_IF_POSSIBLE && this.video.paused && !this.video.muted) {
             this.video.muted = true;
-            this.video.play();
+            await this.video.play();
           }
         }, 250);
       }
