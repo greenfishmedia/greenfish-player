@@ -201,7 +201,7 @@ $button-height: 35px;
 
   &__video {
     background: $background-color;
-    height: auto;
+    height: 100%;
     margin: auto;
     object-fit: contain;
     object-position: center;

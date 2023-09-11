@@ -8,16 +8,15 @@ const Initialize = async () => {
     configUrl: "https://main.net955305.contentfabric.io/config"
   });
 
-  await client.SetStaticToken({token: "acspjc2He3BmcNAiRcNX7wrmvo1tQ18euppYfV2jypNazJEGAEb91pNc4H5JBVT1zZMqsyp93TvFfcdGUMx316EcGx36DaKaT4agXeXzAEchUXSf7FTuF8McKHtQx8V5LHeL6cEWZG64bfycj32eG7fDJMJ7BG47B3HT4kj5pUTwLtYWATkqjbsuji1KnyuvdmkhwPJViBCKw5VrULH11KJJpPAaqT87MhLTC86K2fQbyTnx9mQMSxtzGSf1KqjgtHmJyE6w2rzSfmnJGGaDNawAtVinHDaztMagY3Us"});
+  await client.SetStaticToken();
 
-  const versionHash = await client.LatestVersionHash({versionHash: "hq__8fpRseTe9LAasv8mSERede9A2shHJ3KghGMZGKKb7BQuPF8Zonb6XJrabUjfxmwSXCfeZz83Sb"});
+  const versionHash = await client.LatestVersionHash({versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo"});
 
   window.player = new EluvioPlayer(
     document.getElementById("player-target"),
     {
       clientOptions: {
-        network: EluvioPlayerParameters.networks.MAIN,
-        client
+        network: EluvioPlayerParameters.networks.MAIN
       },
       sourceOptions: {
         playoutParameters: {
