@@ -120,6 +120,70 @@ const Time = (time, total) => {
   return string;
 };
 
+export const InitializeTicketPrompt = (target, callback) => {
+  const ticketModal = CreateElement({
+    parent: target,
+    type: "div",
+    classes: ["eluvio-player__ticket-modal"]
+  });
+
+  ticketModal.addEventListener("dblclick", event => event.stopPropagation());
+
+  const form = CreateElement({
+    parent: ticketModal,
+    type: "form",
+    classes: ["eluvio-player__ticket-modal__form"]
+  });
+
+  const errorMessage = CreateElement({
+    parent: form,
+    type: "div",
+    classes: ["eluvio-player__ticket-modal__form__error-text", "eluvio-player__ticket-modal__form__text"]
+  });
+
+  const text = CreateElement({
+    parent: form,
+    type: "div",
+    classes: ["eluvio-player__ticket-modal__form__text"]
+  });
+
+  text.innerHTML = "Enter your code";
+
+  const input = CreateElement({
+    parent: form,
+    type: "input",
+    classes: ["eluvio-player__ticket-modal__form__input"]
+  });
+
+  const submit = CreateElement({
+    parent: form,
+    type: "button",
+    classes: ["eluvio-player__ticket-modal__form__submit"]
+  });
+
+  input.focus();
+
+  submit.innerHTML = "Submit";
+
+  submit.addEventListener("click", async event => {
+    try {
+      submit.setAttribute("disabled", true);
+      event.preventDefault();
+      errorMessage.innerHTML = "";
+
+      await callback(input.value);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("ELUVIO PLAYER: Invalid Code");
+      // eslint-disable-next-line no-console
+      console.error(error);
+
+      errorMessage.innerHTML = "Invalid Code";
+      submit.removeAttribute("disabled");
+    }
+  });
+};
+
 class PlayerControls {
   constructor({target, video, playerOptions, posterUrl, className}) {
     this.target = target;
@@ -1043,74 +1107,6 @@ class PlayerControls {
 
         await SwitchView(next_view);
       });
-    });
-  }
-
-  InitializeTicketPrompt(callback) {
-    if(this.bigPlayButton) {
-      this.bigPlayButton.parentNode.removeChild(this.bigPlayButton);
-    }
-
-    const ticketModal = CreateElement({
-      parent: this.target,
-      type: "div",
-      classes: ["eluvio-player__ticket-modal"]
-    });
-
-    ticketModal.addEventListener("dblclick", event => event.stopPropagation());
-
-    const form = CreateElement({
-      parent: ticketModal,
-      type: "form",
-      classes: ["eluvio-player__ticket-modal__form"]
-    });
-
-    const errorMessage = CreateElement({
-      parent: form,
-      type: "div",
-      classes: ["eluvio-player__ticket-modal__form__error-text", "eluvio-player__ticket-modal__form__text"]
-    });
-
-    const text = CreateElement({
-      parent: form,
-      type: "div",
-      classes: ["eluvio-player__ticket-modal__form__text"]
-    });
-
-    text.innerHTML = "Enter your code";
-
-    const input = CreateElement({
-      parent: form,
-      type: "input",
-      classes: ["eluvio-player__ticket-modal__form__input"]
-    });
-
-    const submit = CreateElement({
-      parent: form,
-      type: "button",
-      classes: ["eluvio-player__ticket-modal__form__submit"]
-    });
-
-    input.focus();
-
-    submit.innerHTML = "Submit";
-
-    submit.addEventListener("click", async event => {
-      try {
-        submit.setAttribute("disabled", true);
-        event.preventDefault();
-        errorMessage.innerHTML = "";
-
-        await callback(input.value);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error("ELUVIO PLAYER: Invalid Code");
-        // eslint-disable-next-line no-console
-        console.error(error);
-
-        errorMessage.innerHTML = "Invalid Code";
-        submit.removeAttribute("disabled");
-      }
     });
   }
 

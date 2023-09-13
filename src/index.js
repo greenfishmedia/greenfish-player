@@ -9,7 +9,7 @@ import URI from "urijs";
 import ResizeObserver from "resize-observer-polyfill";
 
 import {InitializeFairPlayStream} from "./FairPlay";
-import PlayerControls, {CreateElement, PlayPause} from "./PlayerControls";
+import PlayerControls, {CreateElement, InitializeTicketPrompt, PlayPause} from "./PlayerControls";
 
 export const EluvioPlayerParameters = {
   networks: {
@@ -208,6 +208,7 @@ export class EluvioPlayer {
       await this.clientPromise;
     }
 
+    // Always initialize new client if ticket is used
     if(!this.clientOptions.client) {
       this.clientPromise = new Promise(async resolve => {
         const {ElvClient} = await import("@eluvio/elv-client-js");
@@ -221,33 +222,35 @@ export class EluvioPlayer {
             this.clientOptions.client.utils.B64(JSON.stringify({qspace_id: await this.clientOptions.client.ContentSpaceId()}))
         });
 
-        resolve();
+        resolve(this.clientOptions.client);
       });
 
       await this.clientPromise;
     }
 
-    if(!this.clientOptions.ticketInitialized && this.clientOptions.ticketCode) {
-      if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is specified."); }
+    return this.clientOptions.client;
+  }
 
-      let code = this.clientOptions.ticketCode;
-      let subject = this.clientOptions.ticketSubject;
-      if(code.includes(":")) {
-        subject = code.split(":")[0];
-        code = code.split(":")[1];
-      }
+  async RedeemCode(code) {
+    if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is specified."); }
 
-      await this.clientOptions.client.RedeemCode({
-        tenantId: this.clientOptions.tenantId,
-        ntpId: this.clientOptions.ntpId,
-        code,
-        email: subject
-      });
-
-      this.ticketInitialized = true;
+    code = code || this.clientOptions.ticketCode;
+    let subject = this.clientOptions.ticketSubject;
+    if(code.includes(":")) {
+      subject = code.split(":")[0];
+      code = code.split(":")[1];
     }
 
-    return this.clientOptions.client;
+    await (await this.Client()).RedeemCode({
+      tenantId: this.clientOptions.tenantId,
+      ntpId: this.clientOptions.ntpId,
+      code,
+      email: subject
+    });
+
+    this.ticketInitialized = true;
+    this.clientOptions.ticketCode = code;
+    this.originalParameters.clientOptions.ticketCode = code;
   }
 
   async PosterUrl() {
@@ -472,9 +475,42 @@ export class EluvioPlayer {
       this.clientOptions = parameters.clientOptions;
       this.sourceOptions = parameters.sourceOptions;
       this.playerOptions = parameters.playerOptions;
+
+      // If ticket redemption required, ensure new client is used unless specified
+      if(
+        this.clientOptions.promptTicket &&
+        !this.ticketInitialized &&
+        !this.clientOptions.allowClientTicketRedemption
+      ) {
+        this.clientOptions.client = undefined;
+      }
     }
 
     this.errors = 0;
+
+
+    this.target.classList.add("eluvio-player");
+
+    // Start client loading
+    this.Client();
+
+    if(this.clientOptions.promptTicket && !this.ticketInitialized) {
+      if(!this.clientOptions.tenantId) {
+        throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is needed.");
+      }
+
+      if(this.clientOptions.ticketCode) {
+        await this.RedeemCode(this.clientOptions.ticketCode);
+      } else {
+        InitializeTicketPrompt(this.target, async code => {
+          await this.RedeemCode(code);
+
+          this.Initialize(target, parameters);
+        });
+
+        return;
+      }
+    }
 
     try {
       const playoutOptionsPromise = this.PlayoutOptions();
@@ -568,35 +604,6 @@ export class EluvioPlayer {
         }
       });
       this.resizeObserver.observe(this.target);
-
-      if(this.clientOptions.promptTicket && !this.clientOptions.ticketCode) {
-        if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is needed."); }
-
-        this.controls.InitializeTicketPrompt(async (code) => {
-          code = (code || "").trim();
-          let subject = this.clientOptions.ticketSubject;
-          if(code.includes(":")) {
-            subject = code.split(":")[0];
-            code = code.split(":")[1];
-          }
-
-          await this.clientOptions.client.RedeemCode({
-            tenantId: this.clientOptions.tenantId,
-            ntpId: this.clientOptions.ntpId,
-            code,
-            email: subject
-          });
-
-          this.ticketInitialized = true;
-          this.clientOptions.ticketCode = code;
-          this.originalParameters.clientOptions.client = this.clientOptions.client;
-          this.originalParameters.clientOptions.ticketCode = code;
-
-          this.Initialize(this.target);
-        });
-
-        return;
-      }
 
       let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
 

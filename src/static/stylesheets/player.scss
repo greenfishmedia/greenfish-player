@@ -8,7 +8,7 @@ $background-color: $black;
 $controls-color: rgba(0, 0, 0, 0.8);
 $menu-color: rgba(0, 0, 0, 0.8);
 $menu-active-color: rgba(255, 255, 255, 0.1);
-$button-color: rgba($white, 0.8);
+$button-color: rgba($white, 1);
 $progress-color: #0885fb;
 $slider-color: rgba($gray, 0.5);
 $hotspot-color: rgba($gray, 0.3);
@@ -528,7 +528,7 @@ $button-height: 35px;
 
   &__ticket-modal {
     align-items: center;
-    background: $controls-color;
+    background: $background-color;
     display: flex;
     height: 100%;
     justify-content: center;
@@ -554,7 +554,7 @@ $button-height: 35px;
 
       &__text {
         color: $button-color;
-        font-size: 20px;
+        font-size: 16px;
         font-weight: 300;
         letter-spacing: 0.05em;
       }
@@ -569,14 +569,14 @@ $button-height: 35px;
       }
 
       &__input {
-        background: $button-color;
+        background: $white;
         border: 0;
         border-radius: 3px;
         font-size: 18px;
         font-weight: bold;
         letter-spacing: 0.16em;
         margin: 5px 0 15px;
-        min-height: 40px;
+        min-height: 36px;
         padding: 0 10px;
         text-align: center;
         width: 100%;
@@ -585,7 +585,7 @@ $button-height: 35px;
       &__submit {
         border-radius: 3px;
         color: $button-color;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 500;
         height: 40px;
         letter-spacing: 0.1em;
