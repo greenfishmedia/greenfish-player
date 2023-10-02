@@ -331,6 +331,20 @@ class PlayerControls {
     PlayerMove();
   }
 
+  InitializeAccountWatermark(address) {
+    if(this.accountWatermark) {
+      return;
+    }
+
+    this.accountWatermark = CreateElement({
+      parent: this.target,
+      type: "div",
+      classes: ["eluvio-player__account-watermark"]
+    });
+
+    this.accountWatermark.innerText = address;
+  }
+
   InitializeControls(className="") {
     this.target.setAttribute("tabindex", "0");
 

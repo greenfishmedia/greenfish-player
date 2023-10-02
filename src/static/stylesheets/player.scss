@@ -219,6 +219,17 @@ $button-height: 35px;
     z-index: 10;
   }
 
+  &__account-watermark {
+    color: $white;
+    font-size: 8px;
+    opacity: 0.5;
+    pointer-events: none;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    z-index: 10;
+  }
+
   &__hidden-audio-controls {
     bottom: 10px;
     height: max-content;

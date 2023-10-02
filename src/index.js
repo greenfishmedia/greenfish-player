@@ -55,6 +55,10 @@ export const EluvioPlayerParameters = {
     OFF: false,
     ON: true
   },
+  accountWatermark: {
+    OFF: false,
+    ON: true
+  },
   capLevelToPlayerSize: {
     OFF: false,
     ON: true
@@ -544,6 +548,7 @@ export class EluvioPlayer {
       this.video.setAttribute("playsinline", "playsinline");
 
       this.controls = new PlayerControls({
+        player: this,
         target: this.target,
         video: this.video,
         playerOptions: this.playerOptions,
@@ -644,6 +649,13 @@ export class EluvioPlayer {
       }
 
       this.RegisterVisibilityCallback();
+
+      if(this.controls && this.playerOptions.accountWatermark) {
+        // Watermark
+        this.controls.InitializeAccountWatermark(
+          (await this.Client()).CurrentAccountAddress()
+        );
+      }
 
       if(this.__destroyed) {
         // If Destroy was called during the initialization process, ensure that the player is properly destroyed
@@ -908,6 +920,9 @@ export class EluvioPlayer {
         "text": {
           "defaultEnabled": false
         }
+      },
+      "text": {
+        "defaultEnabled": false
       }
     });
 
