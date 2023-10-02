@@ -774,9 +774,6 @@ export class EluvioPlayer {
 
       // Inject
       const hlsPlayer = new HLSPlayer({
-        maxBufferLength: 30,
-        maxBufferSize: 300,
-        enableWorker: true,
         capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
         xhrSetup: xhr => {
           xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
