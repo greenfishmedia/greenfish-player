@@ -11,12 +11,18 @@ import ResizeObserver from "resize-observer-polyfill";
 import {InitializeFairPlayStream} from "./FairPlay";
 import PlayerControls, {CreateElement, InitializeTicketPrompt, PlayPause} from "./PlayerControls";
 
+import {Utils} from "@eluvio/elv-client-js";
+
 export const EluvioPlayerParameters = {
   networks: {
     MAIN: "https://main.net955305.contentfabric.io/config",
     DEMO: "https://demov3.net955210.contentfabric.io/config",
     TEST: "https://test.net955203.contentfabric.io/config",
     TESTV4: "https://test.net955205.contentfabric.io/config"
+  },
+  playerProfile: {
+    DEFAULT: "default",
+    LOW_LATENCY: "low_latency"
   },
   drms: {
     FAIRPLAY: "fairplay",
@@ -115,6 +121,7 @@ const DefaultParameters = {
     posterUrl: undefined,
     className: undefined,
     controlsClassName: undefined,
+    playerProfile: EluvioPlayerParameters.playerProfile.DEFAULT,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
     // eslint-disable-next-line no-unused-vars
@@ -128,6 +135,17 @@ const DefaultParameters = {
     },
     // eslint-disable-next-line no-unused-vars
     restartCallback: async (error) => {}
+  }
+};
+
+const PlayerProfiles = {
+  default: {
+    label: "Default",
+    hlsSettings: {},
+  },
+  low_latency: {
+    label: "Low Latency",
+    hlsSettings: Utils.LiveHLSJSSettings({lowLatency: true})
   }
 };
 
@@ -415,7 +433,7 @@ export class EluvioPlayer {
 
      */
     try {
-      if(this.playerOptions.restartCallback) {
+      if(error && this.playerOptions.restartCallback) {
         try {
           const abort = await this.playerOptions.restartCallback(error);
 
@@ -433,7 +451,7 @@ export class EluvioPlayer {
 
       if(this.__destroyed) { return; }
 
-      this.Log("Retrying stream");
+      this.Log("Reloading stream");
 
       // Recall config to get new nodes
       const client = await this.Client();
@@ -566,6 +584,15 @@ export class EluvioPlayer {
           }
         });
       }
+
+      // Detect live video
+      this.video.addEventListener("durationchange", () => {
+        if(this.videoDuration > 0 && this.video.duration !== this.videoDuration) {
+          this.isLive = true;
+        }
+
+        this.videoDuration = this.video.duration;
+      });
 
       // Detect removal of video to ensure player is properly destroyed
       this.mutationObserver = new MutationObserver(() => {
@@ -769,12 +796,11 @@ export class EluvioPlayer {
       }
     } else {
       // HLS JS
-
       playoutUrl.removeQuery("authorization");
 
-      // Inject
+      const profileSettings = (PlayerProfiles[this.playerOptions.playerProfile] || {}).hlsSettings || {};
+
       const hlsPlayer = new HLSPlayer({
-        capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
         xhrSetup: xhr => {
           xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
 
@@ -784,6 +810,8 @@ export class EluvioPlayer {
 
           return xhr;
         },
+        capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
+        ...profileSettings,
         ...(this.playerOptions.hlsjsOptions || {})
       });
       hlsPlayer.loadSource(playoutUrl.toString());
@@ -859,6 +887,38 @@ export class EluvioPlayer {
               hlsPlayer.streamController.immediateLevelSwitch();
             }
           });
+        });
+
+        this.controls.SetPlayerProfileControls({
+          GetProfile: () => ({
+            label: "Player Profile",
+            options: Object.keys(PlayerProfiles).map(key => ({
+              index: key,
+              label: PlayerProfiles[key].label,
+              active: this.playerOptions.playerProfile === key,
+              activeLabel: `Player Profile: ${PlayerProfiles[key].label}`
+            }))
+          }),
+          SetProfile: async key => {
+            this.playerOptions.playerProfile = key;
+
+            const playing = !this.video.paused;
+            const currentTime = this.video.currentTime;
+
+            this.hlsPlayer.destroy();
+            await this.InitializeHLS({
+              playoutUrl,
+              authorizationToken,
+              drm,
+              multiviewOptions
+            });
+
+            PlayPause(this.video, playing);
+
+            if(!this.isLive) {
+              this.video.currentTime = currentTime;
+            }
+          }
         });
       }
 

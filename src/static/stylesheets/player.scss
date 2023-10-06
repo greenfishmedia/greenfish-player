@@ -8,6 +8,7 @@ $background-color: $black;
 $controls-color: rgba(0, 0, 0, 0.8);
 $menu-color: rgba(0, 0, 0, 0.8);
 $menu-active-color: rgba(255, 255, 255, 0.1);
+$button-inactive-color: rgba($white, 0.7);
 $button-color: rgba($white, 1);
 $progress-color: #0885fb;
 $slider-color: rgba($gray, 0.5);
@@ -456,7 +457,7 @@ $button-height: 35px;
 
       &__option {
         border: 1px solid transparent;
-        color: $button-color;
+        color: $button-inactive-color;
         cursor: pointer;
         display: block;
         font-size: 14px;
@@ -493,6 +494,7 @@ $button-height: 35px;
 
         &-selected {
           color: $white;
+          font-weight: 500;
         }
 
         &:hover {

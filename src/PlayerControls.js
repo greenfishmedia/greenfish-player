@@ -896,6 +896,10 @@ class PlayerControls {
       this.AddSetting({Retrieve: this.GetTextTracks, Set: this.SetTextTrack});
     }
 
+    if(this.GetPlayerProfile) {
+      this.AddSetting({Retrieve: this.GetPlayerProfile, Set: this.SetPlayerProfile});
+    }
+
     // Focus on first element in list when menu opened
     const firstItem = this.settingsMenu.querySelector("button");
     if(firstItem) {
@@ -970,6 +974,18 @@ class PlayerControls {
 
     this.GetLevels = GetLevels;
     this.SetLevel = SetLevel;
+
+    this.UpdateSettings();
+  }
+
+  SetPlayerProfileControls({GetProfile, SetProfile}) {
+    if([EluvioPlayerParameters.controls.OFF, EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE, EluvioPlayerParameters.controls.DEFAULT].includes(this.playerOptions.controls)) {
+      // Controls disabled
+      return;
+    }
+
+    this.GetPlayerProfile = GetProfile;
+    this.SetPlayerProfile = SetProfile;
 
     this.UpdateSettings();
   }

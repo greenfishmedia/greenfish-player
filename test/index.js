@@ -25,8 +25,7 @@ const Initialize = async () => {
       },
       playerOptions: {
         muted: true,
-        controls: EluvioPlayerParameters.controls.AUTO_HIDE,
-        capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON
+        controls: EluvioPlayerParameters.controls.AUTO_HIDE
       }
     }
   );
