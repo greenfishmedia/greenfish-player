@@ -9,6 +9,9 @@ let plugins = [];
 let entry = "./src/index.js";
 let path = Path.resolve(__dirname, "dist");
 
+const testTemplate = Path.join(__dirname, "test", "index.html");
+const exampleTemplate = Path.join(__dirname, "examples", "index.html");
+
 if(process.env.ANALYZE_BUNDLE) {
   plugins.push(new BundleAnalyzerPlugin());
 }
@@ -20,11 +23,10 @@ if(process.env.TEST_PAGE) {
   plugins.push(
     new HtmlWebpackPlugin({
       title: "Eluvio Player Test",
-      template: Path.join(__dirname, "test", "index.html"),
+      template: testTemplate,
       inject: "body",
       cache: false,
-      filename: "index.html",
-      inlineSource: ".(js|css)$"
+      filename: "index.html"
     })
   );
 }
@@ -36,11 +38,10 @@ if(process.env.EXAMPLE_PAGE) {
   plugins.push(
     new HtmlWebpackPlugin({
       title: "Eluvio Player Example",
-      template: Path.join(__dirname, "examples", "index.html"),
+      template: exampleTemplate,
       inject: "body",
       cache: false,
-      filename: "index.html",
-      inlineSource: ".(js|css)$"
+      filename: "index.html"
     })
   );
 }
@@ -50,35 +51,41 @@ module.exports = {
   target: "web",
   output: {
     path,
-    filename: "index.js",
-    chunkFilename: "[name].bundle.js"
+    clean: true,
+    filename: "[name].bundle.js",
+    publicPath: "/",
+    chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {
-    host: "0.0.0.0",//your ip address
-    disableHostCheck: true,
-    inline: true,
+    hot: true,
+    historyApiFallback: true,
+    allowedHosts: "all",
     port: 8089,
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type, Accept",
       "Access-Control-Allow-Methods": "POST"
+    },
+    // This is to allow configuration.js to be accessed
+    static: {
+      directory: Path.resolve(__dirname, "./config"),
+      publicPath: "/"
     }
   },
   optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true
-        }
-      })
-    ],
     splitChunks: {
-      chunks: "all"
-    }
+      chunks: "all",
+    },
   },
-  node: {
-    fs: "empty"
+  resolve: {
+    fallback: {
+      stream: require.resolve("stream-browserify"),
+      url: require.resolve("url")
+    },
+    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"],
+  },
+  externals: {
+    crypto: "crypto"
   },
   mode: "development",
   devtool: "eval-source-map",
@@ -87,6 +94,7 @@ module.exports = {
     rules: [
       {
         test: /\.(css|scss)$/,
+        exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
           "style-loader",
           {
@@ -95,25 +103,17 @@ module.exports = {
               importLoaders: 2
             }
           },
-          {
-            loader: "postcss-loader",
-            options: {
-              plugins: () => [autoprefixer({})]
-            }
-          },
+          "postcss-loader",
           "sass-loader"
         ]
       },
       {
-        test: /\.(js|mjs)$/,
-        exclude: /node_modules\/(?!elv-components-js)/,
+        test: /\.(js|mjs|jsx)$/,
         loader: "babel-loader",
         options: {
-          presets: ["@babel/preset-env"],
-          plugins: [
-            require("@babel/plugin-proposal-object-rest-spread"),
-            require("@babel/plugin-transform-regenerator"),
-            require("@babel/plugin-transform-runtime")
+          presets: [
+            "@babel/preset-env",
+            "@babel/preset-react",
           ]
         }
       },
@@ -122,17 +122,20 @@ module.exports = {
         loader: "svg-inline-loader"
       },
       {
-        test: /\.(gif|png|jpe?g)$/i,
-        use: [
-          "file-loader",
-          {
-            loader: "image-webpack-loader"
-          },
-        ],
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        include: [ Path.resolve(__dirname, "src/static/public")],
+        type: "asset/inline",
+        generator: {
+          filename: "public/[name][ext]"
+        }
+      },
+      {
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        type: "asset/resource",
       },
       {
         test: /\.(txt|bin|abi)$/i,
-        loader: "raw-loader"
+        type: "asset/source"
       }
     ]
   }

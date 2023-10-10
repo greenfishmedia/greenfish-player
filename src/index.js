@@ -5,7 +5,6 @@ import "focus-visible";
 import MergeWith from "lodash/mergeWith";
 import Clone from "lodash/cloneDeep";
 
-import URI from "urijs";
 import ResizeObserver from "resize-observer-polyfill";
 
 import {InitializeFairPlayStream} from "./FairPlay";
@@ -643,10 +642,10 @@ export class EluvioPlayer {
 
       multiviewOptions.target = this.target;
 
-      playoutUrl = URI(playoutUrl);
+      playoutUrl = new URL(playoutUrl);
       const authorizationToken =
         this.sourceOptions.playoutParameters.authorizationToken ||
-        playoutUrl.query(true).authorization;
+        playoutUrl.searchParams.get("authorization");
 
       if(protocol === "hls") {
         await this.InitializeHLS({playoutUrl, authorizationToken, drm, drms, multiviewOptions});
@@ -796,7 +795,7 @@ export class EluvioPlayer {
       }
     } else {
       // HLS JS
-      playoutUrl.removeQuery("authorization");
+      playoutUrl.searchParams.delete("authorization");
 
       const profileSettings = (PlayerProfiles[this.playerOptions.playerProfile] || {}).hlsSettings || {};
 
@@ -993,7 +992,7 @@ export class EluvioPlayer {
       });
     }
 
-    playoutUrl.removeQuery("authorization");
+    playoutUrl.searchParams.delete("authorization");
     dashPlayer.extend("RequestModifier", function () {
       return {
         modifyRequestHeader: xhr => {
