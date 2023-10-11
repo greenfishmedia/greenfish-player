@@ -145,6 +145,10 @@ const PlayerProfiles = {
   low_latency: {
     label: "Low Latency",
     hlsSettings: Utils.LiveHLSJSSettings({lowLatency: true})
+  },
+  custom: {
+    label: "Custom",
+    hlsSettings: {}
   }
 };
 
@@ -586,7 +590,7 @@ export class EluvioPlayer {
 
       // Detect live video
       this.video.addEventListener("durationchange", () => {
-        if(this.videoDuration > 0 && this.video.duration !== this.videoDuration) {
+        if(this.video.duration && this.videoDuration > 0 && this.video.duration !== this.videoDuration) {
           this.isLive = true;
         }
 
@@ -798,6 +802,14 @@ export class EluvioPlayer {
       playoutUrl.searchParams.delete("authorization");
 
       const profileSettings = (PlayerProfiles[this.playerOptions.playerProfile] || {}).hlsSettings || {};
+      const customProfileSettings = this.playerOptions.playerProfile === "custom" ? this.customHLSOptions : {};
+
+      this.hlsOptions = {
+        capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
+        ...profileSettings,
+        ...(this.playerOptions.hlsjsOptions || {}),
+        ...customProfileSettings
+      };
 
       const hlsPlayer = new HLSPlayer({
         xhrSetup: xhr => {
@@ -809,9 +821,7 @@ export class EluvioPlayer {
 
           return xhr;
         },
-        capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
-        ...profileSettings,
-        ...(this.playerOptions.hlsjsOptions || {})
+        ...this.hlsOptions
       });
       hlsPlayer.loadSource(playoutUrl.toString());
       hlsPlayer.attachMedia(this.video);
@@ -891,31 +901,46 @@ export class EluvioPlayer {
         this.controls.SetPlayerProfileControls({
           GetProfile: () => ({
             label: "Player Profile",
-            options: Object.keys(PlayerProfiles).map(key => ({
-              index: key,
-              label: PlayerProfiles[key].label,
-              active: this.playerOptions.playerProfile === key,
-              activeLabel: `Player Profile: ${PlayerProfiles[key].label}`
-            }))
+            options: Object.keys(PlayerProfiles)
+              .map(key => ({
+                index: key,
+                label: PlayerProfiles[key].label,
+                active: this.playerOptions.playerProfile === key,
+                activeLabel: `Player Profile: ${PlayerProfiles[key].label}`
+              }))
           }),
           SetProfile: async key => {
-            this.playerOptions.playerProfile = key;
+            const SetPlayerProfile = async ({profile, customHLSOptions={}}) => {
+              this.videoDuration = undefined;
+              this.playerOptions.playerProfile = profile;
+              this.customHLSOptions = customHLSOptions;
 
-            const playing = !this.video.paused;
-            const currentTime = this.video.currentTime;
+              const playing = !this.video.paused;
+              const currentTime = this.video.currentTime;
 
-            this.hlsPlayer.destroy();
-            await this.InitializeHLS({
-              playoutUrl,
-              authorizationToken,
-              drm,
-              multiviewOptions
-            });
+              this.hlsPlayer.destroy();
+              await this.InitializeHLS({
+                playoutUrl,
+                authorizationToken,
+                drm,
+                multiviewOptions
+              });
 
-            PlayPause(this.video, playing);
+              PlayPause(this.video, playing);
 
-            if(!this.isLive) {
-              this.video.currentTime = currentTime;
+              if(!this.isLive) {
+                this.video.currentTime = currentTime;
+              }
+            };
+
+            if(key === "custom") {
+              this.controls.ShowHLSOptionsForm({
+                hlsOptions: this.hlsOptions,
+                SetPlayerProfile,
+                hlsVersion: HLSPlayer.version
+              });
+            } else {
+              SetPlayerProfile({profile: key});
             }
           }
         });
@@ -1092,7 +1117,6 @@ export class EluvioPlayer {
     dashPlayer.on(DashPlayer.MediaPlayer.events.MANIFEST_LOADED, () => {
       UpdateQualityOptions();
       UpdateAudioTracks();
-      this.UpdateTextTracks({dashPlayer});
     });
 
     this.player = dashPlayer;

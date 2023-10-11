@@ -6,11 +6,14 @@ $black: #000;
 
 $background-color: $black;
 $controls-color: rgba(0, 0, 0, 0.8);
+$modal-background-color: rgba(0, 0, 0, 0.5);
 $menu-color: rgba(0, 0, 0, 0.8);
 $menu-active-color: rgba(255, 255, 255, 0.1);
 $button-inactive-color: rgba($white, 0.7);
 $button-color: rgba($white, 1);
-$progress-color: #0885fb;
+$form-button-color: #ddd;
+$form-submit-color: #3784eb;
+$progress-color: #3784eb;
 $slider-color: rgba($gray, 0.5);
 $hotspot-color: rgba($gray, 0.3);
 $focus-color: rgba(225, 225, 255, 0.7);
@@ -537,6 +540,114 @@ $button-height: 35px;
   &:fullscreen {
     margin: 0;
     padding: 0;
+  }
+
+  &__hls-options-form-container {
+    align-items: center;
+    background-color: $modal-background-color;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 100;
+  }
+
+  &__hls-options-form {
+    background-color: $menu-color;
+    border-radius: 5px;
+    color: $white;
+    display: flex;
+    flex-direction: column;
+    height: 360px;
+    max-height: 100%;
+    max-width: 100%;
+    padding: 30px 30px 20px;
+    width: 500px;
+
+    &__title {
+      font-size: 16px;
+      margin-top: 0;
+    }
+
+    &__input {
+      background-color: $menu-color;
+      border: 1px solid $border-color;
+      color: $white;
+      flex: 1 1 100%;
+      font-size: 14px;
+      padding: 0.5rem;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+      }
+
+      &.focus-visible {
+        outline: 1px solid $focus-color;
+      }
+
+      &--invalid {
+        border: 1px solid $error-color;
+      }
+    }
+
+    &__api-info {
+      align-items: center;
+      display: flex;
+      font-size: 10px;
+      justify-content: space-between;
+      padding: 3px;
+    }
+
+    &__version {
+      opacity: 0.5;
+    }
+
+    &__api-link {
+      color: $white;
+    }
+
+    &__actions {
+      align-items: center;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    button {
+      &.eluvio-player__hls-options-form__action {
+        align-items: center;
+        background-color: $form-button-color;
+        border-radius: 3px;
+        color: $black;
+        cursor: pointer;
+        display: flex;
+        height: 30px;
+        justify-content: center;
+        width: 100px;
+
+        &.focus-visible {
+          border: 1px solid $focus-color;
+          box-shadow: 2px 2px 5px $focus-color;
+        }
+
+        &:disabled {
+          opacity: 0.5;
+        }
+
+        &:not(:last-child) {
+          margin-right: 10px;
+        }
+      }
+
+      &.eluvio-player__hls-options-form__submit {
+        background-color: $form-submit-color;
+        color: $white;
+      }
+    }
   }
 
   &__ticket-modal {

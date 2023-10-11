@@ -356,6 +356,7 @@ class PlayerControls {
         classes: ["eluvio-player__watermark"]
       });
 
+      watermark.setAttribute("aria-label", "Eluvio");
       watermark.src = Logo;
     }
 
@@ -521,6 +522,7 @@ class PlayerControls {
       },
       classes: ["eluvio-player__controls__volume-slider", "eluvio-player__controls__slider-container__input"]
     });
+    volumeSlider.setAttribute("aria-label", "Volume");
 
     // Progress Bar
     const volumeBar = CreateElement({
@@ -533,6 +535,7 @@ class PlayerControls {
       },
       classes: ["eluvio-player__controls__volume", "eluvio-player__controls__slider-container__progress"]
     });
+    volumeBar.setAttribute("aria-label", "Volume");
 
     volumeButton.addEventListener("click", () => {
       this.video.muted = !this.video.muted;
@@ -584,6 +587,7 @@ class PlayerControls {
 
       this.video.currentTime = this.video.duration * parseFloat(progressSlider.value || 0);
     });
+    progressSlider.setAttribute("aria-label", "Video Progress");
 
     // Progress Bar
     const progressBar = CreateElement({
@@ -596,6 +600,7 @@ class PlayerControls {
       },
       classes: ["eluvio-player__controls__slider-container__progress", "eluvio-player__controls__progress"]
     });
+    progressBar.setAttribute("aria-label", "Video Progress");
 
     // Progress Bar
     const bufferProgressBar = CreateElement({
@@ -787,7 +792,6 @@ class PlayerControls {
           event.preventDefault();
           break;
 
-        case "Enter":
         case " ":
           PlayPause(this.video, this.video.paused);
           event.preventDefault();
@@ -798,6 +802,131 @@ class PlayerControls {
     if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
       this.AutohideControls(controls);
     }
+  }
+
+  ShowHLSOptionsForm({hlsOptions={}, SetPlayerProfile, hlsVersion}) {
+    let options = JSON.stringify({ ...hlsOptions }, null, 2);
+
+    this.hlsOptionsFormContainer = CreateElement({
+      parent: this.target,
+      classes: ["eluvio-player__hls-options-form-container"]
+    });
+
+    // Hide on clicking container, prevent play/pause/fullscreen listeners
+    this.hlsOptionsFormContainer.addEventListener("click", event => {
+      event.stopPropagation();
+
+      this.HideHLSOptionsMenu();
+    });
+
+    const hlsOptionsForm = CreateElement({
+      parent: this.hlsOptionsFormContainer,
+      type: "form",
+      classes: ["eluvio-player__hls-options-form"]
+    });
+
+    // Prevent keyboard shortcuts and container close listeners
+    hlsOptionsForm.addEventListener("keydown", event => event.stopPropagation());
+    hlsOptionsForm.addEventListener("click", event => event.stopPropagation());
+    hlsOptionsForm.addEventListener("dblclick", event => event.stopPropagation());
+
+    const title = CreateElement({
+      parent: hlsOptionsForm,
+      type: "h2",
+      classes: ["eluvio-player__hls-options-form__title"]
+    });
+
+    title.innerHTML = "Custom HLS.js Options";
+
+    const hlsOptionsInput = CreateElement({
+      parent: hlsOptionsForm,
+      type: "textarea",
+      classes: ["eluvio-player__hls-options-form__input"]
+    });
+
+    hlsOptionsInput.setAttribute("aria-label", "HLS.js options");
+    hlsOptionsInput.value = options;
+    hlsOptionsInput.addEventListener("change", event => {
+      options = event.currentTarget.value;
+    });
+    hlsOptionsInput.addEventListener("blur", event => {
+      try {
+        options = JSON.stringify(JSON.parse(options), null, 2);
+        hlsOptionsInput.value = options;
+
+        event.currentTarget.classList.remove("eluvio-player__hls-options-form__input--invalid");
+        document.querySelector(".eluvio-player__hls-options-form__submit")
+          .removeAttribute("disabled");
+        hlsOptionsInput.title = "";
+      // eslint-disable-next-line no-empty
+      } catch (error) {
+        event.currentTarget.classList.add("eluvio-player__hls-options-form__input--invalid");
+        document.querySelector(".eluvio-player__hls-options-form__submit")
+          .setAttribute("disabled", true);
+        hlsOptionsInput.title = error.toString();
+      }
+    });
+
+    const apiInfo = CreateElement({
+      parent: hlsOptionsForm,
+      classes: ["eluvio-player__hls-options-form__api-info"]
+    });
+
+    const apiLink = CreateElement({
+      parent: apiInfo,
+      type: "a",
+      classes: ["eluvio-player__hls-options-form__api-link"]
+    });
+    apiLink.setAttribute("target", "_blank");
+    apiLink.setAttribute("rel", "noopener");
+    apiLink.href = "https://github.com/video-dev/hls.js/blob/master/docs/API.md";
+    apiLink.innerHTML = "API Docs";
+
+    const version = CreateElement({
+      parent: apiInfo,
+      classes: ["eluvio-player__hls-options-form__version"]
+    });
+    version.innerHTML = `HLS.js ${hlsVersion}`;
+
+    const actions = CreateElement({
+      parent: hlsOptionsForm,
+      classes: ["eluvio-player__hls-options-form__actions"]
+    });
+    const cancel = CreateElement({
+      parent: actions,
+      type: "button",
+      classes: ["eluvio-player__hls-options-form__action"]
+    });
+    cancel.innerHTML = "Cancel";
+    cancel.setAttribute("type", "button");
+    cancel.addEventListener("click", event => {
+      event.preventDefault();
+      this.HideHLSOptionsMenu();
+    });
+
+    const submit = CreateElement({
+      parent: actions,
+      type: "button",
+      classes: ["eluvio-player__hls-options-form__action", "eluvio-player__hls-options-form__submit"]
+    });
+    submit.innerHTML = "Submit";
+    submit.setAttribute("type", "button");
+
+    submit.addEventListener("click", () => {
+      try {
+        SetPlayerProfile({
+          profile: "custom",
+          customHLSOptions: JSON.parse(options)
+        });
+
+        this.HideHLSOptionsMenu();
+      // eslint-disable-next-line no-empty
+      } catch (error) {}
+    });
+  }
+
+  HideHLSOptionsMenu() {
+    this.hlsOptionsFormContainer && this.hlsOptionsFormContainer.remove();
   }
 
   InitializeMenu(mode) {
