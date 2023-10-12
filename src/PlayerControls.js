@@ -63,8 +63,11 @@ export const CreateElement = ({parent, type="div", label, options={}, classes=[]
   return element;
 };
 
-const CreateImageButton = ({parent, svg, label, options={}, classes=[], prepend=false}) => {
-  classes.unshift("eluvio-player__controls__button");
+const CreateImageButton = ({parent, svg, label, options={}, classes=[], noDefaultClass, prepend=false}) => {
+  if(!noDefaultClass) {
+    classes.unshift("eluvio-player__controls__button");
+  }
+
   const button = CreateElement({parent, type: "button", label, options, classes, prepend});
   button.innerHTML = svg;
 
@@ -938,7 +941,8 @@ class PlayerControls {
       parent: this.settingsMenu,
       svg: CloseIcon,
       type: "button",
-      classes: ["eluvio-player__controls__settings-menu__close"]
+      classes: ["eluvio-player__controls__settings-menu__close"],
+      noDefaultClass: true
     });
 
     closeButton.addEventListener("click", () => this.HideSettingsMenu());

@@ -448,10 +448,14 @@ $button-height: 35px;
       }
 
       &__close {
+        align-items: center;
         display: none;
+        height: 20px;
+        justify-content: center;
         position: absolute;
         right: 20px;
         top: 20px;
+        width: 20px;
 
         * {
           color: $button-color;
@@ -889,13 +893,12 @@ $button-height: 35px;
         text-align: center;
 
         &-back {
-          font-size: 24px;
           margin-bottom: 20px;
         }
       }
 
       &__close {
-        display: unset;
+        display: flex;
         z-index: 100;
       }
     }
@@ -911,14 +914,32 @@ $button-height: 35px;
           text-align: center;
 
           &-back {
-            font-size: 24px;
             margin-bottom: 20px;
           }
         }
 
         &__close {
-          display: unset;
+          display: flex;
         }
+      }
+    }
+
+    .eluvio-player__hls-options-form {
+      padding: 10px;
+
+      &__title {
+        font-size: 12px;
+        margin-bottom: 5px;
+      }
+
+      &__input {
+        font-size: 12px;
+      }
+
+      &__action {
+        font-size: 12px;
+        height: 20px;
+        width: 60px;
       }
     }
 
