@@ -918,7 +918,7 @@ class PlayerControls {
     submit.addEventListener("click", () => {
       try {
         SetPlayerProfile({
-          profile: "custom",
+          profile: EluvioPlayerParameters.playerProfile.CUSTOM,
           customHLSOptions: JSON.parse(options)
         });
 

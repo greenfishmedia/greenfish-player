@@ -21,7 +21,8 @@ export const EluvioPlayerParameters = {
   },
   playerProfile: {
     DEFAULT: "default",
-    LOW_LATENCY: "low_latency"
+    LOW_LATENCY: "low_latency",
+    CUSTOM: "custom"
   },
   drms: {
     FAIRPLAY: "fairplay",
@@ -156,6 +157,18 @@ export class EluvioPlayer {
   constructor(target, parameters) {
     this.warnings = false;
     this.reloads = [];
+
+    try {
+      if(
+        parameters.playerOptions.hlsjsOptions &&
+        Object.keys(parameters.playerOptions.hlsjsOptions).length > 0
+      ) {
+        this.customHLSOptions = parameters.playerOptions.hlsjsOptions;
+        parameters.playerOptions.playerProfile = EluvioPlayerParameters.playerProfile.CUSTOM;
+      }
+    } catch(error) {
+      this.Log(error, true);
+    }
 
     this.DetectRemoval = this.DetectRemoval.bind(this);
 
@@ -802,12 +815,11 @@ export class EluvioPlayer {
       playoutUrl.searchParams.delete("authorization");
 
       const profileSettings = (PlayerProfiles[this.playerOptions.playerProfile] || {}).hlsSettings || {};
-      const customProfileSettings = this.playerOptions.playerProfile === "custom" ? this.customHLSOptions : {};
+      const customProfileSettings = this.playerOptions.playerProfile === EluvioPlayerParameters.playerProfile.CUSTOM ? this.customHLSOptions : {};
 
       this.hlsOptions = {
         capLevelToPlayerSize: this.playerOptions.capLevelToPlayerSize,
         ...profileSettings,
-        ...(this.playerOptions.hlsjsOptions || {}),
         ...customProfileSettings
       };
 
@@ -933,7 +945,7 @@ export class EluvioPlayer {
               }
             };
 
-            if(key === "custom") {
+            if(key === EluvioPlayerParameters.playerProfile.CUSTOM) {
               this.controls.ShowHLSOptionsForm({
                 hlsOptions: this.hlsOptions,
                 SetPlayerProfile,
