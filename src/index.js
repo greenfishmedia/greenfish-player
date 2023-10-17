@@ -166,7 +166,7 @@ export class EluvioPlayer {
         this.customHLSOptions = parameters.playerOptions.hlsjsOptions;
         parameters.playerOptions.playerProfile = EluvioPlayerParameters.playerProfile.CUSTOM;
       }
-    } catch(error) {
+    } catch (error) {
       this.Log(error, true);
     }
 
@@ -1136,6 +1136,13 @@ export class EluvioPlayer {
   }
 
   UpdateTextTracks({dashPlayer}={}) {
+    const tracks = dashPlayer ?
+      dashPlayer.getTracksFor("text") : Array.from(this.video.textTracks);
+
+    if(!tracks || tracks.length === 0) {
+      return;
+    }
+
     this.controls.SetTextTrackControls({
       GetTextTracks: () => {
         const activeTrackIndex = dashPlayer ?
