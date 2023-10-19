@@ -145,22 +145,12 @@ const PlayerProfiles = {
     hlsSettings: {},
   },
   low_latency: {
-    label: "Low Latency",
+    label: "Low Latency Live",
     hlsSettings: Utils.LiveHLSJSSettings({lowLatency: true})
   },
   ultra_low_latency: {
-    label: "Ultra Low Latency",
-    hlsSettings: {
-      "capLevelToPlayerSize": false,
-      "enableWorker": true,
-      "lowLatencyMode": true,
-      "maxBufferLength": 4,
-      "backBufferLength": 4,
-      "liveSyncDuration": 4,
-      "liveMaxLatencyDuration": 5,
-      "liveDurationInfinity": false,
-      "highBufferWatchdogPeriod": 1
-    }
+    label: "Ultra Low Latency Live",
+    hlsSettings: Utils.LiveHLSJSSettings({ultraLowLatency: true})
   },
   custom: {
     label: "Custom",
