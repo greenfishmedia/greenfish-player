@@ -22,6 +22,7 @@ export const EluvioPlayerParameters = {
   playerProfile: {
     DEFAULT: "default",
     LOW_LATENCY: "low_latency",
+    ULTRA_LOW_LATENCY: "ultra_low_latency",
     CUSTOM: "custom"
   },
   drms: {
@@ -146,6 +147,20 @@ const PlayerProfiles = {
   low_latency: {
     label: "Low Latency",
     hlsSettings: Utils.LiveHLSJSSettings({lowLatency: true})
+  },
+  ultra_low_latency: {
+    label: "Ultra Low Latency",
+    hlsSettings: {
+      "capLevelToPlayerSize": false,
+      "enableWorker": true,
+      "lowLatencyMode": true,
+      "maxBufferLength": 4,
+      "backBufferLength": 4,
+      "liveSyncDuration": 4,
+      "liveMaxLatencyDuration": 5,
+      "liveDurationInfinity": false,
+      "highBufferWatchdogPeriod": 1
+    }
   },
   custom: {
     label: "Custom",
