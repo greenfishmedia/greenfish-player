@@ -36,7 +36,7 @@
     "webpack.config.js"
   ],
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.0.59",
+    "@eluvio/elv-client-js": "^4.0.61",
     "dashjs": "^4.7.0",
     "focus-visible": "^5.2.0",
     "hls.js": "^1.4.12",
