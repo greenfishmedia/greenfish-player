@@ -142,15 +142,15 @@ const DefaultParameters = {
 const PlayerProfiles = {
   default: {
     label: "Default",
-    hlsSettings: {},
+    hlsSettings: Utils.HLSJSSettings({profile: "default"}),
   },
   low_latency: {
     label: "Low Latency Live",
-    hlsSettings: Utils.LiveHLSJSSettings({lowLatency: true})
+    hlsSettings: Utils.HLSJSSettings({profile: "ll"})
   },
   ultra_low_latency: {
     label: "Ultra Low Latency Live",
-    hlsSettings: Utils.LiveHLSJSSettings({ultraLowLatency: true})
+    hlsSettings: Utils.HLSJSSettings({profile: "ull"})
   },
   custom: {
     label: "Custom",
