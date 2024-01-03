@@ -125,6 +125,7 @@ const DefaultParameters = {
     playerProfile: EluvioPlayerParameters.playerProfile.DEFAULT,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
+    debugLogging: false,
     // eslint-disable-next-line no-unused-vars
     playerCallback: ({player, videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
     // eslint-disable-next-line no-unused-vars
@@ -160,7 +161,6 @@ const PlayerProfiles = {
 
 export class EluvioPlayer {
   constructor(target, parameters) {
-    this.warnings = false;
     this.reloads = [];
 
     try {
@@ -187,9 +187,9 @@ export class EluvioPlayer {
       // eslint-disable-next-line no-console
       console.error("ELUVIO PLAYER:", message);
     } else {
-      if(this.warnings) {
+      if(this.playerOptions.debugLogging) {
         // eslint-disable-next-line no-console
-        //console.warn("ELUVIO PLAYER:", message);
+        console.warn("ELUVIO PLAYER:", message);
       }
     }
   }
@@ -973,16 +973,6 @@ export class EluvioPlayer {
 
         this.Log(`Encountered ${error.details}`);
         this.Log(error);
-
-        /*
-        if(error.details === "bufferFullError") {
-          this.bufferFullRestartTimeout = setTimeout(() => {
-            this.Log("Buffer full error - Restarting player", true);
-            this.HardReload(error, 5000);
-          }, 3000);
-        }
-        
-         */
 
         if(error.details === "bufferStalledError") {
           const stallTime = this.video.currentTime;
