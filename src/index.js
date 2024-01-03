@@ -974,12 +974,15 @@ export class EluvioPlayer {
         this.Log(`Encountered ${error.details}`);
         this.Log(error);
 
+        /*
         if(error.details === "bufferFullError") {
           this.bufferFullRestartTimeout = setTimeout(() => {
             this.Log("Buffer full error - Restarting player", true);
             this.HardReload(error, 5000);
           }, 3000);
         }
+        
+         */
 
         if(error.details === "bufferStalledError") {
           const stallTime = this.video.currentTime;
