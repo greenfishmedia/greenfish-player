@@ -307,9 +307,11 @@ class PlayerControls {
       this.target.style.cursor = "unset";
     };
 
-    // Play / Pause
-    this.video.addEventListener("play", () => PlayerMove);
-    this.video.addEventListener("pause", () => PlayerMove);
+    // Play / Pause / Volume / Seek events
+    this.video.addEventListener("play", PlayerMove);
+    this.video.addEventListener("pause", PlayerMove);
+    this.video.addEventListener("volumechange", PlayerMove);
+    this.video.addEventListener("seeking", PlayerMove);
 
     // Mouse events
     this.target.addEventListener("mousemove", PlayerMove);
@@ -325,10 +327,10 @@ class PlayerControls {
       }
     }), 2000);
 
-    window.addEventListener("blur", () => { PlayerMove(); });
+    window.addEventListener("blur", PlayerMove);
 
     Array.from(this.target.querySelectorAll("button, input")).forEach(button => {
-      button.addEventListener("focus", () => { PlayerMove(); });
+      button.addEventListener("focus", PlayerMove);
     });
 
     PlayerMove();
@@ -795,6 +797,7 @@ class PlayerControls {
           event.preventDefault();
           break;
 
+        case "Enter":
         case " ":
           PlayPause(this.video, this.video.paused);
           event.preventDefault();
