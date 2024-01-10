@@ -37,9 +37,9 @@
   ],
   "dependencies": {
     "@eluvio/elv-client-js": "^4.0.62",
-    "dashjs": "^4.7.0",
+    "dashjs": "~4.7.0",
     "focus-visible": "^5.2.0",
-    "hls.js": "^1.4.12",
+    "hls.js": "~1.4.12",
     "lodash": "^4.17.21",
     "resize-observer-polyfill": "^1.5.1",
     "url-join": "^4.0.1"
