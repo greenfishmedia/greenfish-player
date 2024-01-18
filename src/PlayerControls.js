@@ -10,7 +10,10 @@ import {
   VolumeLowIcon,
   VolumeHighIcon,
   MultiViewIcon,
-  LeftArrowIcon
+  LeftArrowIcon,
+  PreviousTrackIcon,
+  NextTrackIcon,
+  CollectionIcon
 } from "./static/icons/Icons";
 // Icons are generated from .svg files to an importable JS file. To add a new icon, modify and run src/BuildIcons.js
 
@@ -123,7 +126,23 @@ const Time = (time, total) => {
   return string;
 };
 
-export const InitializeTicketPrompt = (target, callback) => {
+export const InitializeTicketPrompt = async (target, initialCode, callback) => {
+  // If initial code is provided, attempt to automatically redeem it before rendering the form
+  let initialError = "";
+  if(initialCode) {
+    try {
+      await callback(initialCode);
+      return;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("ELUVIO PLAYER: Invalid Code");
+      // eslint-disable-next-line no-console
+      console.error(error);
+
+      initialError = "Invalid Code";
+    }
+  }
+
   const ticketModal = CreateElement({
     parent: target,
     type: "div",
@@ -144,6 +163,8 @@ export const InitializeTicketPrompt = (target, callback) => {
     classes: ["eluvio-player__ticket-modal__form__error-text", "eluvio-player__ticket-modal__form__text"]
   });
 
+  errorMessage.innerHTML = initialError;
+
   const text = CreateElement({
     parent: form,
     type: "div",
@@ -157,6 +178,8 @@ export const InitializeTicketPrompt = (target, callback) => {
     type: "input",
     classes: ["eluvio-player__ticket-modal__form__input"]
   });
+
+  input.value = initialCode;
 
   const submit = CreateElement({
     parent: form,
@@ -188,7 +211,8 @@ export const InitializeTicketPrompt = (target, callback) => {
 };
 
 class PlayerControls {
-  constructor({target, video, playerOptions, posterUrl, className}) {
+  constructor({player, target, video, playerOptions, posterUrl, className}) {
+    this.player = player;
     this.target = target;
     this.video = video;
     this.playerOptions = playerOptions;
@@ -199,6 +223,8 @@ class PlayerControls {
     if(posterUrl) {
       this.SetPosterUrl(posterUrl);
     }
+
+    this.HandleClickOutsideMenu = this.HandleClickOutsideMenu.bind(this);
 
     this.InitializeControls(className);
   }
@@ -267,7 +293,7 @@ class PlayerControls {
     }
   }
 
-  AutohideControls(controls) {
+  AutohideControls({controls, titleOnly=false}) {
     this.video.addEventListener("play", () => {
       this.played = true;
     });
@@ -289,14 +315,14 @@ class PlayerControls {
     const PlayerMove = () => {
       this.FadeIn({
         key: "controls",
-        elements: [controls, this.settingsMenu, this.toolTip],
+        elements: titleOnly ? [this.titleContainer] : [controls, this.settingsMenu, this.toolTip, this.titleContainer],
         callback: () => {
           this.target.classList.remove("-elv-no-cursor");
         }
       });
       this.FadeOut({
         key: "controls",
-        elements: [controls, this.settingsMenu, this.toolTip],
+        elements: titleOnly ? [this.titleContainer] : [controls, this.settingsMenu, this.toolTip, this.titleContainer],
         delay: 3000,
         unless: () => ControlsShouldShow(),
         callback: () => {
@@ -350,7 +376,40 @@ class PlayerControls {
     this.accountWatermark.innerText = address;
   }
 
+  InitializeContentTitle({title, description}) {
+    if(!title && !description) { return; }
+
+    this.titleContainer = CreateElement({
+      parent: this.target,
+      type: "div",
+      classes: ["eluvio-player__title-container"],
+      prepend: true
+    });
+
+    if(title) {
+      const titleElement = CreateElement({
+        parent: this.titleContainer,
+        type: "div",
+        classes: ["eluvio-player__title"]
+      });
+
+      titleElement.innerHTML = title;
+    }
+
+    if(description) {
+      const descriptionElement = CreateElement({
+        parent: this.titleContainer,
+        type: "div",
+        classes: ["eluvio-player__description"]
+      });
+
+      descriptionElement.innerHTML = description;
+    }
+  }
+
   InitializeControls(className="") {
+    const collectionInfo = this.player.collectionInfo;
+
     this.target.setAttribute("tabindex", "0");
 
     if(this.playerOptions.watermark) {
@@ -434,7 +493,7 @@ class PlayerControls {
           volumeButton.innerHTML = this.video.muted || this.video.volume === 0 ? MutedIcon : (this.video.volume < 0.5 ? VolumeLowIcon : VolumeHighIcon);
         });
 
-        this.AutohideControls(controls);
+        this.AutohideControls({controls, titleOnly: false});
       };
 
       const HasAudio = () => (this.video.mozHasAudio || Boolean(this.video.webkitAudioDecodedByteCount) || Boolean(this.video.audioTracks && this.video.audioTracks.length));
@@ -559,6 +618,21 @@ class PlayerControls {
       volumeBar.value = volumeSlider.value;
     });
 
+    // Collection previous track
+    if(collectionInfo && collectionInfo.isPlaylist) {
+      const collectionPreviousButton = CreateImageButton({
+        parent: controls,
+        svg: PreviousTrackIcon,
+        classes: ["eluvio-player__controls__previous-track"],
+        label: "Previous Track",
+        options: {
+          disabled: collectionInfo.mediaIndex === 0
+        }
+      });
+
+      collectionPreviousButton.addEventListener("click", () => this.player.CollectionPlayPrevious());
+    }
+
     const progressTime = CreateElement({
       parent: controls,
       type: "div",
@@ -644,11 +718,55 @@ class PlayerControls {
 
     totalTime.innerHTML = "00:00";
 
+    // Collection previous track
+    if(collectionInfo && collectionInfo.isPlaylist) {
+      const collectionNextButton = CreateImageButton({
+        parent: controls,
+        svg: NextTrackIcon,
+        classes: ["eluvio-player__controls__next-track"],
+        label: "Next Track",
+        options: {
+          disabled: collectionInfo.mediaIndex >= collectionInfo.mediaLength - 1
+        }
+      });
+
+      collectionNextButton.addEventListener("click", () => this.player.CollectionPlayNext());
+    }
+
+    if(collectionInfo) {
+      this.collectionButton = CreateImageButton({
+        parent: controls,
+        svg: CollectionIcon,
+        classes: ["eluvio-player__controls__collection"],
+        label: "Collection Info"
+      });
+
+      this.collectionButton.addEventListener("click", () => {
+        this.settingsMenu.dataset.mode === "collection" ?
+          this.HideSettingsMenu() :
+          this.ShowCollectionMenu();
+      });
+    }
+
     // Right buttons container
     this.rightButtonsContainer = CreateElement({
       parent: controls,
       type: "div",
       classes: ["eluvio-player__controls__right-buttons"]
+    });
+
+    this.settingsButton = CreateImageButton({
+      parent: this.rightButtonsContainer,
+      svg: SettingsIcon,
+      classes: ["eluvio-player__controls__button-settings"],
+      prepend: true,
+      label: "Settings"
+    });
+
+    this.settingsButton.addEventListener("click", () => {
+      this.settingsMenu.dataset.mode.startsWith("settings") ?
+        this.HideSettingsMenu() :
+        this.ShowSettingsMenu();
     });
 
     // Fullscreen
@@ -805,9 +923,7 @@ class PlayerControls {
       }
     });
 
-    if(this.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE) {
-      this.AutohideControls(controls);
-    }
+    this.AutohideControls({controls, titleOnly: this.playerOptions.controls !== EluvioPlayerParameters.controls.AUTO_HIDE});
   }
 
   ShowHLSOptionsForm({hlsOptions={}, SetPlayerProfile, hlsVersion}) {
@@ -935,7 +1051,14 @@ class PlayerControls {
     this.hlsOptionsFormContainer && this.hlsOptionsFormContainer.remove();
   }
 
+  HandleClickOutsideMenu(event) {
+    if(!this.settingsMenu.contains(event.target)) {
+      this.HideSettingsMenu();
+    }
+  }
+
   InitializeMenu(mode) {
+    this.HideSettingsMenu();
     this.settingsMenu.innerHTML = "";
     this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");
     this.settingsMenu.setAttribute("data-mode", mode);
@@ -949,6 +1072,16 @@ class PlayerControls {
     });
 
     closeButton.addEventListener("click", () => this.HideSettingsMenu());
+
+    setTimeout(() => {
+      document.addEventListener("click", this.HandleClickOutsideMenu);
+    }, 100);
+
+    if(mode === "collection") {
+      this.collectionButton.classList.add("eluvio-player__controls__button--active");
+    } else if(mode.includes("setting")) {
+      this.settingsButton.classList.add("eluvio-player__controls__button--active");
+    }
   }
 
   AddSetting({Retrieve, Set}) {
@@ -1044,37 +1177,73 @@ class PlayerControls {
   }
 
   HideSettingsMenu() {
+    document.removeEventListener("click", this.HandleClickOutsideMenu);
+
     const mode = this.settingsMenu.dataset.mode;
     if(mode === "settings") {
       this.settingsButton.focus();
     } else if(mode === "multiview") {
       this.multiviewButton.focus();
+    } else if(mode === "collection") {
+      this.collectionButton.focus();
     }
 
     this.settingsMenu.innerHTML = "";
     this.settingsMenu.classList.add("eluvio-player__controls__settings-menu-hidden");
     this.settingsMenu.setAttribute("data-mode", "hidden");
+
+    this.settingsButton.classList.remove("eluvio-player__controls__button--active");
+    this.collectionButton && this.collectionButton.classList.remove("eluvio-player__controls__button--active");
+    this.multiviewButton && this.multiviewButton.classList.remove("eluvio-player__controls__button--active");
   }
 
+  // Settings were updated - if the menu is already open, force it to refresh
   UpdateSettings() {
-    if(!this.settingsButton) {
-      this.settingsButton = CreateImageButton({
-        parent: this.rightButtonsContainer,
-        svg: SettingsIcon,
-        classes: ["eluvio-player__controls__button-settings"],
-        prepend: true,
-        label: "Settings"
-      });
-
-      this.settingsButton.addEventListener("click", () => {
-        this.settingsMenu.dataset.mode === "hidden" ?
-          this.ShowSettingsMenu() :
-          this.HideSettingsMenu();
-      });
-    }
-
     if(this.settingsMenu.dataset.mode === "settings") {
       this.ShowSettingsMenu();
+    }
+  }
+
+  ShowCollectionMenu() {
+    if(
+      !this.player.collectionInfo ||
+      !this.player.collectionInfo.content ||
+      this.player.collectionInfo.content.length <= 1
+    ) {
+      return;
+    }
+
+    this.InitializeMenu("collection");
+
+    const collectionTitle = CreateElement({
+      parent: this.settingsMenu,
+      type: "div",
+      classes: ["eluvio-player__controls__settings-menu__title"]
+    });
+
+    collectionTitle.innerHTML = this.player.collectionInfo.title;
+
+    this.player.collectionInfo.content
+      .forEach((option, index) => {
+        const active = this.player.collectionInfo.mediaIndex === index;
+        const optionButton = CreateElement({
+          parent: this.settingsMenu,
+          type: "button",
+          classes: ["eluvio-player__controls__settings-menu__option", active ? "eluvio-player__controls__settings-menu__option-selected" : ""]
+        });
+
+        optionButton.innerHTML = option.title || option.mediaHash;
+
+        optionButton.addEventListener("click", () => {
+          this.player.CollectionPlay({mediaIndex: index});
+          this.HideSettingsMenu();
+        });
+      });
+
+    // Focus on first element in list when menu opened
+    const firstItem = this.settingsMenu.querySelector("button");
+    if(firstItem) {
+      firstItem.focus();
     }
   }
 
@@ -1173,6 +1342,8 @@ class PlayerControls {
       this.HideSettingsMenu();
       return;
     }
+
+    this.multiviewButton.classList.add("eluvio-player__controls__button--active");
 
     this.settingsMenu.setAttribute("data-mode", "multiview");
     this.settingsMenu.classList.remove("eluvio-player__controls__settings-menu-hidden");

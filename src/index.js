@@ -48,6 +48,10 @@ export const EluvioPlayerParameters = {
     ON: true,
     DEFAULT: "default"
   },
+  title: {
+    ON: true,
+    OFF: false
+  },
   loop: {
     OFF: false,
     ON: true
@@ -69,6 +73,11 @@ export const EluvioPlayerParameters = {
   capLevelToPlayerSize: {
     OFF: false,
     ON: true
+  },
+  collectVideoAnalytics: {
+    OFF: false,
+    ON: true,
+    DISABLE_COOKIES: "disable_cookies"
   }
 };
 
@@ -93,8 +102,17 @@ const DefaultParameters = {
       EluvioPlayerParameters.drms.SAMPLE_AES,
       EluvioPlayerParameters.drms.AES128,
       EluvioPlayerParameters.drms.WIDEVINE,
-      EluvioPlayerParameters.drms.CLEAR,
+      EluvioPlayerParameters.drms.CLEAR
     ],
+    contentOptions: {
+      title: undefined,
+      description: undefined
+    },
+    mediaCollectionOptions: {
+      mediaCatalogObjectId: undefined,
+      mediaCatalogVersionHash: undefined,
+      collectionId: undefined
+    },
     playoutOptions: undefined,
     playoutParameters: {
       objectId: undefined,
@@ -113,12 +131,14 @@ const DefaultParameters = {
     }
   },
   playerOptions: {
+    appName: undefined,
     controls: EluvioPlayerParameters.controls.AUTO_HIDE,
     autoplay: EluvioPlayerParameters.autoplay.OFF,
     muted: EluvioPlayerParameters.muted.OFF,
     loop: EluvioPlayerParameters.loop.OFF,
     watermark: EluvioPlayerParameters.watermark.ON,
     capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF,
+    title: EluvioPlayerParameters.title.ON,
     posterUrl: undefined,
     className: undefined,
     controlsClassName: undefined,
@@ -126,6 +146,8 @@ const DefaultParameters = {
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
     debugLogging: false,
+    collectVideoAnalytics: true,
+    maxBitrate: undefined,
     // eslint-disable-next-line no-unused-vars
     playerCallback: ({player, videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
     // eslint-disable-next-line no-unused-vars
@@ -177,6 +199,9 @@ export class EluvioPlayer {
 
     this.DetectRemoval = this.DetectRemoval.bind(this);
 
+    this.target = target;
+    this.originalParameters = parameters;
+
     this.Initialize(target, parameters);
 
     window.EluvioPlayer = this;
@@ -207,6 +232,26 @@ export class EluvioPlayer {
 
     this.__DestroyPlayer();
     this.target.innerHTML = "";
+  }
+
+  SetErrorMessage(message) {
+    let errorMessage = this.target.querySelector(".eluvio-player__error-message");
+
+    if(!errorMessage) {
+      errorMessage = CreateElement({
+        parent: this.target,
+        classes: ["eluvio-player__error-message"]
+      });
+    }
+
+    errorMessage.innerHTML = "";
+
+    CreateElement({
+      parent: errorMessage,
+      classes: ["eluvio-player__error-message__text"]
+    }).innerHTML = message;
+
+    this.target.classList.add("eluvio-player--error");
   }
 
   RegisterVisibilityCallback() {
@@ -275,7 +320,9 @@ export class EluvioPlayer {
   }
 
   async RedeemCode(code) {
-    if(!this.clientOptions.tenantId) { throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is specified."); }
+    if(!this.clientOptions.tenantId || !this.clientOptions.ntpId) {
+      throw { displayMessage: "Tenant ID and NTP ID must be provided if ticket code is specified." };
+    }
 
     code = code || this.clientOptions.ticketCode;
     let subject = this.clientOptions.ticketSubject;
@@ -333,6 +380,11 @@ export class EluvioPlayer {
 
   async PlayoutOptions() {
     const client = await this.Client();
+
+    if(this.collectionInfo) {
+      const activeMedia = this.ActiveCollectionMedia();
+      this.sourceOptions.playoutParameters.versionHash = activeMedia.mediaHash;
+    }
 
     let offeringURI, options = {};
     if(this.sourceOptions.playoutParameters.clipStart || this.sourceOptions.playoutParameters.clipEnd) {
@@ -422,12 +474,14 @@ export class EluvioPlayer {
       PlayPause(this.video, false);
     }
 
-    if(this.player.destroy) {
-      this.player.destroy();
-    } else if(this.player.reset) {
-      this.player.reset();
+    if(this.hlsPlayer) {
+      this.hlsPlayer.destroy();
+    } else if(this.dashPlayer) {
+      this.dashPlayer.destroy();
     }
 
+    this.hlsPlayer = undefined;
+    this.dashPlayer = undefined;
     this.player = undefined;
   }
 
@@ -468,6 +522,7 @@ export class EluvioPlayer {
         }
       }
 
+      this.SetErrorMessage(error.displayMessage || "Something went wrong, reloading player...");
       await new Promise(resolve => setTimeout(resolve, delay));
 
       if(this.__destroyed) { return; }
@@ -497,10 +552,100 @@ export class EluvioPlayer {
     }
   }
 
+  ActiveCollectionMedia() {
+    if(!this.collectionInfo || !this.collectionInfo.content) { return; }
+
+    return this.collectionInfo.content[this.collectionInfo.mediaIndex];
+  }
+
+  CollectionPlay({mediaIndex, mediaId}) {
+    if(mediaId) {
+      mediaIndex = this.collectionInfo.content.find(media => media.id === mediaId);
+    }
+
+    this.collectionInfo.mediaIndex = mediaIndex;
+    this.Initialize(
+      this.target,
+      this.originalParameters,
+      !this.video ? null :
+        {
+          muted: this.video.muted,
+          volume: this.video.volume,
+          playing: !this.video.paused
+        }
+    );
+  }
+
+  CollectionPlayNext() {
+    const nextIndex = Math.min(this.collectionInfo.mediaIndex + 1, this.collectionInfo.mediaLength - 1);
+
+    if(nextIndex === this.collectionInfo.mediaIndex) { return; }
+
+    this.CollectionPlay({mediaIndex: nextIndex});
+  }
+
+  CollectionPlayPrevious() {
+    const previousIndex = Math.max(0, this.collectionInfo.mediaIndex - 1);
+
+    if(previousIndex === this.collectionInfo.mediaIndex) { return; }
+
+    this.CollectionPlay({mediaIndex: previousIndex});
+  }
+
+  async LoadCollection() {
+    if(this.collectionInfo) { return; }
+
+    let {mediaCatalogObjectId, mediaCatalogVersionHash, collectionId} = (this.sourceOptions?.mediaCollectionOptions || {});
+
+    if(!collectionId) { return; }
+
+    if(!mediaCatalogObjectId && !mediaCatalogVersionHash) {
+      throw { displayMessage: "Invalid collection options: Media catalog not specified" };
+    }
+
+    const client = await this.Client();
+
+    try {
+      const authorizationToken = this.sourceOptions.playoutParameters.authorizationToken;
+
+      mediaCatalogVersionHash = mediaCatalogVersionHash || await client.LatestVersionHash({objectId: mediaCatalogObjectId});
+      const collections = (await client.ContentObjectMetadata({
+        versionHash: mediaCatalogVersionHash,
+        metadataSubtree: "public/asset_metadata/info/collections",
+        authorizationToken
+      })) || [];
+
+      const collectionInfo = collections.find(collection => collection.id === collectionId);
+
+      if(!collectionInfo) {
+        throw { displayMessage: `No collection with ID ${collectionId} found for media catalog ${mediaCatalogObjectId || mediaCatalogVersionHash}` };
+      }
+
+      collectionInfo.content = collectionInfo.content
+        .filter(content => content.media)
+        .map(content => ({
+          ...content,
+          mediaHash: content.media?.["/"]?.split("/").find(segment => segment.startsWith("hq__"))
+        }));
+
+      this.collectionInfo = {
+        ...collectionInfo,
+        isPlaylist: collectionInfo.type === "playlist",
+        mediaIndex: 0,
+        mediaLength: collectionInfo.content.length
+      };
+    } catch (error) {
+      this.Log("Failed to load collection:");
+      throw error;
+    }
+  }
+
   async Initialize(target, parameters, restartParameters) {
     if(this.__destroyed) { return; }
 
     this.__DestroyPlayer();
+
+    this.initTime = Date.now();
 
     this.target = target;
 
@@ -531,34 +676,35 @@ export class EluvioPlayer {
 
     this.errors = 0;
 
-
     this.target.classList.add("eluvio-player");
 
     // Start client loading
     this.Client();
 
+    // Handle ticket authorization
     if(this.clientOptions.promptTicket && !this.ticketInitialized) {
-      if(!this.clientOptions.tenantId) {
-        throw Error("ELUVIO PLAYER: Tenant ID must be provided if ticket code is needed.");
+      if(!this.clientOptions.tenantId || !this.clientOptions.ntpId) {
+        throw { displayMessage: "Tenant ID and NTP ID must be provided if ticket code is needed." };
       }
 
-      if(this.clientOptions.ticketCode) {
-        await this.RedeemCode(this.clientOptions.ticketCode);
-      } else {
-        InitializeTicketPrompt(this.target, async code => {
+      InitializeTicketPrompt(
+        this.target,
+        this.clientOptions.ticketCode,
+        async code => {
           await this.RedeemCode(code);
 
           this.Initialize(target, parameters);
-        });
+        }
+      );
 
-        return;
-      }
+      return;
     }
 
     try {
-      const playoutOptionsPromise = this.PlayoutOptions();
-
       this.target.classList.add("eluvio-player");
+
+      // Load collection info, if present
+      await this.LoadCollection();
 
       if(this.restarted) {
         // Prevent big play button from flashing on restart
@@ -594,11 +740,27 @@ export class EluvioPlayer {
         className: this.playerOptions.controlsClassName
       });
 
+      if(this.playerOptions.title !== false && this.playerOptions.controls !== EluvioPlayerParameters.controls.DEFAULT) {
+        if(this.ActiveCollectionMedia()) {
+          const {title, description} = this.ActiveCollectionMedia();
+
+          this.controls.InitializeContentTitle({title, description});
+        } else if(this.sourceOptions.contentOptions.title) {
+          this.controls.InitializeContentTitle({
+            title: this.sourceOptions.contentOptions.title,
+            description: this.sourceOptions.contentOptions.description
+          });
+        }
+      }
+
       if(restartParameters) {
         this.video.addEventListener("loadedmetadata", async () => {
           this.video.volume = restartParameters.volume;
           this.video.muted = restartParameters.muted;
-          this.video.currentTime = restartParameters.currentTime;
+
+          if(restartParameters.currentTime) {
+            this.video.currentTime = restartParameters.currentTime;
+          }
 
           if(restartParameters.playing) {
             PlayPause(this.video, true);
@@ -656,9 +818,14 @@ export class EluvioPlayer {
           this.target.classList.remove("eluvio-player-landscape");
         }
       });
+
       this.resizeObserver.observe(this.target);
 
-      let { protocol, drm, playoutUrl, drms, multiviewOptions } = await playoutOptionsPromise;
+      if(this.collectionInfo && this.collectionInfo.isPlaylist && this.collectionInfo.mediaIndex < this.collectionInfo.mediaLength - 1) {
+        this.video.addEventListener("ended", () => this.CollectionPlayNext());
+      }
+
+      let { protocol, drm, playoutUrl, drms, multiviewOptions } = await this.PlayoutOptions();
 
       this.PosterUrl().then(posterUrl => this.controls.SetPosterUrl(posterUrl));
 
@@ -673,6 +840,17 @@ export class EluvioPlayer {
         await this.InitializeHLS({playoutUrl, authorizationToken, drm, drms, multiviewOptions});
       } else {
         await this.InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions});
+      }
+
+      if(this.playerOptions.collectVideoAnalytics) {
+        import("./Analytics")
+          .then(({InitializeMuxMonitoring}) => InitializeMuxMonitoring({
+            appName: this.playerOptions.appName || "elv-player-js",
+            elvPlayer: this,
+            playoutUrl,
+            authorizationToken,
+            disableCookies: this.playerOptions.collectVideoAnalytics === EluvioPlayerParameters.collectVideoAnalytics.DISABLE_COOKIES
+          }));
       }
 
       if(this.playerOptions.playerCallback) {
@@ -730,37 +908,36 @@ export class EluvioPlayer {
 
           if(permissionErrorMessage) {
             error.permission_message = permissionErrorMessage;
-            const errorMessage = CreateElement({
-              parent: this.target,
-              classes: ["eluvio-player__error-message"]
-            });
+            this.SetErrorMessage(permissionErrorMessage);
 
-            CreateElement({
-              parent: errorMessage,
-              classes: ["eluvio-player__error-message__text"]
-            }).innerHTML = permissionErrorMessage;
-
-            this.target.classList.add("eluvio-player--error");
+            if(typeof error === "object") {
+              error.permission_message = permissionErrorMessage;
+            } else {
+              this.Log(permissionErrorMessage, true);
+            }
+          } else {
+            this.SetErrorMessage(error.displayMessage || "Insufficient permissions");
           }
         // eslint-disable-next-line no-empty
-        } catch (error) {}
+        } catch (error) {
+          this.SetErrorMessage(error.displayMessage || "Insufficient permissions");
+        }
+      } else if(error.status === 500) {
+        this.HardReload(error, 10000);
+      } else {
+        this.SetErrorMessage(error.displayMessage || "Something went wrong");
       }
 
-      error.permission_message = permissionErrorMessage;
       if(this.playerOptions.errorCallback) {
         this.playerOptions.errorCallback(error, this);
-      }
-
-      if(error.status === 500) {
-        this.HardReload(error, 10000);
       }
     }
   }
 
   async InitializeHLS({playoutUrl, authorizationToken, drm, multiviewOptions}) {
-    const HLSPlayer = (await import("hls.js")).default;
+    this.HLS = (await import("hls.js")).default;
 
-    if(["fairplay", "sample-aes"].includes(drm) || !HLSPlayer.isSupported()) {
+    if(["fairplay", "sample-aes"].includes(drm) || !this.HLS.isSupported()) {
       // HLS JS NOT SUPPORTED - Handle native player
 
       if(drm === "fairplay") {
@@ -828,7 +1005,7 @@ export class EluvioPlayer {
         ...customProfileSettings
       };
 
-      const hlsPlayer = new HLSPlayer({
+      const hlsPlayer = new this.HLS({
         xhrSetup: xhr => {
           xhr.setRequestHeader("Authorization", `Bearer ${authorizationToken}`);
 
@@ -840,6 +1017,34 @@ export class EluvioPlayer {
         },
         ...this.hlsOptions
       });
+
+      // Limit playback to maximum bitrate, if specified
+      if(this.playerOptions.maxBitrate) {
+        hlsPlayer.on(this.HLS.Events.MANIFEST_PARSED, (_, {levels, firstLevel}) => {
+          let levelsToRemove = levels
+            .map((level, i) => level.bitrate > this.playerOptions.maxBitrate ? i : undefined)
+            .filter(i => typeof i !== "undefined")
+            // Note: Remove levels from highest to lowest index
+            .reverse();
+
+          if(levelsToRemove.length === levels.length) {
+            this.Log(`Warning: Max bitrate '${this.playerOptions.maxBitrate}bps' is less than all available levels for this content.`);
+            // Keep first level
+            levelsToRemove = levelsToRemove.filter(i => i > 0);
+          }
+
+          this.Log("Removing the following levels due to maxBitrate setting:");
+          this.Log(levelsToRemove.map(i => [levels[i].width, "x", levels[i].height, ` (${(levels[i].bitrate / 1000 / 1000).toFixed(1)}Mbps)`].join("")).join(", "));
+
+          if(levelsToRemove.find(i => firstLevel === i)) {
+            // Player will start on level that is being removed - switch to highest level that will not be removed
+            hlsPlayer.startLevel = levels.map((_, i) => i).filter(i => !levelsToRemove.includes(i)).reverse()[0];
+          }
+
+          levelsToRemove.map(i => hlsPlayer.removeLevel(i));
+        });
+      }
+
       hlsPlayer.loadSource(playoutUrl.toString());
       hlsPlayer.attachMedia(this.video);
 
@@ -892,11 +1097,11 @@ export class EluvioPlayer {
           }
         };
 
-        hlsPlayer.on(HLSPlayer.Events.SUBTITLE_TRACKS_UPDATED, () => this.UpdateTextTracks());
-        hlsPlayer.on(HLSPlayer.Events.LEVEL_LOADED, () => UpdateQualityOptions());
-        hlsPlayer.on(HLSPlayer.Events.LEVEL_SWITCHED, () => UpdateQualityOptions());
-        hlsPlayer.on(HLSPlayer.Events.SUBTITLE_TRACK_SWITCH, () => this.UpdateTextTracks());
-        hlsPlayer.on(HLSPlayer.Events.AUDIO_TRACKS_UPDATED, () => {
+        hlsPlayer.on(this.HLS.Events.SUBTITLE_TRACKS_UPDATED, () => this.UpdateTextTracks());
+        hlsPlayer.on(this.HLS.Events.LEVEL_LOADED, () => UpdateQualityOptions());
+        hlsPlayer.on(this.HLS.Events.LEVEL_SWITCHED, () => UpdateQualityOptions());
+        hlsPlayer.on(this.HLS.Events.SUBTITLE_TRACK_SWITCH, () => this.UpdateTextTracks());
+        hlsPlayer.on(this.HLS.Events.AUDIO_TRACKS_UPDATED, () => {
           this.controls.SetAudioTrackControls({
             GetAudioTracks: () => {
               const tracks = hlsPlayer.audioTracks.map(track => ({
@@ -954,7 +1159,7 @@ export class EluvioPlayer {
               this.controls.ShowHLSOptionsForm({
                 hlsOptions: this.hlsOptions,
                 SetPlayerProfile,
-                hlsVersion: HLSPlayer.version
+                hlsVersion: this.HLS.version
               });
             } else {
               SetPlayerProfile({profile: key});
@@ -963,34 +1168,31 @@ export class EluvioPlayer {
         });
       }
 
-      hlsPlayer.on(HLSPlayer.Events.FRAG_LOADED, () => {
+      hlsPlayer.on(this.HLS.Events.FRAG_LOADED, () => {
         this.errors = 0;
         clearTimeout(this.bufferFullRestartTimeout);
       });
 
-      hlsPlayer.on(HLSPlayer.Events.ERROR, async (event, error) => {
+      hlsPlayer.on(this.HLS.Events.ERROR, async (event, error) => {
         this.errors += 1;
 
-        this.Log(`Encountered ${error.details}`);
-        this.Log(error);
+        this.Log(`Encountered ${error.details}`, true);
+        this.Log(error, true);
 
-        if(error.details === "bufferStalledError") {
-          const stallTime = this.video.currentTime;
-
-          setTimeout(() => {
-            if(!this.video.paused && this.video.currentTime === stallTime) {
-              this.Log("Buffer stalled error, no progress in 5 seconds - Restarting player", true);
+        if(error.response && error.response.code === 403) {
+          // Not allowed to access
+          this.SetErrorMessage("Insufficient permissions");
+        } else if(this.errors < 5) {
+          if(error.fatal) {
+            if(data.type === this.HLS.ErrorTypes.MEDIA_ERROR) {
+              this.Log("Attempting to recover using hlsPlayer.recoverMediaError");
+              hlsPlayer.recoverMediaError();
+            } else {
+              this.HardReload(error);
             }
-          }, 5000);
-        }
-
-        if(error.fatal || this.errors === 3) {
-          if(error.response.code === 403) {
-            // Not allowed to access
-            this.Destroy();
-          } else {
-            this.HardReload(error);
           }
+        } else {
+          this.HardReload(error);
         }
       });
 
@@ -1000,20 +1202,24 @@ export class EluvioPlayer {
   }
 
   async InitializeDash({playoutUrl, authorizationToken, drm, drms, multiviewOptions}) {
-    const DashPlayer = (await import("dashjs")).default;
-    const dashPlayer = DashPlayer.MediaPlayer().create();
+    this.Dash = (await import("dashjs")).default;
+    const dashPlayer = this.Dash.MediaPlayer().create();
 
+    const customDashOptions = this.playerOptions.dashjsOptions || {};
     dashPlayer.updateSettings({
+      ...customDashOptions,
       "streaming": {
         "buffer": {
           "fastSwitchEnabled": true
         },
         "text": {
-          "defaultEnabled": false
-        }
+          "defaultEnabled": false,
+        },
+        ...(customDashOptions.streaming || {})
       },
       "text": {
-        "defaultEnabled": false
+        "defaultEnabled": false,
+        ...(customDashOptions.text || {})
       }
     });
 
@@ -1022,6 +1228,16 @@ export class EluvioPlayer {
         "streaming": {
           "abr": {
             "limitBitrateByPortal": true
+          }
+        }
+      });
+    }
+
+    if(this.playerOptions.maxBitrate) {
+      dashPlayer.updateSettings({
+        "streaming": {
+          "abr": {
+            "maxBitrate": { "video": this.playerOptions.maxBitrate / 1000 }
           }
         }
       });
@@ -1119,12 +1335,12 @@ export class EluvioPlayer {
       });
     };
 
-    dashPlayer.on(DashPlayer.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => UpdateQualityOptions());
-    dashPlayer.on(DashPlayer.MediaPlayer.events.TRACK_CHANGE_RENDERED, () => {
+    dashPlayer.on(this.Dash.MediaPlayer.events.QUALITY_CHANGE_RENDERED, () => UpdateQualityOptions());
+    dashPlayer.on(this.Dash.MediaPlayer.events.TRACK_CHANGE_RENDERED, () => {
       UpdateAudioTracks();
       this.UpdateTextTracks({dashPlayer});
     });
-    dashPlayer.on(DashPlayer.MediaPlayer.events.MANIFEST_LOADED, () => {
+    dashPlayer.on(this.Dash.MediaPlayer.events.MANIFEST_LOADED, () => {
       UpdateQualityOptions();
       UpdateAudioTracks();
     });
@@ -1188,6 +1404,8 @@ export class EluvioPlayer {
     });
   }
 }
+
+EluvioPlayer.EluvioPlayerParameters = EluvioPlayerParameters;
 
 export default EluvioPlayer;
 

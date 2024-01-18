@@ -12,6 +12,14 @@ let path = Path.resolve(__dirname, "dist");
 const testTemplate = Path.join(__dirname, "test", "index.html");
 const exampleTemplate = Path.join(__dirname, "examples", "index.html");
 
+if(process.env.BUILD_LIBRARY) {
+  plugins.push(
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1
+    })
+  );
+}
+
 if(process.env.ANALYZE_BUNDLE) {
   plugins.push(new BundleAnalyzerPlugin());
 }
@@ -52,9 +60,15 @@ module.exports = {
   output: {
     path,
     clean: true,
-    filename: "[name].bundle.js",
+    filename: "index.js",
     publicPath: "/",
-    chunkFilename: "bundle.[id].[chunkhash].js"
+    chunkFilename: "bundle.[id].[chunkhash].js",
+    //globalObject: "this",
+    library: {
+      name: "EluvioPlayer",
+      type: "commonjs",
+      export: "default"
+    }
   },
   devServer: {
     hot: true,
@@ -71,11 +85,6 @@ module.exports = {
       directory: Path.resolve(__dirname, "./config"),
       publicPath: "/"
     }
-  },
-  optimization: {
-    splitChunks: {
-      chunks: "all",
-    },
   },
   resolve: {
     fallback: {

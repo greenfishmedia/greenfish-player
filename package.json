@@ -9,7 +9,7 @@
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
     "serve": "TEST_PAGE=true webpack-dev-server --hot --port 8089 --host=0.0.0.0",
     "serve-example": "EXAMPLE_PAGE=true webpack-dev-server --hot --port 8089 --host=0.0.0.0",
-    "build": "node ./node_modules/webpack-cli/bin/cli.js --mode=production --devtool false",
+    "build": "BUILD_LIBRARY=true node ./node_modules/webpack-cli/bin/cli.js --mode=production --devtool false",
     "build-test": "TEST_PAGE=true node ./node_modules/webpack-cli/bin/cli.js --mode=production --devtool false",
     "build-example": "EXAMPLE_PAGE=true node ./node_modules/webpack-cli/bin/cli.js --mode=production --devtool false",
     "build-analyze": "ANALYZE_BUNDLE=true node ./node_modules/webpack-cli/bin/cli.js --mode=production --devtool false",
@@ -36,11 +36,12 @@
     "webpack.config.js"
   ],
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.0.62",
+    "@eluvio/elv-client-js": "^4.0.76",
     "dashjs": "~4.7.0",
     "focus-visible": "^5.2.0",
     "hls.js": "~1.4.12",
     "lodash": "^4.17.21",
+    "mux-embed": "^4.30.0",
     "resize-observer-polyfill": "^1.5.1",
     "url-join": "^4.0.1"
   },

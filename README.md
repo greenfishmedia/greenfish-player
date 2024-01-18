@@ -96,6 +96,7 @@ The library includes a helpful collection of configuration options in `EluvioPla
 ### Player Options
 
 ```javascript
+  // All player options and their defaults
   playerOptions: {
     controls: EluvioPlayerParameters.controls.AUTO_HIDE,
     autoplay: EluvioPlayerParameters.autoplay.OFF,
@@ -103,11 +104,13 @@ The library includes a helpful collection of configuration options in `EluvioPla
     loop: EluvioPlayerParameters.loop.OFF,
     watermark: EluvioPlayerParameters.watermark.ON,
     capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF,
+    collectVideoAnalytics: EluvioPlayerParameters.collectVideoAnalytics.ON,
     posterUrl: undefined,
     className: undefined,
     controlsClassName: undefined,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
+    maxBitrate: undefined,
     playerCallback: ({player, videoElement, hlsPlayer, dashPlayer, posterUrl}) => {},
     errorCallback: (error, player) => {},
     restartCallback: async (error) => {}
@@ -115,30 +118,35 @@ The library includes a helpful collection of configuration options in `EluvioPla
 ```
 
 ##### Values
-* `controls` - How the controls should be displayed. Default AUTOHIDE
+* `controls` - How the controls should be displayed
+  * `AUTOHIDE (default)`: Player controls will be shown. Will automatically hide when not in use
   * `ON`: Player controls will be shown
-  * `AUTOHIDE`: Player controls will be shown. Will automatically hide when not in use
   * `DEFAULT`: Default HTML video controls will be shown
   * `OFF`: No controls will be shown
   * `OFF_WITH_VOLUME_TOGGLE`: No controls will be shown except a volume on/off toggle
-* `autoplay` - Whether or not the video should autoplay. Default OFF. NOTE: Browsers may block autoplay video with audio
+* `autoplay` - Whether or not the video should autoplay. NOTE: Browsers may block autoplay video with audio
+  * `OFF (default)`: Video will not autoplay
   * `ON`: Video will autoplay
-  * `OFF`: Video will not autoplay
   * `WHEN_VISIBLE`: Video will autoplay only when the video element is visible, and will stop when the element is no longer visible
-* `muted` - Whether or not the video will be muted. Default OFF
+* `muted` - Whether or not the video will be muted.
+  * `OFF (default)`: Video will not be muted
   * `ON`: Video will be muted
-  * `OFF`: Video will not be muted
   * `WHEN_NOT_VISIBLE`: Video will be muted when the video element is not visible
   * `OFF_IF_POSSIBLE`: Video will not be muted unless playback is blocked due to audio (useful for autoplay)
-* `loop` - Whether or not the video will loop. Default OFF
+* `loop` - Whether or not the video will loop.
+  * `OFF (default)` - Video will not loop
   * `ON` - Video will loop
-  * `OFF` - Video will not loop
-* `watermark`: Whether or not the Eluvio watermark will be shown. Default ON
-  * `ON` - Watermark will be shown
+* `watermark`: Whether or not the Eluvio watermark will be shown.
+  * `ON (default)` - Watermark will be shown
   * `OFF` - Watermark will not be shown
-* `capLevelToPlayerSize`: Whether or not the playback quality should be limited by the size of the video element. Useful for reducing bandwidth usage for smaller video elements where a higher quality would not be beneficial. Default OFF
+* `capLevelToPlayerSize`: Whether or not the playback quality should be limited by the size of the video element. Useful for reducing bandwidth usage for smaller video elements where a higher quality would not be beneficial.
+  * `OFF (default)` - Playback quality will not be affected by the size of the video element (default)
   * `ON` - Playback quality will be limited by the size of the video element
-  * `OFF` - Playback quality will not be affected by the size of the video element
+* `collectVideoAnalytics` - By default, the player will collect anonymized playback analytics to help improve the performance of the Eluvio Content Fabric.
+  * `ON (default)` - Player performance analytics will be collected
+  * `DISABLE_COOKIES`- Player performance analytics will be collected, but browser cookies will not be used
+  * `OFF` - Player performance analytics will not be collected
+* `maxBitrate` - Maximum bitrate that the player will automatically use, in bits/second.
 * `posterUrl` - Specify a URL for the poster image for the player
 * `className` - HTML class to be added to the player
 * `controlsClassName` - HTML class to be added to the player controls container
