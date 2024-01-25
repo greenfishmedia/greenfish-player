@@ -1174,17 +1174,22 @@ export class EluvioPlayer {
       });
 
       hlsPlayer.on(this.HLS.Events.ERROR, async (event, error) => {
-        this.errors += 1;
-
         this.Log(`Encountered ${error.details}`, true);
         this.Log(error, true);
+
+        if(error && [this.HLS.ErrorDetails.BUFFER_FULL_ERROR, this.HLS.ErrorDetails.BUFFER_STALLED_ERROR].includes(error.details)) {
+          // Ignore HLS buffer errors
+          return;
+        }
+
+        this.errors += 1;
 
         if(error.response && error.response.code === 403) {
           // Not allowed to access
           this.SetErrorMessage("Insufficient permissions");
         } else if(this.errors < 5) {
           if(error.fatal) {
-            if(data.type === this.HLS.ErrorTypes.MEDIA_ERROR) {
+            if(error.type === this.HLS.ErrorTypes.MEDIA_ERROR) {
               this.Log("Attempting to recover using hlsPlayer.recoverMediaError");
               hlsPlayer.recoverMediaError();
             } else {
