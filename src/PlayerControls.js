@@ -179,7 +179,7 @@ export const InitializeTicketPrompt = async (target, initialCode, callback) => {
     classes: ["eluvio-player__ticket-modal__form__input"]
   });
 
-  input.value = initialCode;
+  input.value = initialCode || "";
 
   const submit = CreateElement({
     parent: form,
