@@ -595,7 +595,7 @@ export class EluvioPlayer {
   async LoadCollection() {
     if(this.collectionInfo) { return; }
 
-    let {mediaCatalogObjectId, mediaCatalogVersionHash, collectionId} = (this.sourceOptions?.mediaCollectionOptions || {});
+    let {mediaCatalogObjectId, mediaCatalogVersionHash, collectionId} = (this.sourceOptions || {}).mediaCollectionOptions || {};
 
     if(!collectionId) { return; }
 
@@ -625,7 +625,8 @@ export class EluvioPlayer {
         .filter(content => content.media)
         .map(content => ({
           ...content,
-          mediaHash: content.media?.["/"]?.split("/").find(segment => segment.startsWith("hq__"))
+          mediaHash:
+            ((content.media || {})["/"] || "").split("/").find(segment => segment.startsWith("hq__"))
         }));
 
       this.collectionInfo = {
