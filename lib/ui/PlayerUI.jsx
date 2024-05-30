@@ -187,6 +187,7 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
   }
 
   const shouldRotate =
+    parameters.playerOptions.ui === EluvioPlayerParameters.ui.WEB &&
     player &&
     player.controls.IsRotatable() &&
     allowRotation;
