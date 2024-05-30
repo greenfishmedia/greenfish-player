@@ -85,7 +85,7 @@ const Initialize = async () => {
       },
       playerOptions: {
         //posterUrl: "https://miro.medium.com/v2/resize:fit:1099/1*5PeT0-Dch_KhFwjYwUWiDA.png",
-        ui: EluvioPlayerParameters.ui.TV,
+        //ui: EluvioPlayerParameters.ui.TV,
         muted: EluvioPlayerParameters.muted.ON,
         backgroundColor: "black",
         controls: EluvioPlayerParameters.controls.ON,
