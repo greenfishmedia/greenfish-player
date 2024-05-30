@@ -11,14 +11,18 @@ npm install --save @eluvio/elv-player-js
 ```
 
 Import the library and load the player:
-```javascript
-import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
-const player = new EluvioPlayer(
+```javascript
+import InitializeEluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+
+const player = await InitializeEluvioPlayer(
   targetContainerElement,
   {
     clientOptions: {
+      // Specify the fabric network
       network: EluvioPlayerParameters.network.main,
+      // or if you  already have an instance of ElvClient, just pass it in
+      client: myElvClient
     },
     sourceOptions: {
       playoutParameters: {
@@ -30,6 +34,11 @@ const player = new EluvioPlayer(
     }
   }
 );
+```
+
+Destroy the player when you're done with it
+```javascript
+player.Destroy();
 ```
 
 ## Options
@@ -83,6 +92,18 @@ The library includes a helpful collection of configuration options in `EluvioPla
       authorizationToken: undefined,
       clipStart: undefined,
       clipEnd: undefined
+    },
+    contentInfo: {
+      title: undefined,
+      description: undefined,
+      image: undefined,
+      posterImage: undefined,
+      headers: []
+    },
+    mediaCollectionOptions: {
+      mediaCatalogObjectId: undefined,
+      mediaCatalogVersionHash: undefined,
+      collectionId: undefined
     }
   },
 ```
@@ -92,12 +113,16 @@ The library includes a helpful collection of configuration options in `EluvioPla
 - `drms` - The DRMs options you want the player to use
 - `playoutOptions` - If you already have the results of `client.PlayoutOptions`, you can provide it
 - `playoutParameters` - These parameters directly correspond to what is provided to the [PlayoutOptions](https://eluv-io.github.io/elv-client-js/module-ElvClient_ContentAccess.html#.PlayoutOptions) method in @eluvio/elv-client-js. Typically you will only need to specify a versionHash or object ID
+- `contentInfo`: Specify information about the content, such as title, description, icon and poster images, and header text such as ratings, release year, etc. 
+- `mediaCollectionOptions`: To play a collection, specify the media catalog object by ID or version hash, as well as the collection to play
 
 ### Player Options
 
 ```javascript
   // All player options and their defaults
   playerOptions: {
+    ui: EluvioPlayerParameters.ui.WEB,
+    backgroundColor: undefined,
     controls: EluvioPlayerParameters.controls.AUTO_HIDE,
     autoplay: EluvioPlayerParameters.autoplay.OFF,
     muted: EluvioPlayerParameters.muted.OFF,
@@ -106,8 +131,6 @@ The library includes a helpful collection of configuration options in `EluvioPla
     capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF,
     collectVideoAnalytics: EluvioPlayerParameters.collectVideoAnalytics.ON,
     posterUrl: undefined,
-    className: undefined,
-    controlsClassName: undefined,
     hlsjsOptions: undefined,
     dashjsOptions: undefined,
     maxBitrate: undefined,
@@ -118,6 +141,9 @@ The library includes a helpful collection of configuration options in `EluvioPla
 ```
 
 ##### Values
+* `ui` - Switch between the default web UI and the TV optimized UI
+  * `WEB (default)` - The default browser style player
+  * `TV` - A player UI optimized for usage on TVs and similar devices
 * `controls` - How the controls should be displayed
   * `AUTOHIDE (default)`: Player controls will be shown. Will automatically hide when not in use
   * `ON`: Player controls will be shown
@@ -136,6 +162,10 @@ The library includes a helpful collection of configuration options in `EluvioPla
 * `loop` - Whether or not the video will loop.
   * `OFF (default)` - Video will not loop
   * `ON` - Video will loop
+* `keyboardControls` - Whether or not the player's keyboard controls will be active
+  * `ON (default)` - Keyboard controls active
+  * `OFF` - Keyboard controls disabled
+  * `ARROW_KEYS_DISABLED` - Keyboard controls active except for arrow keys (useful if supporting directional navigation)
 * `watermark`: Whether or not the Eluvio watermark will be shown.
   * `ON (default)` - Watermark will be shown
   * `OFF` - Watermark will not be shown
@@ -146,10 +176,9 @@ The library includes a helpful collection of configuration options in `EluvioPla
   * `ON (default)` - Player performance analytics will be collected
   * `DISABLE_COOKIES`- Player performance analytics will be collected, but browser cookies will not be used
   * `OFF` - Player performance analytics will not be collected
+* `backgroundColor` - Specify the background color of the player. Must be a valid option for css `background-color`
 * `maxBitrate` - Maximum bitrate that the player will automatically use, in bits/second.
 * `posterUrl` - Specify a URL for the poster image for the player
-* `className` - HTML class to be added to the player
-* `controlsClassName` - HTML class to be added to the player controls container
 * `hlsjsOptions` - Additional options to provide to hls.js on initialization
 * `dashjsOptions` - Additional options to provide to dashjs on initialization
 * `playerCallback` - Callback function invoked after initialization has completed. Returns references to the player, the html video element, the dashjs or hls.js player instance, and the URL of the poster image

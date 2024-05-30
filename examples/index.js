@@ -1,7 +1,7 @@
 import "./index.scss";
 
 import {ElvClient} from "@eluvio/elv-client-js";
-import {EluvioPlayer, EluvioPlayerParameters} from "../src";
+import {EluvioPlayer, EluvioPlayerParameters} from "../lib";
 
 const Initialize = async () => {
   const client = await ElvClient.FromConfigurationUrl({

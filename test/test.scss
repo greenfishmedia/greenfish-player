@@ -7,6 +7,8 @@ body,
   height: 100%;
   justify-content: center;
   margin: 0;
+  overflow-y: hidden;
+  overscroll-behavior: none;
   padding: 0;
   width: 100%;
 }
@@ -20,6 +22,20 @@ body,
 }
 
 .player-target-container {
-  height: 480px;
-  width: 854px;
+  /*
+  height: 280px;
+  width: 651px;
+  width: 649px;
+  //padding: 20px;
+  border: 1px solid black;
+  resize: both;
+  overflow: scroll;
+
+
+   */
+}
+
+.player-target-container {
+  height: 100%;
+  width: 100%;
 }
