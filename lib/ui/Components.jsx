@@ -242,7 +242,7 @@ export const SettingsMenu = ({player, Hide, className=""}) => {
     content = (
       <div key="menu" role="menu" className={`${CommonStyles["menu"]} ${CommonStyles["settings-menu"]} ${className}`}>
         {
-          !options.hasQualityOptions <= 1 ? null :
+          !options.hasQualityOptions ? null :
             <button autoFocus role="menuitem" onClick={() => SetSubmenu("quality")}
                     className={CommonStyles["menu-option"]}>
               {`${settings.quality.label}: ${(options.quality.active && options.quality.active.activeLabel) || ""}`}
