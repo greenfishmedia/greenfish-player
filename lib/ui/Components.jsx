@@ -208,7 +208,7 @@ export const SettingsMenu = ({player, Hide, className=""}) => {
   let content;
   if(activeMenu) {
     content = (
-      <div key="submenu" role="menu" className={`${CommonStyles["menu"]} ${CommonStyles["submenu"]} ${CommonStyles["settings-menu"]} ${className}`}>
+      <div key="submenu" role="menu" className={`${CommonStyles["menu"]} ${CommonStyles["submenu"]} ${className}`}>
         <button
           onClick={() => SetSubmenu(undefined)}
           aria-label="Back to settings menu"
@@ -240,7 +240,7 @@ export const SettingsMenu = ({player, Hide, className=""}) => {
     );
   } else {
     content = (
-      <div key="menu" role="menu" className={`${CommonStyles["menu"]} ${CommonStyles["settings-menu"]} ${className}`}>
+      <div key="menu" role="menu" className={`${CommonStyles["menu"]} ${className}`}>
         {
           !options.hasQualityOptions ? null :
             <button autoFocus role="menuitem" onClick={() => SetSubmenu("quality")}
@@ -282,8 +282,173 @@ export const SettingsMenu = ({player, Hide, className=""}) => {
   }
 
   return (
-    <div ref={menuRef} className={`${CommonStyles["menu-container"]}`}>
+    <div ref={menuRef}>
       { content }
+    </div>
+  );
+};
+
+export const Copy = async (value) => {
+  try {
+    value = (value || "").toString();
+
+    await navigator.clipboard.writeText(value);
+  } catch(error) {
+    const input = document.createElement("input");
+
+    input.value = value;
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+  }
+};
+
+export const CopyButton = ({label, value, className=""}) => {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <button
+      onClick={() => {
+        if(copied) { return; }
+
+        Copy(value);
+
+        setCopied(true);
+        setTimeout(() => setCopied(false), 100);
+      }}
+      dangerouslySetInnerHTML={{__html: Icons.CopyIcon}}
+      className={[CommonStyles["copy-button"], copied ? CommonStyles["copy-button--copied"] : "", className].join(" ")}
+      title={`Copy ${label}`}
+    />
+  );
+};
+
+const ContentDetail = ({label, value, copyable}) => {
+  return (
+    <div className={CommonStyles["verification-menu__detail"]}>
+      <label className={CommonStyles["verification-menu__detail-label"]}>{label}:</label>
+      <div className={CommonStyles["verification-menu__detail-value"]}>{value}</div>
+      {
+        !copyable ? null :
+          <CopyButton
+            label={label}
+            value={value}
+            className={CommonStyles["verification-menu__detail-copy"]}
+          />
+      }
+    </div>
+  );
+};
+
+export const ContentVerificationMenu = ({player, Hide, className=""}) => {
+  const menuRef = createRef();
+  const [audit, setAudit] = useState();
+  const [showDetails, setShowDetails] = useState(false);
+
+  useEffect(() => {
+    const UpdateSettings = () => setAudit(player.controls.ContentVerificationDetails());
+
+    UpdateSettings();
+
+    const disposePlayerSettingsListener = player.controls.RegisterSettingsListener(UpdateSettings);
+
+    return () => disposePlayerSettingsListener && disposePlayerSettingsListener();
+  }, []);
+
+  useEffect(() => {
+    if(!menuRef || !menuRef.current) { return; }
+
+    const RemoveMenuListener = RegisterModal({element: menuRef.current.parentElement, Hide});
+
+    return () => {
+      RemoveMenuListener && RemoveMenuListener();
+    };
+  }, [menuRef]);
+
+  if(!audit) {
+    return null;
+  }
+
+  let content;
+  if(!showDetails) {
+    content = (
+      <>
+        <div className={CommonStyles["verification-menu__group"]}>
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentShieldIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div className={CommonStyles["verification-menu__group-text"]}>
+            <div className={CommonStyles["verification-menu__group-title"]}>
+              This content has been verified as authentic
+            </div>
+            <div className={CommonStyles["verification-menu__group-subtitle"]}>
+              Last Verified: { new Date(audit.verifiedAt).toLocaleTimeString(navigator.language || "en-us", {year: "numeric", "month": "long", day: "numeric"}) }
+            </div>
+          </div>
+        </div>
+        <div className={CommonStyles["verification-menu__group"]}>
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div className={CommonStyles["verification-menu__group-text"]}>
+            <button onClick={() => setShowDetails(true)} className={CommonStyles["verification-menu__group-title"]}>
+              View Content Credentials
+              <div className={CommonStyles["verification-menu__inline-icon"]} dangerouslySetInnerHTML={{__html: Icons.ChevronRightIcon}} />
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <div className={CommonStyles["verification-menu__group"]}>
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentShieldIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div className={CommonStyles["verification-menu__group-text"]}>
+            <div className={CommonStyles["verification-menu__group-title"]}>
+              This content has been verified as authentic
+            </div>
+            <div className={CommonStyles["verification-menu__group-subtitle"]}>
+              Last Verified: { new Date(audit.verifiedAt).toLocaleTimeString(navigator.language || "en-us", {year: "numeric", "month": "long", day: "numeric"}) }
+            </div>
+          </div>
+        </div>
+        <div className={CommonStyles["verification-menu__group"]}>
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div className={CommonStyles["verification-menu__group-text"]}>
+            <button onClick={() => setShowDetails(true)} className={CommonStyles["verification-menu__group-title"]}>
+              Content Credentials
+            </button>
+            <div className={CommonStyles["verification-menu__group-subtitle"]}>
+              Issued by the
+              <a href="https://main.net955305.contentfabric.io/config" target="_blank" rel="noreferrer">
+                Content Fabric
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className={CommonStyles["verification-menu__details"]}>
+          <ContentDetail label="Content Fabric Object ID" value={audit.details.objectId} copyable />
+          <ContentDetail label="Organization Address" value={audit.details.tenantAddress} copyable />
+          {
+            !audit.details.tenantName ? null :
+              <ContentDetail label="Organization Name" value={audit.details.tenantName} />
+          }
+          <ContentDetail label="Owner Address" value={audit.details.ownerAddress} copyable />
+          <ContentDetail label="Content Object Contract Address" value={audit.details.address} copyable />
+          <ContentDetail label="Content Version Hash" value={audit.details.versionHash} copyable />
+          {
+            !audit.details.lastCommittedAt ? null :
+              <ContentDetail label="Last Commit" value={new Date(audit.details.lastCommittedAt).toLocaleTimeString(navigator.language || "en-us", {year: "numeric", "month": "long", day: "numeric"})} />
+          }
+          <ContentDetail label="Signature Algorithm" value={audit.details.signatureMethod} />
+        </div>
+      </>
+    );
+  }
+
+
+  return (
+    <div ref={menuRef}>
+      <div key="menu" role="menu" className={`${CommonStyles["menu"]} ${CommonStyles["verification-menu"]} ${showDetails ? CommonStyles["verification-menu--details"] : ""} ${className}`}>
+        { content }
+      </div>
     </div>
   );
 };

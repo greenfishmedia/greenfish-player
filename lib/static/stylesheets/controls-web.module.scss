@@ -23,6 +23,7 @@
   --color-button: #FFF;
 
   --color-menu-background: rgba(0, 0, 0, 75%);
+  --color-menu-background-secondary: #000;
   --color-menu-button-active: rgba(255, 255, 255, 10%);
   --color-menu-button-focused: rgba(255, 255, 255, 15%);
   --color-menu-text: #EEE;
@@ -214,7 +215,7 @@
   align-items: center;
   color: #fff;
   display: flex;
-  gap: 15px;
+  gap: 12px;
   height: 50px;
   padding: 6px 10px 12px;
   position: relative;
@@ -307,6 +308,20 @@
   user-select: none;
   width: 70px;
   z-index: var(--layer-title);
+}
+
+.content-verified-badge,
+.content-verification-menu-button {
+  animation: 0.5s fadein ease;
+}
+
+.content-verified-badge {
+  background: rgba(157, 157, 157, 40%);
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 3px 6px;
+  user-select: none;
 }
 
 /* Menus */
@@ -419,4 +434,15 @@
   .watermark {
     width: 50px;
   }
+
+  .content-verified-badge {
+    display: none;
+  }
+}
+
+/* Animations */
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

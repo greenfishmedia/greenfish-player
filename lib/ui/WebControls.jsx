@@ -9,7 +9,7 @@ import {ImageUrl, PlayerClick, Time} from "./Common.js";
 import EluvioPlayerParameters from "../player/PlayerParameters.js";
 
 import EluvioLogo from "../static/images/Logo.png";
-import {CollectionMenu, SeekBar, SettingsMenu, VolumeControls} from "./Components.jsx";
+import {CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls} from "./Components.jsx";
 
 export const IconButton = ({icon, ...props}) => {
   return (
@@ -76,11 +76,11 @@ const CollectionControls = ({player}) => {
   );
 };
 
-const MenuButton = ({label, icon, player, setMenuActive, MenuComponent}) => {
+const MenuButton = ({label, icon, player, setMenuActive, MenuComponent, className=""}) => {
   const [show, setShow] = useState(false);
 
   return (
-    <div className={ControlStyles["menu-control-container"]}>
+    <div className={[ControlStyles["menu-control-container"], className].join(" ")}>
       <IconButton
         aria-label={show ? `Hide ${label} Menu` : label}
         aria-haspopup
@@ -151,6 +151,38 @@ const ContentInfo = ({player}) => {
         { !description ? null : <div className={ControlStyles["info-description"]}>{description}</div> }
       </div>
     </div>
+  );
+};
+
+const ContentVerificationControls = ({player, setMenuActive}) => {
+  const [contentVerified, setContentVerified] = useState(false);
+
+  useEffect(() => {
+    const UpdateVerification = () => setContentVerified(player.controls.ContentVerified());
+
+    UpdateVerification();
+
+    player.controls.RegisterSettingsListener(UpdateVerification);
+  }, []);
+
+  if(!contentVerified) {
+    return null;
+  }
+
+  return (
+    <>
+      <div className={ControlStyles["content-verified-badge"]}>
+        VERIFIED
+      </div>
+      <MenuButton
+        label="Content Verification Menu"
+        icon={Icons.ContentShieldIcon}
+        player={player}
+        setMenuActive={setMenuActive}
+        MenuComponent={ContentVerificationMenu}
+        className={ControlStyles["content-verification-menu-button"]}
+      />
+    </>
   );
 };
 
@@ -225,6 +257,11 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                 <TimeIndicator player={player} videoState={videoState}/>
 
                 <div className={ControlStyles["spacer"]}/>
+
+                <ContentVerificationControls
+                  player={player}
+                  setMenuActive={setMenuActive}
+                />
 
                 {
                   !collectionInfo ? null :

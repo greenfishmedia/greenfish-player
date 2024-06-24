@@ -40,7 +40,8 @@ const Initialize = async () => {
   //mediaCatalogId = "iq__3LKLFvsujiwnMbiH9sGZVVWe4Ro2";
   //mediaCollectionId = "JN8ecVA5Jt5cK2PjHXz12A";
   // First item in collection
-  versionHash = "hq__8f7LgwsG7qBtTNSPKkv3Ano4UPoNh4rzF3iPJ4dUbVv2bDBbVzk516q2E4Vg4bkHaEHuPxXFiD";
+  //versionHash = "hq__8f7LgwsG7qBtTNSPKkv3Ano4UPoNh4rzF3iPJ4dUbVv2bDBbVzk516q2E4Vg4bkHaEHuPxXFiD";
+  objectId = "iq__3ZiTAEQarHZL7P1qSQ5W3a3gSPKj";
 
   // Ticket content
   //network = "DEMO";
@@ -96,6 +97,7 @@ const Initialize = async () => {
         keyboardControls: EluvioPlayerParameters.keyboardControls.ON,
         maxBitrate: 50000,
         debugLogging: true,
+        verifyContent: EluvioPlayerParameters.verifyContent.ON,
         hlsjsOptions: {
           //maxBufferLength: 1,
           //maxBufferSize: 0.5 * 1000 * 1000

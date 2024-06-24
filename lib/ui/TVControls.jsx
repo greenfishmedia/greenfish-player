@@ -9,7 +9,7 @@ import {ImageUrl, PlayerClick, Time} from "./Common.js";
 import EluvioPlayerParameters from "../player/PlayerParameters.js";
 
 import EluvioLogo from "../static/images/Logo.png";
-import {CollectionMenu, SeekBar, SettingsMenu, SVG, VolumeControls} from "./Components.jsx";
+import {CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, SVG, VolumeControls} from "./Components.jsx";
 
 export const IconButton = ({icon, ...props}) => {
   return (
@@ -211,6 +211,34 @@ const InfoBox = ({player, Hide}) => {
   );
 };
 
+const ContentVerificationControls = ({player, setMenuActive}) => {
+  const [contentVerified, setContentVerified] = useState(false);
+
+  useEffect(() => {
+    const UpdateVerification = () => setContentVerified(player.controls.ContentVerified());
+
+    UpdateVerification();
+
+    player.controls.RegisterSettingsListener(UpdateVerification);
+  }, []);
+
+  if(!contentVerified) {
+    return null;
+  }
+
+  return (
+    <MenuButton
+      label="Content Verification Menu"
+      icon={Icons.ContentShieldIcon}
+      player={player}
+      setMenuActive={setMenuActive}
+      MenuComponent={ContentVerificationMenu}
+      className={ControlStyles["content-verification-menu-button"]}
+    >
+      Verified
+    </MenuButton>
+  );
+};
 
 const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRecentUserAction, className=""}) => {
   const [videoState, setVideoState] = useState(undefined);
@@ -307,6 +335,7 @@ const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRe
               </div>
               <CenterButtons player={player} videoState={videoState}/>
               <div className={ControlStyles["bottom-right-controls"]}>
+                <ContentVerificationControls player={player} setMenuActive={setMenuActive} />
                 {
                   !player.controls.GetOptions().hasAnyOptions ? null :
                     <MenuButton
