@@ -11,9 +11,9 @@ import EluvioPlayerParameters from "../player/PlayerParameters.js";
 import EluvioLogo from "../static/images/Logo.png";
 import {CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls} from "./Components.jsx";
 
-export const IconButton = ({icon, ...props}) => {
+export const IconButton = ({icon, className="", ...props}) => {
   return (
-    <button {...props} className={`${ControlStyles["icon-button"]} ${props.className || ""}`} dangerouslySetInnerHTML={{__html: icon}} />
+    <button {...props} className={`${ControlStyles["icon-button"]} ${className}`} dangerouslySetInnerHTML={{__html: icon}} />
   );
 };
 
@@ -279,6 +279,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                       aria-label="Rotate Video"
                       icon={Icons.RotateIcon}
                       onClick={() => player.controls.SetAllowRotation(!player.controls.AllowRotation())}
+                      className={ControlStyles["right-control-button"]}
                     />
                 }
                 {
@@ -295,6 +296,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                   aria-label={videoState.fullscreen ? "Exit Fullscreen" : "Fullscreen"}
                   icon={videoState.fullscreen ? Icons.ExitFullscreenIcon : Icons.FullscreenIcon}
                   onClick={() => player.controls.ToggleFullscreen()}
+                  className={ControlStyles["right-control-button"]}
                 />
               </div>
             </div>

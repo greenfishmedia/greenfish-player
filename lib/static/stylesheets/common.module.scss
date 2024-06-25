@@ -466,6 +466,10 @@
     overflow: hidden;
     position: relative;
     width: 100%;
+
+    a {
+      text-decoration: underline;
+    }
   }
 
   &__detail-label {
@@ -483,7 +487,7 @@
 
   &__detail-copy {
     color: var(--color-menu-text-secondary);
-    height: 25px;
+    height: 18px;
     position: absolute;
     right: 0;
 
@@ -595,7 +599,7 @@
     }
 
     &__detail-copy {
-      height: 20px;
+      height: 15px;
     }
   }
 }

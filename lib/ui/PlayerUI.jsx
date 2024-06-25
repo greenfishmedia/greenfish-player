@@ -199,8 +199,8 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
       tabIndex={0}
       style={{
         backgroundColor: parameters.playerOptions.backgroundColor || "transparent",
-        "--portal-width": `${dimensions.width}px`,
-        "--portal-height": `${dimensions.height}px`
+        "--portal-width": `${shouldRotate ? dimensions.height : dimensions.width}px`,
+        "--portal-height": `${shouldRotate ? dimensions.width : dimensions.height}px`
       }}
       className={[PlayerStyles["player-container"], shouldRotate ? PlayerStyles["player-container--rotated"] : "", `__eluvio-player--size-${size}`, `__eluvio-player--orientation-${orientation}`].join(" ")}
     >

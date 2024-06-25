@@ -324,6 +324,8 @@ export const CopyButton = ({label, value, className=""}) => {
 };
 
 const ContentDetail = ({label, value, copyable}) => {
+  if(!value) { return null; }
+
   return (
     <div className={CommonStyles["verification-menu__detail"]}>
       <label className={CommonStyles["verification-menu__detail-label"]}>{label}:</label>
@@ -344,8 +346,12 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
   const menuRef = createRef();
   const [audit, setAudit] = useState();
   const [showDetails, setShowDetails] = useState(false);
+  const [_, setLoaded] = useState(false);
 
   useEffect(() => {
+    player.__LoadVerificationDetails()
+      .then(() => setLoaded(true));
+
     const UpdateSettings = () => setAudit(player.controls.ContentVerificationDetails());
 
     UpdateSettings();
@@ -426,16 +432,25 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
         <div className={CommonStyles["verification-menu__details"]}>
           <ContentDetail label="Content Fabric Object ID" value={audit.details.objectId} copyable />
           <ContentDetail label="Organization Address" value={audit.details.tenantAddress} copyable />
-          {
-            !audit.details.tenantName ? null :
-              <ContentDetail label="Organization Name" value={audit.details.tenantName} />
-          }
+          <ContentDetail label="Organization Name" value={audit.details.tenantName} />
           <ContentDetail label="Owner Address" value={audit.details.ownerAddress} copyable />
           <ContentDetail label="Content Object Contract Address" value={audit.details.address} copyable />
           <ContentDetail label="Content Version Hash" value={audit.details.versionHash} copyable />
           {
             !audit.details.lastCommittedAt ? null :
               <ContentDetail label="Last Commit" value={new Date(audit.details.lastCommittedAt).toLocaleTimeString(navigator.language || "en-us", {year: "numeric", "month": "long", day: "numeric"})} />
+          }
+          <ContentDetail label="Versions" value={audit.details.versionCount} />
+          {
+            !audit.details.latestTransactionHash ? null :
+              <ContentDetail
+                label="Latest Transaction"
+                value={
+                  <a href={audit.details.latestTransactionHashUrl} target="_blank" rel="noreferrer">
+                    { audit.details.latestTransactionHash }
+                  </a>
+                }
+              />
           }
           <ContentDetail label="Signature Algorithm" value={audit.details.signatureMethod} />
         </div>
