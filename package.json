@@ -36,7 +36,7 @@
     "package-lock.json"
   ],
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.0.87",
+    "@eluvio/elv-client-js": "^4.0.88",
     "dashjs": "~4.7.0",
     "focus-visible": "^5.2.0",
     "hls.js": "~1.4.12",

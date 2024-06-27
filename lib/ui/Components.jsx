@@ -352,7 +352,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
     player.__LoadVerificationDetails()
       .then(() => setLoaded(true));
 
-    const UpdateSettings = () => setAudit(player.controls.ContentVerificationDetails());
+    const UpdateSettings = () => setAudit(player.controls.GetContentVerificationDetails());
 
     UpdateSettings();
 
@@ -380,7 +380,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
     content = (
       <>
         <div className={CommonStyles["verification-menu__group"]}>
-          <div dangerouslySetInnerHTML={{__html: Icons.ContentShieldIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentBadgeIcon}} style={{width: 35, height: 35}} className={CommonStyles["verification-menu__group-icon"]} />
           <div className={CommonStyles["verification-menu__group-text"]}>
             <div className={CommonStyles["verification-menu__group-title"]}>
               This content has been verified as authentic
@@ -391,7 +391,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
           </div>
         </div>
         <div className={CommonStyles["verification-menu__group"]}>
-          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} style={{height: 30, maxWidth: 30}} className={CommonStyles["verification-menu__group-icon"]} />
           <div className={CommonStyles["verification-menu__group-text"]}>
             <button onClick={() => setShowDetails(true)} className={CommonStyles["verification-menu__group-title"]}>
               View Content Credentials
@@ -405,7 +405,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
     content = (
       <>
         <div className={CommonStyles["verification-menu__group"]}>
-          <div dangerouslySetInnerHTML={{__html: Icons.ContentShieldIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentBadgeIcon}} style={{width: 50, height: 50}} className={CommonStyles["verification-menu__group-icon"]} />
           <div className={CommonStyles["verification-menu__group-text"]}>
             <div className={CommonStyles["verification-menu__group-title"]}>
               This content has been verified as authentic
@@ -429,35 +429,45 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
             </div>
           </div>
         </div>
-        <div className={CommonStyles["verification-menu__details"]}>
+        <div className={CommonStyles["verification-menu__details"]} key={`details-${audit.details._state}`}>
           <ContentDetail label="Content Fabric Object ID" value={audit.details.objectId} copyable />
           <ContentDetail label="Organization Address" value={audit.details.tenantAddress} copyable />
-          <ContentDetail label="Organization Name" value={audit.details.tenantName} />
+          <ContentDetail label="Organization Name" value={audit.details.tenantName && audit.details.tenantName.toString()} />
           <ContentDetail label="Owner Address" value={audit.details.ownerAddress} copyable />
-          <ContentDetail label="Content Object Contract Address" value={audit.details.address} copyable />
+          <ContentDetail
+            label="Content Object Contract Address"
+            value={
+            audit.details.explorerUrl ?
+              <a href={audit.details.explorerUrl} target="_blank" rel="noreferrer">
+                {audit.details.address}
+              </a> :
+              audit.details.address
+            }
+            copyable
+          />
+          <ContentDetail label="Versions" value={audit.details.versionCount} />
           <ContentDetail label="Content Version Hash" value={audit.details.versionHash} copyable />
           {
             !audit.details.lastCommittedAt ? null :
-              <ContentDetail label="Last Commit" value={new Date(audit.details.lastCommittedAt).toLocaleTimeString(navigator.language || "en-us", {year: "numeric", "month": "long", day: "numeric"})} />
+              <ContentDetail label="Latest Commit" value={new Date(audit.details.lastCommittedAt).toLocaleTimeString(navigator.language || "en-us", {year: "numeric", "month": "long", day: "numeric"})} />
           }
-          <ContentDetail label="Versions" value={audit.details.versionCount} />
-          {
-            !audit.details.latestTransactionHash ? null :
-              <ContentDetail
-                label="Latest Transaction"
-                value={
+          <ContentDetail label="Latest Version Hash" value={audit.details.latestVersionHash} copyable />
+          <ContentDetail
+            label="Latest Transaction"
+            value={
+              audit.details._state !== "full" ?
+                <Spinner className={CommonStyles["verification-menu__loader"]} /> :
+                audit.details.latestTransactionHashUrl ?
                   <a href={audit.details.latestTransactionHashUrl} target="_blank" rel="noreferrer">
-                    { audit.details.latestTransactionHash }
-                  </a>
-                }
-              />
-          }
+                    { audit.details.latestTransactionHash && audit.details.latestTransactionHash.toString() }
+                  </a> : undefined
+            }
+          />
           <ContentDetail label="Signature Algorithm" value={audit.details.signatureMethod} />
         </div>
       </>
     );
   }
-
 
   return (
     <div ref={menuRef}>

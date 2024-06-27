@@ -450,6 +450,14 @@
     }
   }
 
+  &__loader {
+    align-items: center;
+    border-width: 3px;
+    display: flex;
+    height: 18px;
+    width: 18px;
+  }
+
   &__details {
     background: var(--color-menu-background-secondary);
     display: grid;

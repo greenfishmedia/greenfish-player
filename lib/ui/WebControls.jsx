@@ -176,7 +176,7 @@ const ContentVerificationControls = ({player, setMenuActive}) => {
       </div>
       <MenuButton
         label="Content Verification Menu"
-        icon={Icons.ContentShieldIcon}
+        icon={Icons.ContentBadgeIcon}
         player={player}
         setMenuActive={setMenuActive}
         MenuComponent={ContentVerificationMenu}
