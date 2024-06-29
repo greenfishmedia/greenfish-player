@@ -92,7 +92,7 @@ const CenterButtons = ({player, videoState}) => {
   );
 };
 
-const MenuButton = ({label, icon, children, player, setMenuActive, MenuComponent}) => {
+const MenuButton = ({label, icon, children, player, MenuComponent}) => {
   const [show, setShow] = useState(false);
 
   return (
@@ -104,14 +104,14 @@ const MenuButton = ({label, icon, children, player, setMenuActive, MenuComponent
             aria-haspopup
             icon={icon}
             onClick={() => {
-              setMenuActive(!show);
+              player.controls.__ToggleMenu(!show);
               setShow(!show);
             }}
             className={`${ControlStyles["icon-button--circle-focus"]} ${show ? ControlStyles["icon-button-active"] : ""}`}
           /> :
           <button
             onClick={() => {
-              setMenuActive(!show);
+              player.controls.__ToggleMenu(!show);
               setShow(!show);
             }}
             className={`${ControlStyles["text-button"]} ${show ? ControlStyles["text-button--active"] : ""}`}
@@ -124,8 +124,8 @@ const MenuButton = ({label, icon, children, player, setMenuActive, MenuComponent
           <MenuComponent
             player={player}
             Hide={() => {
+              player.controls.__ToggleMenu(false);
               setShow(false);
-              setMenuActive(false);
             }}
             className={ControlStyles["menu"]}
           />
@@ -211,7 +211,7 @@ const InfoBox = ({player, Hide}) => {
   );
 };
 
-const ContentVerificationControls = ({player, setMenuActive}) => {
+const ContentVerificationControls = ({player}) => {
   const [contentVerified, setContentVerified] = useState(false);
 
   useEffect(() => {
@@ -231,7 +231,6 @@ const ContentVerificationControls = ({player, setMenuActive}) => {
       label="Content Verification Menu"
       icon={Icons.ContentBadgeIcon}
       player={player}
-      setMenuActive={setMenuActive}
       MenuComponent={ContentVerificationMenu}
       className={ControlStyles["content-verification-menu-button"]}
     >
@@ -243,7 +242,6 @@ const ContentVerificationControls = ({player, setMenuActive}) => {
 const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRecentUserAction, className=""}) => {
   const [videoState, setVideoState] = useState(undefined);
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
-  const [menuActive, setMenuActive] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
@@ -263,7 +261,7 @@ const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRe
   const collectionInfo = player.controls.GetCollectionInfo();
 
   // Title autohide is not dependent on controls settings
-  const showUI = recentlyInteracted || !playbackStarted || menuActive;
+  const showUI = recentlyInteracted || !playbackStarted || player.controls.IsMenuVisible();
   const hideControls = !showUI && player.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE;
 
   player.__SetControlsVisibility(!hideControls);
@@ -277,7 +275,7 @@ const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRe
         ControlStyles["container"],
         showUI ? "" : ControlStyles["autohide"],
         player.playerOptions.controls !== EluvioPlayerParameters.controls.DEFAULT ? "" : ControlStyles["container--default-controls"],
-        menuActive ? "menu-active" : ""
+        player.controls.IsMenuVisible() ? "menu-active" : ""
       ].join(" ")}
     >
       <IconButton
@@ -318,7 +316,6 @@ const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRe
                     label="Collection Menu"
                     icon={Icons.CollectionIcon}
                     player={player}
-                    setMenuActive={setMenuActive}
                     MenuComponent={CollectionMenu}
                   />
               }
@@ -335,7 +332,7 @@ const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRe
               </div>
               <CenterButtons player={player} videoState={videoState}/>
               <div className={ControlStyles["bottom-right-controls"]}>
-                <ContentVerificationControls player={player} setMenuActive={setMenuActive} />
+                <ContentVerificationControls player={player} />
                 {
                   !player.controls.GetOptions().hasAnyOptions ? null :
                     <MenuButton
@@ -343,7 +340,6 @@ const TVControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRe
                       label="Settings"
                       player={player}
                       MenuComponent={SettingsMenu}
-                      setMenuActive={setMenuActive}
                     >
                       Settings
                     </MenuButton>

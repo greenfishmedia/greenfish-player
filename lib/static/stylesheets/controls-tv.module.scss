@@ -39,6 +39,8 @@
 }
 
 .autohide {
+  cursor: none;
+
   &:not(:has(:focus-visible)) {
     .bottom-controls-container--autohide {
       opacity: 0;

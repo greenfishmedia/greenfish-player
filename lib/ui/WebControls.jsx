@@ -76,7 +76,7 @@ const CollectionControls = ({player}) => {
   );
 };
 
-const MenuButton = ({label, icon, player, setMenuActive, MenuComponent, className=""}) => {
+const MenuButton = ({label, icon, player, MenuComponent, className=""}) => {
   const [show, setShow] = useState(false);
 
   return (
@@ -86,7 +86,7 @@ const MenuButton = ({label, icon, player, setMenuActive, MenuComponent, classNam
         aria-haspopup
         icon={icon}
         onClick={() => {
-          setMenuActive(!show);
+          player.controls.__ToggleMenu(!show);
           setShow(!show);
         }}
         className={show ? ControlStyles["icon-button-active"] : ""}
@@ -97,7 +97,7 @@ const MenuButton = ({label, icon, player, setMenuActive, MenuComponent, classNam
             player={player}
             Hide={() => {
               setShow(false);
-              setMenuActive(false);
+              player.controls.__ToggleMenu(false);
             }}
           />
       }
@@ -154,7 +154,7 @@ const ContentInfo = ({player}) => {
   );
 };
 
-const ContentVerificationControls = ({player, setMenuActive}) => {
+const ContentVerificationControls = ({player}) => {
   const [contentVerified, setContentVerified] = useState(false);
 
   useEffect(() => {
@@ -178,7 +178,6 @@ const ContentVerificationControls = ({player, setMenuActive}) => {
         label="Content Verification Menu"
         icon={Icons.ContentBadgeIcon}
         player={player}
-        setMenuActive={setMenuActive}
         MenuComponent={ContentVerificationMenu}
         className={ControlStyles["content-verification-menu-button"]}
       />
@@ -189,7 +188,6 @@ const ContentVerificationControls = ({player, setMenuActive}) => {
 const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRecentUserAction, className=""}) => {
   const [videoState, setVideoState] = useState(undefined);
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
-  const [activeMenus, setActiveMenus] = useState(0);
 
   useEffect(() => {
     setPlayerClickHandler(PlayerClick({player, setRecentUserAction}));
@@ -202,11 +200,9 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
   if(!videoState) { return null; }
 
   const collectionInfo = player.controls.GetCollectionInfo();
-  const menuActive = activeMenus > 0;
-  const setMenuActive = active => setActiveMenus(active ? activeMenus + 1 : Math.max(0, activeMenus - 1));
 
   // Title autohide is not dependent on controls settings
-  const showUI = recentlyInteracted || !playbackStarted || menuActive;
+  const showUI = recentlyInteracted || !playbackStarted || player.controls.IsMenuVisible();
   const hideControls = !showUI && player.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE;
 
   player.__SetControlsVisibility(!hideControls);
@@ -219,7 +215,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
         ControlStyles["container"],
         showUI ? "" : ControlStyles["autohide"],
         player.playerOptions.controls !== EluvioPlayerParameters.controls.DEFAULT ? "" : ControlStyles["container--default-controls"],
-        menuActive ? "menu-active" : ""
+        player.controls.IsMenuVisible() ? "menu-active" : ""
       ].join(" ")}
     >
       <ContentInfo key={`content-info-${collectionInfo && collectionInfo.mediaIndex}`} player={player} />
@@ -258,10 +254,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
 
                 <div className={ControlStyles["spacer"]}/>
 
-                <ContentVerificationControls
-                  player={player}
-                  setMenuActive={setMenuActive}
-                />
+                <ContentVerificationControls player={player} />
 
                 {
                   !collectionInfo ? null :
@@ -269,7 +262,6 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                       label="Collection Menu"
                       icon={Icons.CollectionIcon}
                       player={player}
-                      setMenuActive={setMenuActive}
                       MenuComponent={CollectionMenu}
                     />
                 }
@@ -288,7 +280,6 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                       label="Settings Menu"
                       icon={Icons.SettingsIcon}
                       player={player}
-                      setMenuActive={setMenuActive}
                       MenuComponent={SettingsMenu}
                     />
                 }

@@ -49,6 +49,8 @@
 }
 
 .autohide {
+  cursor: none;
+
   &:not(:has(:focus-visible)) {
     .info-container,
     .bottom-controls-container--autohide {
@@ -370,7 +372,7 @@
 
   .info-container {
     gap: 20px;
-    padding-top: 20px;
+    padding-top: 15px;
   }
 
   .info-title {
@@ -414,6 +416,7 @@
 
   .info-container {
     padding-right: 80px;
+    padding-top: 10px;
   }
 
   .info-headers {

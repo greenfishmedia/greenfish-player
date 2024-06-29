@@ -45,6 +45,7 @@ const Poster = ({player}) => {
   );
 };
 
+let clearInteractionTimeout;
 const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Reset}) => {
   const [player, setPlayer] = useState(undefined);
   const [client, setClient] = useState(undefined);
@@ -175,6 +176,15 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
       setPlayer(undefined);
     };
   }, [playerSet]);
+
+  useEffect(() => {
+    if(!recentUserAction) { return; }
+    clearTimeout(clearInteractionTimeout);
+
+    setTimeout(() => {
+      setRecentUserAction(undefined);
+    }, 1000);
+  }, [recentUserAction]);
 
   if(parameters.clientOptions.promptTicket && !client) {
     return (
