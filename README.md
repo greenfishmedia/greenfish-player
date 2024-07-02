@@ -76,6 +76,7 @@ The library includes a helpful collection of configuration options in `EluvioPla
       EluvioPlayerParameters.drms.AES128,
       EluvioPlayerParameters.drms.WIDEVINE,
       EluvioPlayerParameters.drms.CLEAR,
+      EluvioPlayerParameters.drms.PLAYREADY
     ],
     playoutOptions: undefined,
     playoutParameters: {
