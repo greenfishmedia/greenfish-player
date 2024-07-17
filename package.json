@@ -1,7 +1,7 @@
 {
   "name": "@greenfishmedia/greenfish-player",
-  "version": "1.0.0",
-  "description": "![Greenfish Logo](lib/static/images/Logo.png \"Greenfish Logo\")",
+  "version": "1.0.1",
+  "description": "Greenfish Player",
   "main": "lib/index.js",
   "license": "MIT",
   "homepage": "https://github.com/greenfishmedia/greenfish-player",

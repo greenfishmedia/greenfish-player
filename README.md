@@ -1,4 +1,4 @@
-# Eluvio Player
+# Greenfish Player
 
 A simple and robust way to play video content from the Greenfish.
 
@@ -7,13 +7,13 @@ A simple and robust way to play video content from the Greenfish.
 Install from npm:
 
 ```
-npm install --save @eluvio/elv-player-js
+npm install --save @greenfishmedia/greenfish-player
 ```
 
 Import the library and load the player:
 
 ```javascript
-import InitializeEluvioPlayer, {EluvioPlayerParameters} from "@greenfish/player";
+import InitializeEluvioPlayer, {EluvioPlayerParameters} from "@greenfishmedia/greenfish-player";
 
 const player = await InitializeEluvioPlayer(
   targetContainerElement,
