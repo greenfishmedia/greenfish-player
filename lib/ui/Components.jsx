@@ -380,7 +380,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
     content = (
       <>
         <div className={CommonStyles["verification-menu__group"]}>
-          <div dangerouslySetInnerHTML={{__html: Icons.ContentBadgeIcon}} style={{width: 35, height: 35}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentBadgeIcon}} className={CommonStyles["verification-menu__group-icon"]} />
           <div className={CommonStyles["verification-menu__group-text"]}>
             <div className={CommonStyles["verification-menu__group-title"]}>
               This content has been verified as authentic
@@ -391,7 +391,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
           </div>
         </div>
         <div className={CommonStyles["verification-menu__group"]}>
-          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} style={{height: 30, maxWidth: 30}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} className={[CommonStyles["verification-menu__group-icon"], CommonStyles["verification-menu__group-icon--cc"]].join(" ")} />
           <div className={CommonStyles["verification-menu__group-text"]}>
             <button onClick={() => setShowDetails(true)} className={CommonStyles["verification-menu__group-title"]}>
               View Content Credentials
@@ -405,7 +405,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
     content = (
       <>
         <div className={CommonStyles["verification-menu__group"]}>
-          <div dangerouslySetInnerHTML={{__html: Icons.ContentBadgeIcon}} style={{width: 50, height: 50}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentBadgeIcon}} className={CommonStyles["verification-menu__group-icon"]} />
           <div className={CommonStyles["verification-menu__group-text"]}>
             <div className={CommonStyles["verification-menu__group-title"]}>
               This content has been verified as authentic
@@ -416,7 +416,7 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
           </div>
         </div>
         <div className={CommonStyles["verification-menu__group"]}>
-          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} className={CommonStyles["verification-menu__group-icon"]} />
+          <div dangerouslySetInnerHTML={{__html: Icons.ContentCredentialsIcon}} className={[CommonStyles["verification-menu__group-icon"], CommonStyles["verification-menu__group-icon--cc"]].join(" ")} />
           <div className={CommonStyles["verification-menu__group-text"]}>
             <button onClick={() => setShowDetails(true)} className={CommonStyles["verification-menu__group-title"]}>
               Content Credentials
