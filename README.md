@@ -1,6 +1,6 @@
 # Eluvio Player
 
-A simple and robust way to play video content from the Eluvio Content Fabric.
+A simple and robust way to play video content from the Greenfish.
 
 ## Quick Start:
 
@@ -13,7 +13,7 @@ npm install --save @eluvio/elv-player-js
 Import the library and load the player:
 
 ```javascript
-import InitializeEluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import InitializeEluvioPlayer, {EluvioPlayerParameters} from "@greenfish/player";
 
 const player = await InitializeEluvioPlayer(
   targetContainerElement,
