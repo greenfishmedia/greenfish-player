@@ -188,6 +188,7 @@ const ContentVerificationControls = ({player}) => {
 const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRecentUserAction, className=""}) => {
   const [videoState, setVideoState] = useState(undefined);
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
+  const [showRating, setShowRating] = useState(false);
 
   useEffect(() => {
     setPlayerClickHandler(PlayerClick({player, setRecentUserAction}));
@@ -245,7 +246,14 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                 <IconButton
                   aria-label={videoState.playing ? "Pause" : "Play"}
                   icon={videoState.playing ? Icons.PauseCircleIcon : Icons.PlayCircleIcon}
-                  onClick={() => player.controls.TogglePlay()}
+                  onClick={() => {
+                    player.controls.TogglePlay()
+                    console.log("play")
+                setShowRating(true);
+                setTimeout(() => { 
+                  setShowRating(false);
+                }, 5000);
+                  }}
                   className={ControlStyles["play-pause-button"]}
                 />
                 <CollectionControls player={player} />
@@ -312,6 +320,12 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
           <div className={ControlStyles["watermark"]}>
             <img src={EluvioLogo} alt="Eluvio" />
           </div>
+      } 
+      {showRating && 
+        // Rating
+        <div className={ControlStyles["rating"]}>
+          <img src={EluvioLogo} alt="Eluvio" />
+        </div>
       }
     </div>
   );

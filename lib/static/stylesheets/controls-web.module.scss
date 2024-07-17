@@ -317,6 +317,17 @@
   z-index: var(--layer-title);
 }
 
+.rating {
+  height: auto;
+  pointer-events: none;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  user-select: none;
+  width: 70px;
+  z-index: var(--layer-title);
+}
+
 .content-verified-badge,
 .content-verification-menu-button {
   animation: 0.5s fadein ease;
