@@ -21,8 +21,12 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           # Defaults to the user or organization that owns the workflow file
           scope: '@greenfishmedia'
+      - name: Authenticate to GitHub Packages
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
       - name: Install dependencies
         run: npm ci
+      - name: Build package
+        run: npm run build
       - name: Publish package
         run: npm publish --access restricted
         env:
