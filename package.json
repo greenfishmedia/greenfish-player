@@ -1,5 +1,5 @@
 {
-  "name": "@greenfish/player",
+  "name": "@greenfishmedia/player",
   "version": "2.0.8",
   "description": "![Greenfish Logo](lib/static/images/Logo.png \"Greenfish Logo\")",
   "main": "lib/index.js",
