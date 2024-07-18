@@ -84,15 +84,13 @@
   z-index: var(--layer-error);
 }
 
-:global(.__eluvio-player--size-md),
-:global(.__eluvio-player--size-sm) {
-  .error-message {
-    font-size: 16px;
-  }
-
-  .spinner {
-    border-width: 3px;
-    height: 30px;
-    width: 30px;
-  }
+:global(.__eluvio-player--size-md) .error-message,
+:global(.__eluvio-player--size-sm) .error-message {
+  font-size: 16px;
+}
+:global(.__eluvio-player--size-md) .spinner,
+:global(.__eluvio-player--size-sm) .spinner {
+  border-width: 3px;
+  height: 30px;
+  width: 30px;
 }
