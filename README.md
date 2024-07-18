@@ -13,23 +13,35 @@ npm install --save @eluvio/elv-player-js
 Import the library and load the player:
 
 ```javascript
-import InitializeEluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+// Import the player and player parameter options (ES Module)
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
+// Or import the player and player parameter options as CommonJS
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/dist/elv-player-js.cjs.js";
+// Or import the player and player parameter options from source (recommended if using @eluvio/elv-client-js in your project)
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index.js";
+
+// Import CSS (if not importing from source)
+import "@eluvio/elv-player-js/dist/elv-player-js.css";
 
 const player = await InitializeEluvioPlayer(
   targetContainerElement,
   {
     clientOptions: {
       // Specify the fabric network
-      network: EluvioPlayerParameters.network.main,
+      network: EluvioPlayerParameters.networks.main,
       // or if you  already have an instance of ElvClient, just pass it in
       client: myElvClient
     },
     sourceOptions: {
       playoutParameters: {
+        // Specify object ID (always latest version)
+        objectId: "iq__...",
+        // Or specify version hash (specific version)
         versionHash: "hq__...."
       }
     },
     playerOptions: {
+      // Specify player behavior and UI options
       autoplay: EluvioPlayerParameters.autoplay.ON
     }
   }
@@ -40,6 +52,8 @@ Destroy the player when you're done with it
 ```javascript
 player.Destroy();
 ```
+
+Note: If you are using `@eluvio/elv-client-js` elsewhere in your project, importing both the player and the client from source can result in significant size reduction as the client, which is a dependency of the player, can be de-duped 
 
 ## Options
 
