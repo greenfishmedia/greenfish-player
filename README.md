@@ -96,15 +96,11 @@ The library includes a helpful collection of configuration options in `EluvioPla
     },
     contentInfo: {
       title: undefined,
+      subtitle: undefined,
       description: undefined,
       image: undefined,
       posterImage: undefined,
       headers: []
-    },
-    mediaCollectionOptions: {
-      mediaCatalogObjectId: undefined,
-      mediaCatalogVersionHash: undefined,
-      collectionId: undefined
     }
   },
 ```
@@ -212,4 +208,4 @@ Embeddable Frame:
 
 Link:
 
-https://embed.v3.contentfabric.io/?net=main&p&ct=h&vid=hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo&mt=v
+[https://embed.v3.contentfabric.io/?net=main&p&ct=h&vid=hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo&mt=v](https://embed.v3.contentfabric.io/?net=main&p&ct=h&vid=hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo&mt=v)

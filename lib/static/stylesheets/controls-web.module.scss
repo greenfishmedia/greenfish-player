@@ -65,10 +65,10 @@
   align-items: center;
   color: var(--color-button);
   display: flex;
-  height: 100%;
-  padding: 5px;
+  height: 30px;
+  padding: 4px;
   transition: color 0.15s ease;
-  width: auto;
+  width: 30px;
 
   svg {
     height: 100%;
@@ -167,6 +167,7 @@
 
 .center-play-button {
   height: 100px;
+  margin-bottom: 30px;
   transition: opacity 0.5s ease;
   width: 100px;
   z-index: var(--layer-center-button);
@@ -225,11 +226,6 @@
 
   .play-pause-button {
     padding: 0;
-  }
-
-  .right-control-button {
-    height: 35px;
-    margin-bottom: 1px;
   }
 }
 
@@ -349,18 +345,12 @@
 
   .icon-button {
     border: 1px solid transparent;
-    border-radius: 100%;
+    padding: 0;
     transition: background-color 0.25s ease, color 0.25s ease;
 
     &-active,
     &:focus-visible {
-      background-color: rgba(255, 255, 255, 85%);
-      color: #000;
-      filter: drop-shadow(0 0 5px #FFF);
-    }
-
-    &:focus-visible {
-      border: 1px solid var(--color-highlight);
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 50%));
     }
   }
 }
@@ -404,14 +394,22 @@
     --content-image-size: 65px;
   }
 
+  .icon-button {
+    height: 25px;
+    min-width: 25px;
+    width: 25px;
+  }
+
   .controls {
     gap: 8px;
-    height: 45px;
+    height: max-content;
+    padding: 0 5px 5px;
   }
 
   .center-play-button {
-    height: 65px;
-    width: 65px;
+    height: 50px;
+    margin-bottom: 15px;
+    width: 50px;
   }
 
   /* Position menus relative to whole player */
@@ -444,6 +442,7 @@
 
   .time {
     font-size: 10px;
+    min-width: max-content;
   }
 
   .collection-button-text {

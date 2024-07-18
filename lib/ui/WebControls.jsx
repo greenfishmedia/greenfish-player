@@ -162,7 +162,9 @@ const ContentVerificationControls = ({player}) => {
 
     UpdateVerification();
 
-    player.controls.RegisterSettingsListener(UpdateVerification);
+    const disposeSettingsListener = player.controls.RegisterSettingsListener(UpdateVerification);
+
+    return () => disposeSettingsListener && disposeSettingsListener();
   }, []);
 
   if(!contentVerified) {
@@ -189,13 +191,20 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
   const [videoState, setVideoState] = useState(undefined);
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
   const [showRating, setShowRating] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(player.controls.IsMenuVisible());
 
   useEffect(() => {
     setPlayerClickHandler(PlayerClick({player, setRecentUserAction}));
 
+    const UpdateMenuVisibility = () => setMenuVisible(player.controls.IsMenuVisible());
+    const disposeSettingsListener = player.controls.RegisterSettingsListener(UpdateMenuVisibility);
+
     const disposeVideoObserver = ObserveVideo({target: player.target, video: player.video, setVideoState});
 
-    return () => disposeVideoObserver && disposeVideoObserver();
+    return () => {
+      disposeSettingsListener && disposeSettingsListener();
+      disposeVideoObserver && disposeVideoObserver();
+    };
   }, []);
 
   if(!videoState) { return null; }
@@ -203,7 +212,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
   const collectionInfo = player.controls.GetCollectionInfo();
 
   // Title autohide is not dependent on controls settings
-  const showUI = recentlyInteracted || !playbackStarted || player.controls.IsMenuVisible();
+  const showUI = recentlyInteracted || !playbackStarted || menuVisible;
   const hideControls = !showUI && player.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE;
 
   player.__SetControlsVisibility(!hideControls);
@@ -247,8 +256,8 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                   aria-label={videoState.playing ? "Pause" : "Play"}
                   icon={videoState.playing ? Icons.PauseCircleIcon : Icons.PlayCircleIcon}
                   onClick={() => {
-                    player.controls.TogglePlay()
-                    console.log("play")
+                    player.controls.TogglePlay();
+                    console.log("play");
                 setShowRating(true);
                 setTimeout(() => { 
                   setShowRating(false);
