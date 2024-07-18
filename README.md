@@ -13,14 +13,15 @@ npm install --save @greenfishmedia/greenfish-player
 Import the library and load the player:
 
 ```javascript
-import InitializeEluvioPlayer, {EluvioPlayerParameters} from "@greenfishmedia/greenfish-player";
+import '@greenfishmedia/greenfish-player/dist/elv-player-js.css';
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@greenfishmedia/greenfish-player";
 
 const player = await InitializeEluvioPlayer(
   targetContainerElement,
   {
     clientOptions: {
       // Specify the fabric network
-      network: EluvioPlayerParameters.network.main,
+      network: EluvioPlayerParameters.networks.DEMO,
       // or if you  already have an instance of ElvClient, just pass it in
       client: myElvClient
     },

@@ -2,7 +2,7 @@
   "name": "@greenfishmedia/greenfish-player",
   "version": "2.0.10-2",
   "description": "Greenfish Player",
-  "main": "lib/index.js",
+  "main": "dist/elv-player-js.es.js",
   "license": "MIT",
   "homepage": "https://github.com/greenfishmedia/greenfish-player",
   "scripts": {
@@ -29,7 +29,6 @@
   },
   "files": [
     "/dist",
-    "/lib",
     "LICENSE",
     "README.md",
     "package.json",
