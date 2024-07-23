@@ -125,12 +125,14 @@
   }
 }
 
-:global(.__eluvio-player--size-sm) .form {
-  max-height: unset;
-  max-width: 100%;
-  min-width: unset;
-  padding: 30px 30px 65px;
-  width: 100%;
+:global(.__eluvio-player--size-sm) {
+  .form {
+    max-height: unset;
+    max-width: 100%;
+    min-width: unset;
+    padding: 30px 30px 65px;
+    width: 100%;
+  }
 }
 
 @keyframes fadein {

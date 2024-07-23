@@ -545,107 +545,111 @@
 
 
 /* Player size/orientation adjustments */
-:global(.__eluvio-player--size-sm) .menu-option,
-:global(.__eluvio-player--size-md) .menu-option {
-  font-size: 14px;
-  min-height: unset;
-  padding: 3px 10px;
-}
 
-:global(.__eluvio-player--size-sm) .verification-menu,
-:global(.__eluvio-player--size-md) .verification-menu {
-  &__group-icon {
-    height: 23px;
-    width: 23px;
+:global(.__eluvio-player--size-md),
+:global(.__eluvio-player--size-sm) {
+  .menu-option {
+    font-size: 14px;
+    min-height: unset;
+    padding: 3px 10px;
+  }
 
-    &--cc {
-      height: 20px;
-      width: 20px;
+  .verification-menu {
+    &__group-icon {
+      height: 23px;
+      width: 23px;
+
+      &--cc {
+        height: 20px;
+        width: 20px;
+      }
+    }
+
+    &__group {
+      align-items: center;
+    }
+
+    &__details,
+    &__group {
+      padding-inline: 15px;
+    }
+
+    &__group-title {
+      font-size: 12px;
+    }
+
+    &__group-subtitle {
+      font-size: 10px;
+    }
+
+    &__detail {
+      align-items: flex-start;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    &__detail-label,
+    &__detail-value {
+      font-size: 10px;
+    }
+
+    &__detail-copy {
+      height: 15px;
     }
   }
+}
 
-  &__group {
-    align-items: center;
+:global(.__eluvio-player--size-sm) {
+  .volume-slider {
+    display: none;
   }
 
-  &__details,
-  &__group {
-    padding-inline: 15px;
+  .menu {
+    bottom: 50px;
+    gap: 3px;
+    max-height: calc(var(--portal-height) - 80px);
+    max-width: min(600px, calc(var(--portal-width) - 30px));
+    min-height: unset;
+    min-width: min(600px, calc(var(--portal-width) - 30px));
+    right: 10px;
   }
 
-  &__group-title {
+  .menu-option {
     font-size: 12px;
+    min-height: 25px;
+    padding: 2px 10px;
   }
 
-  &__group-subtitle {
-    font-size: 10px;
+  .menu-option-icon {
+    height: 20px;
   }
 
-  &__detail {
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: center;
-  }
+  .seek-container {
+    height: calc(var(--progress-height-expanded) + 5px);
 
-  &__detail-label,
-  &__detail-value {
-    font-size: 10px;
-  }
+    &:hover,
+    &:active,
+    &:focus,
+    &:focus-visible,
+    &:has(:focus-visible) {
+      .seek-playhead,
+      .seek-buffer,
+      .seek-input {
+        border-radius: 10px;
+        height: var(--progress-height-expanded-mobile);
+      }
 
-  &__detail-copy {
-    height: 15px;
-  }
-}
+      ::-webkit-slider-thumb {
+        border-radius: 100%;
+        height: var(--progress-height-expanded-mobile);
+        width: var(--progress-height-expanded-mobile);
+      }
 
-:global(.__eluvio-player--size-sm) .volume-slider {
-  display: none;
-}
-
-:global(.__eluvio-player--size-sm) .menu {
-  bottom: 50px;
-  gap: 3px;
-  max-height: calc(var(--portal-height) - 80px);
-  max-width: min(600px, calc(var(--portal-width) - 30px));
-  min-height: unset;
-  min-width: min(600px, calc(var(--portal-width) - 30px));
-  right: 10px;
-}
-
-:global(.__eluvio-player--size-sm) .menu-option {
-  font-size: 12px;
-  min-height: 25px;
-  padding: 2px 10px;
-}
-
-:global(.__eluvio-player--size-sm) .menu-option-icon {
-  height: 20px;
-}
-
-:global(.__eluvio-player--size-sm) .seek-container {
-  height: calc(var(--progress-height-expanded) + 5px);
-
-  &:hover,
-  &:active,
-  &:focus,
-  &:focus-visible,
-  &:has(:focus-visible) {
-    .seek-playhead,
-    .seek-buffer,
-    .seek-input {
-      border-radius: 10px;
-      height: var(--progress-height-expanded-mobile);
-    }
-
-    ::-webkit-slider-thumb {
-      border-radius: 100%;
-      height: var(--progress-height-expanded-mobile);
-      width: var(--progress-height-expanded-mobile);
-    }
-
-    ::-moz-range-thumb {
-      border-radius: 100%;
-      height: var(--progress-height-expanded-mobile);
-      width: var(--progress-height-expanded-mobile);
+      ::-moz-range-thumb {
+        border-radius: 100%;
+        height: var(--progress-height-expanded-mobile);
+        width: var(--progress-height-expanded-mobile);
+      }
     }
   }
 }
