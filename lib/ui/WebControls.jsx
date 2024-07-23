@@ -257,18 +257,17 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                   icon={videoState.playing ? Icons.PauseCircleIcon : Icons.PlayCircleIcon}
                   onClick={() => {
                     player.controls.TogglePlay();
-                    console.log("play");
-                setShowRating(true);
-                setTimeout(() => { 
-                  setShowRating(false);
-                }, 5000);
+                    // setShowRating(true);
+                    // setTimeout(() => { 
+                    //   setShowRating(false);
+                    // }, 5000);
                   }}
                   className={ControlStyles["play-pause-button"]}
                 />
                 <CollectionControls player={player} />
                 <VolumeControls player={player} videoState={videoState} />
                 <TimeIndicator player={player} videoState={videoState}/>
-
+                {player.playerOptions.markInOut && <div>[ ]</div>}
                 <div className={ControlStyles["spacer"]}/>
 
                 <ContentVerificationControls player={player} />
