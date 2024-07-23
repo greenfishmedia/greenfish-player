@@ -13,8 +13,15 @@ npm install --save @greenfishmedia/greenfish-player
 Import the library and load the player:
 
 ```javascript
-import '@greenfishmedia/greenfish-player/dist/elv-player-js.css';
+// Import the player and player parameter options (ES Module)
 import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@greenfishmedia/greenfish-player";
+// Or import the player and player parameter options as CommonJS
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/dist/elv-player-js.cjs.js";
+// Or import the player and player parameter options from source (recommended if using @eluvio/elv-client-js in your project)
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index.js";
+
+// Import CSS (if not importing from source)
+import '@greenfishmedia/greenfish-player/dist/elv-player-js.css';
 
 const player = await InitializeEluvioPlayer(
   targetContainerElement,
@@ -27,10 +34,14 @@ const player = await InitializeEluvioPlayer(
     },
     sourceOptions: {
       playoutParameters: {
+        // Specify object ID (always latest version)
+        objectId: "iq__...",
+        // Or specify version hash (specific version)
         versionHash: "hq__...."
       }
     },
     playerOptions: {
+      // Specify player behavior and UI options
       autoplay: EluvioPlayerParameters.autoplay.ON
     }
   }
@@ -41,6 +52,8 @@ Destroy the player when you're done with it
 ```javascript
 player.Destroy();
 ```
+
+Note: If you are using `@eluvio/elv-client-js` elsewhere in your project, importing both the player and the client from source can result in significant size reduction as the client, which is a dependency of the player, can be de-duped 
 
 ## Options
 

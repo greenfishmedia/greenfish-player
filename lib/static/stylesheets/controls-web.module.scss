@@ -65,9 +65,9 @@
   align-items: center;
   color: var(--color-button);
   display: flex;
-  height: 30px;
   padding: 4px;
   transition: color 0.15s ease;
+  height: 30px;
   width: 30px;
 
   svg {
@@ -167,8 +167,8 @@
 
 .center-play-button {
   height: 100px;
-  margin-bottom: 30px;
   transition: opacity 0.5s ease;
+  margin-bottom: 30px;
   width: 100px;
   z-index: var(--layer-center-button);
 
@@ -345,12 +345,12 @@
 
   .icon-button {
     border: 1px solid transparent;
-    padding: 0;
     transition: background-color 0.25s ease, color 0.25s ease;
+    padding: 0;
 
     &-active,
     &:focus-visible {
-      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 50%));
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
     }
   }
 }
