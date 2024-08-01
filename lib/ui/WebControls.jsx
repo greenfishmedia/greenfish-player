@@ -8,7 +8,7 @@ import "focus-visible";
 import {ImageUrl, PlayerClick, Time} from "./Common.js";
 import EluvioPlayerParameters from "../player/PlayerParameters.js";
 
-import EluvioLogo from "../static/images/Logo.png";
+import CompanyLogo from "../static/images/flmcrw_logo.png";
 import {CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls} from "./Components.jsx";
 
 export const IconButton = ({icon, className="", ...props}) => {
@@ -310,7 +310,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
         // Watermark
         player.playerOptions.watermark === EluvioPlayerParameters.watermark.OFF ? null :
           <div className={ControlStyles["watermark"]}>
-            <img src={EluvioLogo} alt="Eluvio" />
+            <img src={CompanyLogo} alt="Company logo" />
           </div>
       }
     </div>
