@@ -227,6 +227,24 @@
   .play-pause-button {
     padding: 0;
   }
+
+  .right-control-button {
+    height: 35px;
+    margin-bottom: 1px;
+  }
+
+  .greenfish-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .greenfish-logo img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+  }
 }
 
 .time {
