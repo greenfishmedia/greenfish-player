@@ -9,6 +9,7 @@ import {ImageUrl, PlayerClick, Time} from "./Common.js";
 import EluvioPlayerParameters from "../player/PlayerParameters.js";
 
 import CompanyLogo from "../static/images/flmcrw_logo.png";
+import GreenfishLogo from "../static/images/greenfish_logo.png";
 import {CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls} from "./Components.jsx";
 
 export const IconButton = ({icon, className="", ...props}) => {
@@ -289,6 +290,10 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                   onClick={() => player.controls.ToggleFullscreen()}
                   className={ControlStyles["right-control-button"]}
                 />
+                {/* TODO: Create a proper component for the logo */}
+                <div className={ControlStyles["greenfish-logo"]}>
+                  <img src={GreenfishLogo} alt="Greenfish logo" />
+                </div>
               </div>
             </div>
           </>

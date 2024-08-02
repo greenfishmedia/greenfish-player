@@ -231,6 +231,20 @@
     height: 35px;
     margin-bottom: 1px;
   }
+
+  .greenfish-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .greenfish-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* ou 'cover', dependendo do comportamento desejado */
+  }
+  
 }
 
 .time {
