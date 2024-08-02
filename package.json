@@ -1,10 +1,10 @@
 {
-  "name": "@eluvio/elv-player-js",
-  "version": "2.0.8",
-  "description": "![Eluvio Logo](lib/static/images/Logo.png \"Eluvio Logo\")",
-  "main": "lib/index.js",
+  "name": "@greenfishmedia/greenfish-player",
+  "version": "2.0.12-1",
+  "description": "Greenfish Player",
+  "main": "dist/elv-player-js.es.js",
   "license": "MIT",
-  "homepage": "https://github.com/eluv-io/elv-player-js",
+  "homepage": "https://github.com/greenfishmedia/greenfish-player",
   "scripts": {
     "prepublishOnly": "npm run build",
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
@@ -29,14 +29,13 @@
   },
   "files": [
     "/dist",
-    "/lib",
     "LICENSE",
     "README.md",
     "package.json",
     "package-lock.json"
   ],
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.0.89",
+    "@eluvio/elv-client-js": "^4.0.92",
     "dashjs": "~4.7.0",
     "focus-visible": "^5.2.0",
     "hls.js": "~1.5.12",
@@ -71,10 +70,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eluv-io/elv-player-js.git"
+    "url": "git+https://github.com/greenfishmedia/greenfish-player.git"
   },
   "author": "",
   "bugs": {
-    "url": "https://github.com/eluv-io/elv-player-js/issues"
+    "url": "https://github.com/greenfishmedia/greenfish-player/issues"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }

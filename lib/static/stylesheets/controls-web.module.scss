@@ -65,10 +65,10 @@
   align-items: center;
   color: var(--color-button);
   display: flex;
-  height: 100%;
-  padding: 5px;
+  padding: 4px;
   transition: color 0.15s ease;
-  width: auto;
+  height: 30px;
+  width: 30px;
 
   svg {
     height: 100%;
@@ -168,6 +168,7 @@
 .center-play-button {
   height: 100px;
   transition: opacity 0.5s ease;
+  margin-bottom: 30px;
   width: 100px;
   z-index: var(--layer-center-button);
 
@@ -244,7 +245,6 @@
     max-height: 90%;
     object-fit: contain;
   }
-  
 }
 
 .time {
@@ -352,18 +352,12 @@
 
   .icon-button {
     border: 1px solid transparent;
-    border-radius: 100%;
     transition: background-color 0.25s ease, color 0.25s ease;
+    padding: 0;
 
     &-active,
     &:focus-visible {
-      background-color: rgba(255, 255, 255, 85%);
-      color: #000;
-      filter: drop-shadow(0 0 5px #FFF);
-    }
-
-    &:focus-visible {
-      border: 1px solid var(--color-highlight);
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
     }
   }
 }
@@ -407,14 +401,22 @@
     --content-image-size: 65px;
   }
 
+  .icon-button {
+    height: 25px;
+    width: 25px;
+    min-width: 25px;
+  }
+
   .controls {
     gap: 8px;
-    height: 45px;
+    height: max-content;
+    padding: 0 5px 5px;
   }
 
   .center-play-button {
-    height: 65px;
-    width: 65px;
+    height: 50px;
+    width: 50px;
+    margin-bottom: 15px;
   }
 
   /* Position menus relative to whole player */
@@ -447,6 +449,7 @@
 
   .time {
     font-size: 10px;
+    min-width: max-content;
   }
 
   .collection-button-text {

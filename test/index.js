@@ -93,7 +93,8 @@ const Initialize = async () => {
         hlsjsOptions: {
           //maxBufferLength: 1,
           //maxBufferSize: 0.5 * 1000 * 1000
-        }
+        },
+        markInOut: true
       }
     }
   );

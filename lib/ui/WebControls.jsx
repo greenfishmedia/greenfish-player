@@ -163,7 +163,9 @@ const ContentVerificationControls = ({player}) => {
 
     UpdateVerification();
 
-    player.controls.RegisterSettingsListener(UpdateVerification);
+    const disposeSettingsListener = player.controls.RegisterSettingsListener(UpdateVerification);
+
+    return () => disposeSettingsListener && disposeSettingsListener();
   }, []);
 
   if(!contentVerified) {
@@ -189,13 +191,21 @@ const ContentVerificationControls = ({player}) => {
 const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRecentUserAction, className=""}) => {
   const [videoState, setVideoState] = useState(undefined);
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
+  const [showRating, setShowRating] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(player.controls.IsMenuVisible());
 
   useEffect(() => {
     setPlayerClickHandler(PlayerClick({player, setRecentUserAction}));
 
+    const UpdateMenuVisibility = () => setMenuVisible(player.controls.IsMenuVisible());
+    const disposeSettingsListener = player.controls.RegisterSettingsListener(UpdateMenuVisibility);
+
     const disposeVideoObserver = ObserveVideo({target: player.target, video: player.video, setVideoState});
 
-    return () => disposeVideoObserver && disposeVideoObserver();
+    return () => {
+      disposeSettingsListener && disposeSettingsListener();
+      disposeVideoObserver && disposeVideoObserver();
+    };
   }, []);
 
   if(!videoState) { return null; }
@@ -203,7 +213,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
   const collectionInfo = player.controls.GetCollectionInfo();
 
   // Title autohide is not dependent on controls settings
-  const showUI = recentlyInteracted || !playbackStarted || player.controls.IsMenuVisible();
+  const showUI = recentlyInteracted || !playbackStarted || menuVisible;
   const hideControls = !showUI && player.playerOptions.controls === EluvioPlayerParameters.controls.AUTO_HIDE;
 
   player.__SetControlsVisibility(!hideControls);
@@ -246,13 +256,19 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                 <IconButton
                   aria-label={videoState.playing ? "Pause" : "Play"}
                   icon={videoState.playing ? Icons.PauseCircleIcon : Icons.PlayCircleIcon}
-                  onClick={() => player.controls.TogglePlay()}
+                  onClick={() => {
+                    player.controls.TogglePlay();
+                    // setShowRating(true);
+                    // setTimeout(() => { 
+                    //   setShowRating(false);
+                    // }, 5000);
+                  }}
                   className={ControlStyles["play-pause-button"]}
                 />
                 <CollectionControls player={player} />
                 <VolumeControls player={player} videoState={videoState} />
                 <TimeIndicator player={player} videoState={videoState}/>
-
+                {player.playerOptions.markInOut && <div>[ ]</div>}
                 <div className={ControlStyles["spacer"]}/>
 
                 <ContentVerificationControls player={player} />
@@ -317,6 +333,12 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
           <div className={ControlStyles["watermark"]}>
             <img src={CompanyLogo} alt="Company logo" />
           </div>
+      } 
+      {showRating && 
+        // Rating
+        <div className={ControlStyles["rating"]}>
+          <img src={EluvioLogo} alt="Eluvio" />
+        </div>
       }
     </div>
   );
