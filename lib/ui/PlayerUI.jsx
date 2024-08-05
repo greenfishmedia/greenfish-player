@@ -232,7 +232,7 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
           <Poster player={player} />
       }
       {
-        playerInitialized || errorMessage ? null :
+        playerInitialized || errorMessage || !parameters.playerOptions.showLoader ? null :
           <div className={PlayerStyles["spinner-container"]}>
             <Spinner className={PlayerStyles["spinner"]} />
           </div>
