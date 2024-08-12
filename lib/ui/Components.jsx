@@ -77,7 +77,7 @@ export const SeekBar = ({player, videoState, setRecentUserAction, className=""})
     };
   }, []);
 
-  if(player.isLive) {
+  if(player.isLive && !player.dvrEnabled) {
     return null;
   }
 

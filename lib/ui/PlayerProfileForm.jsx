@@ -25,7 +25,7 @@ const PlayerProfileForm = ({player, Close}) => {
 
     try {
       setSubmitting(true);
-      await player.controls.SetPlayerProfile({profile: "custom", customHLSOptions: JSON.parse(playerOptions)});
+      await player.controls.SetPlayerProfile({profile: "custom", customOptions: JSON.parse(playerOptions)});
 
       Close();
     } catch(error) {

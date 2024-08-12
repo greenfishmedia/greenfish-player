@@ -65,9 +65,9 @@
   align-items: center;
   color: var(--color-button);
   display: flex;
+  height: 30px;
   padding: 4px;
   transition: color 0.15s ease;
-  height: 30px;
   width: 30px;
 
   svg {
@@ -167,8 +167,8 @@
 
 .center-play-button {
   height: 100px;
-  transition: opacity 0.5s ease;
   margin-bottom: 30px;
+  transition: opacity 0.5s ease;
   width: 100px;
   z-index: var(--layer-center-button);
 
@@ -233,6 +233,7 @@
   align-items: center;
   display: flex;
   font-size: 14px;
+  gap: 10px;
   min-width: 100px;
   user-select: none;
   white-space: nowrap;
@@ -334,12 +335,12 @@
 
   .icon-button {
     border: 1px solid transparent;
-    transition: background-color 0.25s ease, color 0.25s ease;
     padding: 0;
+    transition: background-color 0.25s ease, color 0.25s ease;
 
     &-active,
     &:focus-visible {
-      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 50%));
     }
   }
 }
@@ -385,8 +386,8 @@
 
   .icon-button {
     height: 25px;
-    width: 25px;
     min-width: 25px;
+    width: 25px;
   }
 
   .controls {
@@ -397,8 +398,8 @@
 
   .center-play-button {
     height: 50px;
-    width: 50px;
     margin-bottom: 15px;
+    width: 50px;
   }
 
   /* Position menus relative to whole player */
