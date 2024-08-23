@@ -228,7 +228,7 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
         className={PlayerStyles.video}
       />
       {
-        !player || playbackStarted || !canPlay ? null :
+        !player || !canPlay || (playbackStarted && !parameters.playerOptions.permanentPoster) ? null :
           <Poster player={player} />
       }
       {

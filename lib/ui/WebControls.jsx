@@ -209,7 +209,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
     return () => {
       disposeSettingsListener && disposeSettingsListener();
       disposeVideoObserver && disposeVideoObserver();
-    }
+    };
   }, []);
 
   if(!videoState) { return null; }

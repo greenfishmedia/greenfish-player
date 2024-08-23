@@ -166,7 +166,7 @@ export const SettingsMenu = ({player, Hide, className=""}) => {
     const RemoveMenuListener = RegisterModal({element: menuRef.current.parentElement, Hide});
 
     return () => {
-      RemoveMenuListener && RemoveMenuListener()
+      RemoveMenuListener && RemoveMenuListener();
     };
   }, [menuRef]);
 
