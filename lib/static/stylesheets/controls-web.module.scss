@@ -224,7 +224,21 @@
   position: relative;
   z-index: var(--layer-controls);
 
+  .icon-buttons {
+    height: 32px;
+    width: 32px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+  }
+
+
   .play-pause-button {
+    padding: 0;
+    height: 21px;
+  }
+
+  .captions-button {
     padding: 0;
     height: 21px;
   }
@@ -330,7 +344,7 @@
   right: 20px;
   top: 20px;
   user-select: none;
-  width: 70px;
+  width: 52px;
   z-index: var(--layer-title);
 }
 

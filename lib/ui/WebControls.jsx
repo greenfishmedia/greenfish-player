@@ -291,6 +291,11 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                       className={ControlStyles["right-control-button"]}
                     />
                 }
+                <IconButton
+                  aria-label="Fullscreen"
+                  icon={videoState.fullscreen ? Icons.CaptionsIcon : Icons.CaptionsOffIcon}
+                  className={ControlStyles["icon-buttons"]}
+                />
                 {
                   !player.controls.GetOptions().hasAnyOptions ? null :
                     <MenuButton
@@ -298,13 +303,29 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                       icon={Icons.SettingsIcon}
                       player={player}
                       MenuComponent={SettingsMenu}
+                      className={ControlStyles["icon-buttons"]}
                     />
                 }
+                <IconButton
+                  aria-label="Miniplayer"
+                  icon={Icons.MiniplayerIcon}
+                  className={ControlStyles["icon-buttons"]}
+                />
+                <IconButton
+                  aria-label="Cinema Mode"
+                  icon={Icons.CinemaModeIcon}
+                  className={ControlStyles["icon-buttons"]}
+                />
+                <IconButton
+                  aria-label="Play On TV"
+                  icon={Icons.PlayOnTVIcon}
+                  className={ControlStyles["icon-buttons"]}
+                />
                 <IconButton
                   aria-label={videoState.fullscreen ? "Exit Fullscreen" : "Fullscreen"}
                   icon={videoState.fullscreen ? Icons.ExitFullscreenIcon : Icons.FullscreenIcon}
                   onClick={() => player.controls.ToggleFullscreen()}
-                  className={ControlStyles["right-control-button"]}
+                  className={ControlStyles["icon-buttons"]}
                 />
                 {/* TODO: Create a proper component for the logo */}
                 <div className={ControlStyles["greenfish-logo"]}>
