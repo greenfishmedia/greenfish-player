@@ -464,6 +464,17 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
             }
           />
           <ContentDetail label="Signature Algorithm" value={audit.details.signatureMethod} />
+          {
+            !player.publicMetadataUrl ? null :
+              <ContentDetail
+                label="Public Metadata"
+                value={
+                  <a href={player.publicMetadataUrl} target="_blank" rel="noreferrer">
+                    {player.publicMetadataUrl}
+                  </a>
+                }
+              />
+          }
         </div>
       </>
     );
