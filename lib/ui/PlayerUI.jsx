@@ -228,11 +228,11 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
         className={PlayerStyles.video}
       />
       {
-        !player || playbackStarted || !canPlay ? null :
+        !player || !canPlay || (playbackStarted && !parameters.playerOptions.permanentPoster) ? null :
           <Poster player={player} />
       }
       {
-        playerInitialized || errorMessage ? null :
+        playerInitialized || errorMessage || !parameters.playerOptions.showLoader ? null :
           <div className={PlayerStyles["spinner-container"]}>
             <Spinner className={PlayerStyles["spinner"]} />
           </div>

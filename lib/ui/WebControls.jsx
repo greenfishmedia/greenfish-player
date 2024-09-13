@@ -27,7 +27,7 @@ const TimeIndicator = ({player, videoState}) => {
     return () => disposeVideoTimeObserver && disposeVideoTimeObserver();
   }, []);
 
-  if(player.isLive) {
+  if(player.isLive && !player.dvrEnabled) {
     return (
       <div className={ControlStyles["live-indicator"]}>
         Live
@@ -37,6 +37,12 @@ const TimeIndicator = ({player, videoState}) => {
 
   return (
     <div className={ControlStyles["time"]}>
+      {
+        !player.isLive ? null :
+          <button onClick={() => player.controls.Seek({time: player.controls.GetDuration() - 2})} className={ControlStyles["live-indicator"]}>
+            Live
+          </button>
+      }
       { Time(currentTime, videoState.duration) } / { Time(videoState.duration, videoState.duration) }
     </div>
   );

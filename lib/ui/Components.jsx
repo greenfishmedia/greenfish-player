@@ -77,7 +77,7 @@ export const SeekBar = ({player, videoState, setRecentUserAction, className=""})
     };
   }, []);
 
-  if(player.isLive) {
+  if(player.isLive && !player.dvrEnabled) {
     return null;
   }
 
@@ -166,7 +166,7 @@ export const SettingsMenu = ({player, Hide, className=""}) => {
     const RemoveMenuListener = RegisterModal({element: menuRef.current.parentElement, Hide});
 
     return () => {
-      RemoveMenuListener && RemoveMenuListener()
+      RemoveMenuListener && RemoveMenuListener();
     };
   }, [menuRef]);
 
@@ -464,6 +464,17 @@ export const ContentVerificationMenu = ({player, Hide, className=""}) => {
             }
           />
           <ContentDetail label="Signature Algorithm" value={audit.details.signatureMethod} />
+          {
+            !player.publicMetadataUrl ? null :
+              <ContentDetail
+                label="Public Metadata"
+                value={
+                  <a href={player.publicMetadataUrl} target="_blank" rel="noreferrer">
+                    {player.publicMetadataUrl}
+                  </a>
+                }
+              />
+          }
         </div>
       </>
     );
