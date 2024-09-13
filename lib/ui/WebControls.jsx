@@ -9,7 +9,7 @@ import {ImageUrl, PlayerClick, Time} from "./Common.js";
 import EluvioPlayerParameters from "../player/PlayerParameters.js";
 
 import CompanyLogo from "../static/images/flmcrw_logo.png";
-import GreenfishLogo from "../static/images/greenfish_logo.png";
+import GreenfishLogo from "../static/images/greenfish_logo.svg";
 import {CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls} from "./Components.jsx";
 
 export const IconButton = ({icon, className="", ...props}) => {
@@ -292,8 +292,8 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                     />
                 }
                 <IconButton
-                  aria-label="Fullscreen"
-                  icon={videoState.fullscreen ? Icons.CaptionsIcon : Icons.CaptionsOffIcon}
+                  aria-label="Captions"
+                  icon={videoState.captions ? Icons.CaptionsIcon : Icons.CaptionsOffIcon}
                   className={ControlStyles["icon-buttons"]}
                 />
                 {
