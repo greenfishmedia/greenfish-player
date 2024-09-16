@@ -8,9 +8,8 @@ import "focus-visible";
 import {ImageUrl, PlayerClick, Time} from "./Common.js";
 import EluvioPlayerParameters from "../player/PlayerParameters.js";
 
-import CompanyLogo from "../static/images/flmcrw_logo.png";
 import GreenfishLogo from "../static/images/greenfish_logo.svg";
-import {CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls} from "./Components.jsx";
+import { CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls } from "./Components.jsx";
 
 export const IconButton = ({icon, className="", ...props}) => {
   return (
@@ -112,10 +111,45 @@ const MenuButton = ({label, icon, player, MenuComponent, className=""}) => {
   );
 };
 
-const ContentInfo = ({player}) => {
+const ContentInfo = ({player, contentInfo}) => {
   const [imageUrl, setImageUrl] = useState(undefined);
+  const {image} = (player.controls.GetContentInfo() || {});
+  const [title, setTitle] = useState(undefined);
+  const [subtitle, setSubtitle] = useState(undefined);
+  const [rating, setRating] = useState(undefined);
 
-  const { title, subtitle, description, image, headers } = (player.controls.GetContentInfo() || {});
+  async function loadRatingSvg(rating) { 
+    const svgPath = await import(`../static/images/rating/${rating.toLowerCase()}.svg`);
+    return svgPath.default;
+  }
+
+  function fetchData() { 
+    async function fetchData() {
+      const { title, subtitle, rating } = player.playerOptions.previewMode ? (contentInfo || {}) : (player.controls.GetContentInfo() || {});
+      setTitle(title);
+      setSubtitle(subtitle);
+      if (rating) {
+        const svg = await loadRatingSvg(rating);
+        setRating(svg);
+      } else { 
+        setRating(undefined);
+      }
+    }
+    fetchData();
+  }
+
+  useEffect(() => {
+    const source = player.playerOptions.previewMode ? (contentInfo || {}) : (player.controls.GetContentInfo() || {});
+    fetchData(source);
+  }, []);
+  
+  
+  useEffect(() => {
+    if (player.playerOptions.previewMode) {
+      const source = contentInfo || {};
+      fetchData(source);
+    }
+  }, [contentInfo]);
 
   useEffect(() => {
     setImageUrl(undefined);
@@ -127,7 +161,6 @@ const ContentInfo = ({player}) => {
   }, [image]);
 
   if(
-    !title ||
     (player.playerOptions.title === EluvioPlayerParameters.title.FULLSCREEN_ONLY && !player.controls.IsFullscreen()) ||
     player.playerOptions.title === EluvioPlayerParameters.title.OFF
   ) {
@@ -135,29 +168,21 @@ const ContentInfo = ({player}) => {
   }
 
   return (
-    <div className={ControlStyles["info-container"]}>
-      {
-        !imageUrl ? null :
-          <div className={ControlStyles["info-image-container"]}>
-            <img src={imageUrl} alt="Image" className={ControlStyles["info-image"]} />
-          </div>
+    <>
+      {rating && 
+        <div className={ControlStyles["info-container-top"]}>
+          <div>Rated</div>
+          <img src={rating} alt="Rating" />
+        </div>
       }
-      <div className={ControlStyles["info-text"]}>
-        {
-          headers.length === 0 ? null :
-            <div className={ControlStyles["info-headers"]}>
-              {headers.map((text, index) =>
-                <div key={`header-${index}`} className={ControlStyles["info-header"]}>
-                  { text }
-                </div>
-              )}
-            </div>
-        }
-        { !title ? null : <div className={ControlStyles["info-title"]}>{title}</div> }
-        { !subtitle ? null : <div className={ControlStyles["info-subtitle"]}>{subtitle}</div> }
-        { !description ? null : <div className={ControlStyles["info-description"]}>{description}</div> }
+
+      <div className={ControlStyles["info-container"]}>
+        <div className={ControlStyles["info-text"]}>
+          { !subtitle ? null : <div className={ControlStyles["info-subtitle"]}>{subtitle}</div> }
+          { !title ? null : <div className={ControlStyles["info-title"]}>{title}</div> }
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -180,7 +205,7 @@ const ContentVerificationControls = ({player}) => {
 
   return (
     <>
-      <div className={ControlStyles["content-verified-badge"]}>
+      {/* <div className={ControlStyles["content-verified-badge"]}>
         VERIFIED
       </div>
       <MenuButton
@@ -189,23 +214,35 @@ const ContentVerificationControls = ({player}) => {
         player={player}
         MenuComponent={ContentVerificationMenu}
         className={ControlStyles["content-verification-menu-button"]}
-      />
+      /> */}
     </>
   );
 };
 
-const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRecentUserAction, className=""}) => {
+const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setRecentUserAction, className="", contentInfo}) => {
   const [videoState, setVideoState] = useState(undefined);
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
-  const [showRating, setShowRating] = useState(false);
   const [menuVisible, setMenuVisible] = useState(player.controls.IsMenuVisible());
+  const [companyLogo, setCompanyLogo] = useState(undefined);
+  
+  useEffect(() => {
+    const {companyLogo} = player.playerOptions.previewMode ? (contentInfo || {}) : (player.controls.GetContentInfo() || {});
+    setCompanyLogo(companyLogo);
+  }, []);
+  
+  
+  useEffect(() => {
+    if (player.playerOptions.previewMode) {
+      const {companyLogo} = contentInfo || {};
+      setCompanyLogo(companyLogo);
+    }
+  }, [contentInfo]);
 
   useEffect(() => {
     setPlayerClickHandler(PlayerClick({player, setRecentUserAction}));
 
     const UpdateMenuVisibility = () => setMenuVisible(player.controls.IsMenuVisible());
     const disposeSettingsListener = player.controls.RegisterSettingsListener(UpdateMenuVisibility);
-
     const disposeVideoObserver = ObserveVideo({target: player.target, video: player.video, setVideoState});
 
     return () => {
@@ -230,12 +267,12 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
       className={[
         className,
         ControlStyles["container"],
-        showUI ? "" : ControlStyles["autohide"],
+        showUI || player.playerOptions.previewMode || !player.controls.IsPlaying() ? "" : ControlStyles["autohide"],
         player.playerOptions.controls !== EluvioPlayerParameters.controls.DEFAULT ? "" : ControlStyles["container--default-controls"],
         player.controls.IsMenuVisible() ? "menu-active" : ""
       ].join(" ")}
     >
-      <ContentInfo key={`content-info-${collectionInfo && collectionInfo.mediaIndex}`} player={player} />
+      <ContentInfo key={`content-info-${collectionInfo && collectionInfo.mediaIndex}`} player={player} contentInfo={contentInfo} />
       {
         // Main bottom control bar
         [
@@ -333,7 +370,6 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                   onClick={() => player.controls.ToggleFullscreen()}
                   className={ControlStyles["icon-buttons"]}
                 />
-                {/* TODO: Create a proper component for the logo */}
                 <div className={ControlStyles["greenfish-logo"]}>
                   <img src={GreenfishLogo} alt="Greenfish logo" />
                 </div>
@@ -355,18 +391,12 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
           </div>
       }
       {
-        // Watermark
-        player.playerOptions.watermark === EluvioPlayerParameters.watermark.OFF ? null :
+        companyLogo &&
+        ((player.controls.IsPlaying() && player.playerOptions.watermark) || (!player.controls.IsPlaying())) &&
           <div className={ControlStyles["watermark"]}>
-            <img src={CompanyLogo} alt="Company logo" />
+            <img src={companyLogo} alt="Company logo" />
           </div>
       } 
-      {showRating && 
-        // Rating
-        <div className={ControlStyles["rating"]}>
-          <img src={EluvioLogo} alt="Eluvio" />
-        </div>
-      }
     </div>
   );
 };

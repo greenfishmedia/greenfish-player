@@ -30,7 +30,7 @@ const Initialize = async () => {
   //mediaCollectionId = "JN8ecVA5Jt5cK2PjHXz12A";
   // First item in collection
   //versionHash = "hq__8f7LgwsG7qBtTNSPKkv3Ano4UPoNh4rzF3iPJ4dUbVv2bDBbVzk516q2E4Vg4bkHaEHuPxXFiD";
-  objectId = "iq__3ZiTAEQarHZL7P1qSQ5W3a3gSPKj";
+  objectId = "iq__3G66XEEKJDRDTK3GNAwLbqpPQjGJ"; //iq__3ZiTAEQarHZL7P1qSQ5W3a3gSPKj
 
   // Ticket content
   //network = "DEMO";
@@ -42,7 +42,7 @@ const Initialize = async () => {
   // network = "DEMO_LOCAL";
   // versionHash = "hq__s5J7DRGyi4CMMS8Sqb7CfhbskZcyMDK2Cv1BbLbuENafE271gW2q1ddAp6koTVx8roDKJPhpo";
 
-  window.player = await InitializeEluvioPlayer(
+  const player = await InitializeEluvioPlayer(
     document.getElementById("player-target"),
     {
       clientOptions: {
@@ -67,11 +67,13 @@ const Initialize = async () => {
           collectionId: mediaCollectionId
         },
         contentInfo: {
-          title: "My Big Title",
-          subtitle: "My subtitle",
+          title: "Franklin",
+          subtitle: "Pride and Carts",
           description: "My big description",
           headers: ["pg-13"],
           image: "/public/display_image",
+          companyLogo: "https://image.similarpng.com/very-thumbnail/2020/06/Logo-google-icon-PNG.png",
+          rating: EluvioPlayerParameters.rating.OVER_15
           //type: EluvioPlayerParameters.type.LIVE,
           //posterImage: "https://demov3.net955210.contentfabric.io/s/demov3/q/hq__8f7LgwsG7qBtTNSPKkv3Ano4UPoNh4rzF3iPJ4dUbVv2bDBbVzk516q2E4Vg4bkHaEHuPxXFiD/meta/public/display_image"
         }
@@ -81,11 +83,10 @@ const Initialize = async () => {
         //ui: EluvioPlayerParameters.ui.TV,
         muted: EluvioPlayerParameters.muted.ON,
         backgroundColor: "black",
-        controls: EluvioPlayerParameters.controls.ON,
-        //controls: EluvioPlayerParameters.controls.AUTO_HIDE,
+        controls: EluvioPlayerParameters.controls.AUTO_HIDE,
         watermark: EluvioPlayerParameters.watermark.ON,
         autoplay: EluvioPlayerParameters.autoplay.ON,
-        title: EluvioPlayerParameters.title.FULLSCREEN_ONLY,
+        title: EluvioPlayerParameters.title.ON,
         keyboardControls: EluvioPlayerParameters.keyboardControls.ON,
         maxBitrate: 50000,
         debugLogging: true,
@@ -94,10 +95,21 @@ const Initialize = async () => {
           //maxBufferLength: 1,
           //maxBufferSize: 0.5 * 1000 * 1000
         },
-        markInOut: true
+        markInOut: true,
+        previewMode: true
       }
     }
   );
+
+  window.player = player;
+
+  //only for preview mode
+  player.UpdateContentInfo({
+    title: "Franklin",
+    subtitle: "Pride and Carts",
+    companyLogo: "https://image.similarpng.com/very-thumbnail/2020/06/Logo-google-icon-PNG.png",
+    rating: EluvioPlayerParameters.rating.UNIVERSAL
+  });
 };
 
 

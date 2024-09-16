@@ -109,23 +109,23 @@
 
     .seek-playhead {
       &::-webkit-progress-value {
-        background-color: var(--color-seek-active-focused);
+        background-color: #00E0CA;
         transition-delay: unset;
       }
 
       &::-moz-progress-bar {
-        background-color: var(--color-seek-active-focused);
+        background-color: #00E0CA;
         transition-delay: unset;
       }
     }
 
     ::-webkit-slider-thumb {
-      height: var(--progress-height-expanded);
+      height: #00E0CA;
       transition-delay: unset;
     }
 
     ::-moz-range-thumb {
-      height: var(--progress-height-expanded);
+      height: #00E0CA;
       transition-delay: unset;
     }
   }
@@ -156,13 +156,13 @@
   }
 
   &::-webkit-progress-value {
-    background-color: var(--color-seek-active);
+    background-color: #00E0CA;
     transition: background-color 0.5s ease;
     transition-delay: 0.25s;
   }
 
   &::-moz-progress-bar {
-    background-color: var(--color-seek-active);
+    background-color: #00E0CA;
     transition: background-color 0.5s ease;
     transition-delay: 0.25s;
   }

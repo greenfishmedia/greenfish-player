@@ -65,6 +65,7 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
   const [recentUserAction, setRecentUserAction] = useState(undefined);
   const [allowRotation, setAllowRotation] = useState(undefined);
   const videoRef = useRef();
+  const [contentInfo, setContentInfo] = useState({}); //only for preview mode.
 
   const playerSet = !!player;
 
@@ -121,6 +122,10 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
 
       newPlayer.Reset = () => {
         Reset();
+      };
+
+      newPlayer.UpdateContentInfo = (data) => {
+        setContentInfo(data);
       };
 
       // Observe whether player is visible for autoplay/mute on visibility functionality
@@ -251,6 +256,7 @@ const PlayerUI = ({target, parameters, InitCallback, ErrorCallback, Unmount, Res
               recentlyInteracted={recentlyInteracted}
               setRecentUserAction={onUserAction}
               className={PlayerStyles.controls}
+              contentInfo={contentInfo}
             /> :
             <TVControls
               player={player}
