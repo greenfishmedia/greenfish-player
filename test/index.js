@@ -30,7 +30,7 @@ const Initialize = async () => {
   //mediaCollectionId = "JN8ecVA5Jt5cK2PjHXz12A";
   // First item in collection
   //versionHash = "hq__8f7LgwsG7qBtTNSPKkv3Ano4UPoNh4rzF3iPJ4dUbVv2bDBbVzk516q2E4Vg4bkHaEHuPxXFiD";
-  objectId = "iq__3G66XEEKJDRDTK3GNAwLbqpPQjGJ"; //iq__3ZiTAEQarHZL7P1qSQ5W3a3gSPKj
+  objectId = "iq__3ZiTAEQarHZL7P1qSQ5W3a3gSPKj"; //iq__3G66XEEKJDRDTK3GNAwLbqpPQjGJ
 
   // Ticket content
   //network = "DEMO";

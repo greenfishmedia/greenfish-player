@@ -53,6 +53,7 @@
 
   &:not(:has(:focus-visible)) {
     .info-container,
+    .info-container-top,
     .bottom-controls-container--autohide {
       opacity: 0;
       pointer-events: none;

@@ -124,10 +124,11 @@ const ContentInfo = ({player, contentInfo}) => {
   }
 
   function fetchData() { 
-    async function fetchData() {
+    async function _fetchData() {
       const { title, subtitle, rating } = player.playerOptions.previewMode ? (contentInfo || {}) : (player.controls.GetContentInfo() || {});
       setTitle(title);
       setSubtitle(subtitle);
+    
       if (rating) {
         const svg = await loadRatingSvg(rating);
         setRating(svg);
@@ -135,7 +136,7 @@ const ContentInfo = ({player, contentInfo}) => {
         setRating(undefined);
       }
     }
-    fetchData();
+    _fetchData();
   }
 
   useEffect(() => {
