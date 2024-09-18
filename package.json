@@ -1,6 +1,6 @@
 {
   "name": "@greenfishmedia/greenfish-player",
-  "version": "2.0.19-3",
+  "version": "2.0.19-4",
   "description": "Greenfish Player",
   "main": "dist/elv-player-js.es.js",
   "license": "MIT",
