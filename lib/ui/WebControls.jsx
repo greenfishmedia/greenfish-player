@@ -227,8 +227,8 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
   const [menuVisible, setMenuVisible] = useState(player.controls.IsMenuVisible());
   const [companyLogo, setCompanyLogo] = useState(undefined);
-  const [showMarkIn, setShowMarkIn] = useState(false);
-  const [showMarkOut, setShowMarkOut] = useState(false);
+  const [showMarkIn, setShowMarkIn] = useState(undefined);
+  const [showMarkOut, setShowMarkOut] = useState(undefined);
   
   useEffect(() => {
     const {companyLogo} = player.playerOptions.previewMode ? (contentInfo || {}) : (player.controls.GetContentInfo() || {});
@@ -304,8 +304,8 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                 videoState={videoState}
                 setRecentUserAction={setRecentUserAction}
                 className={ControlStyles["seek"]}
-                showMarkIn={showMarkIn}
-                showMarkOut={showMarkOut}
+                clickOnMarkIn={showMarkIn}
+                clickOnMarkOut={showMarkOut}
               />
               <div className={ControlStyles["controls"]}>
                 <IconButton
@@ -326,11 +326,12 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                 {player.playerOptions.markInOut &&
                   <div className={ControlStyles["mark-function"]}>
                     <div className={ControlStyles["mark-in"]} onClick={() => { 
-                      setShowMarkIn(true);
+                      setShowMarkIn(new Date());
+                      setShowMarkOut(undefined);
                     }}><img src={MarkInIcon} alt="Mark in" /></div>
                     <div className={ControlStyles["mark-out"]} onClick={() => { 
                       if (showMarkIn) {
-                        setShowMarkOut(true);
+                        setShowMarkOut(new Date());
                       }
                     }}><img src={MarkOutIcon} alt="Mark out" /></div>
                   </div>

@@ -61,7 +61,7 @@ export const UserActionIndicator = ({action}) => {
   );
 };
 
-export const SeekBar = ({ player, videoState, setRecentUserAction, className = "", showMarkIn, showMarkOut }) => {
+export const SeekBar = ({ player, videoState, setRecentUserAction, className = "", clickOnMarkIn, clickOnMarkOut }) => {
   const [currentTime, setCurrentTime] = useState(player.video.currentTime);
   const [bufferFraction, setBufferFraction] = useState(0);
   const [seekKeydownHandler, setSeekKeydownHandler] = useState(undefined);
@@ -70,6 +70,8 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
   const [showMarkInOut, setShowMarkInOut] = useState(false);
   const [markerInPosition, setMarkerInPosition] = useState(0);
   const [markerOutPosition, setMarkerOutPosition] = useState(100);
+  const [showMarkIn, setShowMarkIn] = useState(false);
+  const [showMarkOut, setShowMarkOut] = useState(false);
   const [dragging, setDragging] = useState(null); 
 
   useEffect(() => {
@@ -84,12 +86,6 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
     };
   }, []);
 
-  useEffect(() => { 
-    if (showMarkIn || showMarkOut) {
-      setShowMarkInOut(true);
-    }
-  }, [showMarkIn, showMarkOut]);
-
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (dragging && containerRef.current) {
@@ -99,12 +95,11 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
         let newPosition = (mouseX / containerWidth) * 100;
 
         if (dragging === "in") {
-          console.log(videoState.duration);
-          newPosition = Math.min(newPosition, markerOutPosition);
+          newPosition = Math.min(newPosition, markerOutPosition-.7);
           newPosition = Math.max(newPosition, 0);
           setMarkerInPosition(newPosition);
         } else if (dragging === "out") {
-          newPosition = Math.max(newPosition, markerInPosition);
+          newPosition = Math.max(newPosition, markerInPosition+.7);
           newPosition = Math.min(newPosition, 100);
           setMarkerOutPosition(newPosition);
         }
@@ -125,14 +120,29 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
   }, [dragging]);
 
   useEffect(() => { 
-    const percentage = ((currentTime / videoState.duration) * 100) || 0;
-    if (!showMarkIn) {
-      setMarkerInPosition(percentage);
+    if (clickOnMarkIn || clickOnMarkOut) {
+      setShowMarkInOut(true);
     }
-    if (!showMarkOut) {
-      setMarkerOutPosition(percentage);
+  }, [clickOnMarkIn, clickOnMarkOut]);
+
+  useEffect(() => { 
+    if (clickOnMarkIn) {
+      const newPosition = ((currentTime / videoState.duration) * 100) || 0;
+      setShowMarkIn(true);
+      setMarkerInPosition(newPosition);
     }
-  }, [currentTime]);
+  }, [clickOnMarkIn]);
+
+  useEffect(() => { 
+    if (clickOnMarkOut) {
+      let newPosition = ((currentTime / videoState.duration) * 100) || 0;
+      newPosition = Math.max(newPosition, markerInPosition+.7);
+      setShowMarkOut(true);
+      setMarkerOutPosition(newPosition);
+    } else { 
+      setShowMarkOut(false);
+    }
+  }, [clickOnMarkOut]);
 
   if(player.isLive && !player.dvrEnabled) {
     return null;
