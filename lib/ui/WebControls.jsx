@@ -9,7 +9,9 @@ import {ImageUrl, PlayerClick, Time} from "./Common.js";
 import EluvioPlayerParameters from "../player/PlayerParameters.js";
 
 import GreenfishLogo from "../static/images/greenfish_logo.svg";
-import { CollectionMenu, ContentVerificationMenu, SeekBar, SettingsMenu, VolumeControls } from "./Components.jsx";
+import MarkInIcon from "../static/icons/svgs/mark-in.svg";
+import MarkOutIcon from "../static/icons/svgs/mark-out.svg";
+import { CollectionMenu, SeekBar, SettingsMenu, VolumeControls } from "./Components.jsx";
 
 export const IconButton = ({icon, className="", ...props}) => {
   return (
@@ -180,7 +182,7 @@ const ContentInfo = ({player, contentInfo}) => {
       <div className={ControlStyles["info-container"]}>
         <div className={ControlStyles["info-text"]}>
           { !subtitle ? null : <div className={ControlStyles["info-subtitle"]}>{subtitle}</div> }
-          { !title ? null : <div className={ControlStyles["info-title"]}>{title}</div> }
+          {!title ? null : <div className={ControlStyles["info-title"]}>{title}</div>}
         </div>
       </div>
     </>
@@ -225,6 +227,8 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
   const [playerClickHandler, setPlayerClickHandler] = useState(undefined);
   const [menuVisible, setMenuVisible] = useState(player.controls.IsMenuVisible());
   const [companyLogo, setCompanyLogo] = useState(undefined);
+  const [showMarkIn, setShowMarkIn] = useState(false);
+  const [showMarkOut, setShowMarkOut] = useState(false);
   
   useEffect(() => {
     const {companyLogo} = player.playerOptions.previewMode ? (contentInfo || {}) : (player.controls.GetContentInfo() || {});
@@ -295,7 +299,14 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
             />
             <div className={`${ControlStyles["bottom-controls-container"]} ${hideControls ? ControlStyles["bottom-controls-container--autohide"] : ""}`}>
               <div className={ControlStyles["bottom-controls-gradient"]} />
-              <SeekBar player={player} videoState={videoState} setRecentUserAction={setRecentUserAction} className={ControlStyles["seek"]} />
+              <SeekBar
+                player={player}
+                videoState={videoState}
+                setRecentUserAction={setRecentUserAction}
+                className={ControlStyles["seek"]}
+                showMarkIn={showMarkIn}
+                showMarkOut={showMarkOut}
+              />
               <div className={ControlStyles["controls"]}>
                 <IconButton
                   aria-label={videoState.playing ? "Pause" : "Play"}
@@ -312,7 +323,18 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                 <CollectionControls player={player} />
                 <VolumeControls player={player} videoState={videoState} />
                 <TimeIndicator player={player} videoState={videoState}/>
-                {player.playerOptions.markInOut && <div>[ ]</div>}
+                {player.playerOptions.markInOut &&
+                  <div className={ControlStyles["mark-function"]}>
+                    <div className={ControlStyles["mark-in"]} onClick={() => { 
+                      setShowMarkIn(true);
+                    }}><img src={MarkInIcon} alt="Mark in" /></div>
+                    <div className={ControlStyles["mark-out"]} onClick={() => { 
+                      if (showMarkIn) {
+                        setShowMarkOut(true);
+                      }
+                    }}><img src={MarkOutIcon} alt="Mark out" /></div>
+                  </div>
+                }
                 <div className={ControlStyles["spacer"]}/>
 
                 <ContentVerificationControls player={player} />

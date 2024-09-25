@@ -72,6 +72,79 @@
 
 /* Seek Bar */
 
+.mark-container {
+  width: 100%;
+  height: 30px;
+  position: relative;
+  top: 10px;
+  display: flex;
+  .marker-in,
+  .marker-out {
+    width: 9px;
+    height: 28px;
+    display: flex;
+    align-items: start;
+    position: absolute;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    &:focus {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    user-select: none;
+      outline: none !important;
+    }
+    img {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      pointer-events: none;
+      &:focus {
+        outline: none !important;
+      }
+    }
+    .marker {
+      position: absolute;
+      width: 9px;
+      left: -4px;
+      height: 28px;
+      pointer-events: none;
+      &:focus {
+        outline: none !important;
+      }
+      &::after {
+        content: " ";
+        width: 1px;
+        height: 14px;
+        background-color: #00E0CA;
+        position: absolute;
+        top: 16px;
+        left: 4px;
+      }
+    }
+  }
+  .bar {
+    position: absolute;
+    width: auto;
+    height: 16px;
+    background: rgba(0, 224, 202, 0.2);
+    bottom: 0;
+  }
+}
+
 .seek-container {
   --progress-height: 3px;
   --progress-height-expanded: 10px;

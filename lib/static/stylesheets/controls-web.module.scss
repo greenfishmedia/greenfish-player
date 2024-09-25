@@ -288,6 +288,25 @@
       height: 20px;
     }
   }
+
+  .mark-function {
+    display: flex;
+    height: 100%;
+    .mark-in {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 30px;
+      cursor: pointer;
+    }
+    .mark-out {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 30px;
+      cursor: pointer;
+    }
+  }
 }
 
 .time {

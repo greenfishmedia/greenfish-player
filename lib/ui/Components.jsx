@@ -1,11 +1,12 @@
 import CommonStyles from "../static/stylesheets/common.module.scss";
 
 // eslint-disable-next-line no-unused-vars
-import React, {createRef, useEffect, useState} from "react";
+import React, {createRef, useEffect, useRef, useState} from "react";
 import {ACTIONS, SeekSliderKeyDown, VolumeSliderKeydown} from "./Common.js";
 import {ObserveVideoBuffer, ObserveVideoTime, RegisterModal} from "./Observers.js";
 import * as Icons from "../static/icons/Icons.js";
-import {IconButton} from "./WebControls";
+import { IconButton } from "./WebControls";
+import MarkerIcon from "../static/icons/svgs/marker.svg";
 
 // Components
 
@@ -60,10 +61,16 @@ export const UserActionIndicator = ({action}) => {
   );
 };
 
-export const SeekBar = ({player, videoState, setRecentUserAction, className=""}) => {
+export const SeekBar = ({ player, videoState, setRecentUserAction, className = "", showMarkIn, showMarkOut }) => {
   const [currentTime, setCurrentTime] = useState(player.video.currentTime);
   const [bufferFraction, setBufferFraction] = useState(0);
   const [seekKeydownHandler, setSeekKeydownHandler] = useState(undefined);
+  
+  const containerRef = useRef(null);
+  const [showMarkInOut, setShowMarkInOut] = useState(false);
+  const [markerInPosition, setMarkerInPosition] = useState(0);
+  const [markerOutPosition, setMarkerOutPosition] = useState(100);
+  const [dragging, setDragging] = useState(null); 
 
   useEffect(() => {
     setSeekKeydownHandler(SeekSliderKeyDown(player, setRecentUserAction));
@@ -77,34 +84,118 @@ export const SeekBar = ({player, videoState, setRecentUserAction, className=""})
     };
   }, []);
 
+  useEffect(() => { 
+    if (showMarkIn || showMarkOut) {
+      setShowMarkInOut(true);
+    }
+  }, [showMarkIn, showMarkOut]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (dragging && containerRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const containerWidth = containerRect.width;
+        const mouseX = e.clientX - containerRect.left;
+        let newPosition = (mouseX / containerWidth) * 100;
+
+        if (dragging === "in") {
+          console.log(videoState.duration);
+          newPosition = Math.min(newPosition, markerOutPosition);
+          newPosition = Math.max(newPosition, 0);
+          setMarkerInPosition(newPosition);
+        } else if (dragging === "out") {
+          newPosition = Math.max(newPosition, markerInPosition);
+          newPosition = Math.min(newPosition, 100);
+          setMarkerOutPosition(newPosition);
+        }
+      }
+    };
+
+    const handleMouseUp = () => {
+      setDragging(null);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [dragging]);
+
+  useEffect(() => { 
+    const percentage = ((currentTime / videoState.duration) * 100) || 0;
+    if (!showMarkIn) {
+      setMarkerInPosition(percentage);
+    }
+    if (!showMarkOut) {
+      setMarkerOutPosition(percentage);
+    }
+  }, [currentTime]);
+
   if(player.isLive && !player.dvrEnabled) {
     return null;
   }
 
   return (
-    <div className={`${className} ${CommonStyles["seek-container"]} ${className}`}>
-      <progress
-        max={1}
-        value={bufferFraction}
-        className={CommonStyles["seek-buffer"]}
-      />
-      <progress
-        max={1}
-        value={currentTime / videoState.duration || 0}
-        className={CommonStyles["seek-playhead"]}
-      />
-      <input
-        aria-label="Seek slider"
-        type="range"
-        min={0}
-        max={1}
-        step={0.00001}
-        value={currentTime / videoState.duration || 0}
-        onInput={event => player.controls.Seek({fraction: event.currentTarget.value})}
-        onKeyDown={seekKeydownHandler}
-        className={CommonStyles["seek-input"]}
-      />
-    </div>
+    <>
+      {player.playerOptions.markInOut && showMarkInOut &&
+        <div className={CommonStyles["mark-container"]} ref={containerRef}>
+          <div
+            className={CommonStyles["marker-in"]}
+            onMouseDown={() => setDragging("in")}
+            style={{ left: `${markerInPosition}%` }}>
+            <div className={CommonStyles["marker"]}>
+              <img src={MarkerIcon} alt="Mark in" />
+            </div>
+          </div>
+          {showMarkOut &&
+            <div
+              className={CommonStyles["bar"]}
+              style={{
+                left: `${markerInPosition}%`,
+                width: `${markerOutPosition - markerInPosition}%`
+              }}
+            >
+            </div>
+          }
+          {showMarkOut &&
+            <div
+              className={CommonStyles["marker-out"]}
+              onMouseDown={() => setDragging("out")}
+              style={{ left: `${markerOutPosition}%` }}>
+              <div className={CommonStyles["marker"]}>
+                <img src={MarkerIcon} alt="Mark out" />
+              </div>
+            </div>
+          }
+        </div>
+      }
+      <div className={`${className} ${CommonStyles["seek-container"]} ${className}`}>
+        <progress
+          max={1}
+          value={bufferFraction}
+          className={CommonStyles["seek-buffer"]}
+        />
+        <progress
+          max={1}
+          value={currentTime / videoState.duration || 0}
+          className={CommonStyles["seek-playhead"]}
+        />
+        <input
+          aria-label="Seek slider"
+          type="range"
+          min={0}
+          max={1}
+          step={0.00001}
+          value={currentTime / videoState.duration || 0}
+          onInput={event => player.controls.Seek({fraction: event.currentTarget.value})}
+          onKeyDown={seekKeydownHandler}
+          className={CommonStyles["seek-input"]}
+        />
+      </div>
+    </>
   );
 };
 
