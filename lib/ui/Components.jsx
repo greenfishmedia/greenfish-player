@@ -120,6 +120,18 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
   }, [dragging]);
 
   useEffect(() => { 
+    if (dragging) {
+      player.controls.Seek({ fraction: markerInPosition/100 });
+    }
+  }, [dragging, markerInPosition]);
+
+  useEffect(() => { 
+    if (dragging) {
+      player.controls.Seek({ fraction: markerOutPosition/100 });
+    }
+  }, [dragging, markerOutPosition]);
+
+  useEffect(() => { 
     if (clickOnMarkIn || clickOnMarkOut) {
       setShowMarkInOut(true);
     }
@@ -130,6 +142,7 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
       const newPosition = ((currentTime / videoState.duration) * 100) || 0;
       setShowMarkIn(true);
       setMarkerInPosition(newPosition);
+      setMarkerOutPosition(100);
     }
   }, [clickOnMarkIn]);
 
