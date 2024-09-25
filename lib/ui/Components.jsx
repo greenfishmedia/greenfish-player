@@ -120,13 +120,13 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
   }, [dragging]);
 
   useEffect(() => { 
-    if (dragging) {
+    if (dragging === "in") {
       player.controls.Seek({ fraction: markerInPosition/100 });
     }
   }, [dragging, markerInPosition]);
 
   useEffect(() => { 
-    if (dragging) {
+    if (dragging === "out") {
       player.controls.Seek({ fraction: markerOutPosition/100 });
     }
   }, [dragging, markerOutPosition]);
