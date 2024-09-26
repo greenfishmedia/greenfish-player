@@ -72,7 +72,15 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
   const [markerOutPosition, setMarkerOutPosition] = useState(100);
   const [showMarkIn, setShowMarkIn] = useState(false);
   const [showMarkOut, setShowMarkOut] = useState(false);
+  const [markInTime, setMarkInTime] = useState(0);
+  const [markOutTime, setMarkOutTime] = useState(0);
   const [dragging, setDragging] = useState(null); 
+
+  useEffect(() => {
+    if (videoState.duration) {
+      setMarkOutTime(videoState.duration);
+    }
+  }, [videoState]);
 
   useEffect(() => {
     setSeekKeydownHandler(SeekSliderKeyDown(player, setRecentUserAction));
@@ -119,6 +127,23 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
     };
   }, [dragging]);
 
+  //player.playerOptions.markInOutCallback
+  useEffect(() => { 
+    setMarkInTime(currentTime);
+    player.playerOptions.markInOutCallback({
+      in: currentTime,
+      out: markOutTime
+    });
+  }, [markerInPosition]);
+
+  useEffect(() => { 
+    setMarkOutTime(currentTime);
+    player.playerOptions.markInOutCallback({
+      in: markInTime,
+      out: currentTime
+    });
+  }, [markerOutPosition]);
+
   useEffect(() => { 
     if (dragging === "in") {
       player.controls.Seek({ fraction: markerInPosition/100 });
@@ -143,6 +168,9 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
       setShowMarkIn(true);
       setMarkerInPosition(newPosition);
       setMarkerOutPosition(100);
+      if (!clickOnMarkOut) { 
+        setShowMarkOut(true);
+      }
     }
   }, [clickOnMarkIn]);
 

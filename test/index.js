@@ -96,6 +96,9 @@ const Initialize = async () => {
           //maxBufferSize: 0.5 * 1000 * 1000
         },
         markInOut: true,
+        markInOutCallback: (values) => { 
+          console.log("markInOutCallback: ", values);
+        },
         previewMode: true
       }
     }
