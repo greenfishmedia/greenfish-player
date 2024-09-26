@@ -68,7 +68,7 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
   
   const containerRef = useRef(null);
   const [showMarkInOut, setShowMarkInOut] = useState(false);
-  const [markerInPosition, setMarkerInPosition] = useState(0);
+  const [markerInPosition, setMarkerInPosition] = useState(-1);
   const [markerOutPosition, setMarkerOutPosition] = useState(100);
   const [showMarkIn, setShowMarkIn] = useState(false);
   const [showMarkOut, setShowMarkOut] = useState(false);
