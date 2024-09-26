@@ -208,6 +208,7 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
             <div
               className={CommonStyles["bar"]}
               style={{
+                marginLeft: "2px",
                 left: `${markerInPosition}%`,
                 width: `${markerOutPosition - markerInPosition}%`
               }}

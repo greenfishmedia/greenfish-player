@@ -120,14 +120,14 @@
       position: absolute;
       width: 9px;
       left: -4px;
-      height: 28px;
+      height: 30px;
       pointer-events: none;
       &:focus {
         outline: none !important;
       }
       &::after {
         content: " ";
-        width: 1px;
+        width: 2px;
         height: 14px;
         background-color: #00E0CA;
         position: absolute;
@@ -139,7 +139,7 @@
   .bar {
     position: absolute;
     width: auto;
-    height: 16px;
+    height: 14px;
     background: rgba(7, 95, 84, 0.7);
     bottom: 0;
   }
