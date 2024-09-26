@@ -127,21 +127,24 @@ export const SeekBar = ({ player, videoState, setRecentUserAction, className = "
     };
   }, [dragging]);
 
-  //player.playerOptions.markInOutCallback
   useEffect(() => { 
-    setMarkInTime(currentTime);
-    player.playerOptions.markInOutCallback({
-      in: currentTime,
-      out: markOutTime
-    });
+    if (player.playerOptions.markInOutCallback) {
+      setMarkInTime(currentTime);
+      player.playerOptions.markInOutCallback({
+        in: currentTime,
+        out: markOutTime
+      });
+    }
   }, [markerInPosition]);
 
   useEffect(() => { 
-    setMarkOutTime(currentTime);
-    player.playerOptions.markInOutCallback({
-      in: markInTime,
-      out: currentTime
-    });
+    if (player.playerOptions.markInOutCallback) {
+      setMarkOutTime(currentTime);
+      player.playerOptions.markInOutCallback({
+        in: markInTime,
+        out: currentTime
+      });
+    }
   }, [markerOutPosition]);
 
   useEffect(() => { 
