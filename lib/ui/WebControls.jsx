@@ -395,7 +395,7 @@ const WebControls = ({player, playbackStarted, canPlay, recentlyInteracted, setR
                   className={ControlStyles["icon-buttons"]}
                 />
                 <div className={ControlStyles["greenfish-logo"]}>
-                  <img src={GreenfishLogo} alt="Greenfish logo" />
+                  <img src={GreenfishLogo} alt="Hiway logo" />
                 </div>
               </div>
             </div>
