@@ -1,6 +1,6 @@
 {
   "name": "@greenfishmedia/greenfish-player",
-  "version": "2.0.19-11",
+  "version": "2.0.19-12",
   "description": "Greenfish Player",
   "main": "dist/elv-player-js.es.js",
   "license": "MIT",
@@ -36,6 +36,7 @@
   ],
   "dependencies": {
     "@eluvio/elv-client-js": "^4.0.92",
+    "@greenfishmedia/greenfish-player": "file:",
     "dashjs": "~4.7.0",
     "focus-visible": "^5.2.0",
     "hls.js": "~1.5.12",
