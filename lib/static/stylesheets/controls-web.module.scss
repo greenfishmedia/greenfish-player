@@ -280,8 +280,8 @@
     justify-content: center;
     height: 26px;
 
-    img {    
-      height: 100%;    
+    img {
+      height: 100%;
     }
 
     @media only screen and (max-width: 768px) {
@@ -388,7 +388,7 @@
   pointer-events: none;
   position: absolute;
   right: 20px;
-  top: 20px;
+  bottom: 90px;
   user-select: none;
   width: 52px;
   height: 52px;

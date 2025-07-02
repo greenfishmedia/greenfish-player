@@ -5,14 +5,16 @@ import "../dist/elv-player-js.css";
 import EluvioPlayer, {EluvioPlayerParameters} from "../dist/elv-player-js.es.js";
 */
 
-import {ElvClient} from "@eluvio/elv-client-js";
-import {InitializeEluvioPlayer, EluvioPlayerParameters} from "../lib";
-
-
+import { ElvClient } from "@eluvio/elv-client-js";
+import { InitializeEluvioPlayer, EluvioPlayerParameters } from "../lib";
 
 const Initialize = async () => {
   let network = "MAIN";
-  let objectId, versionHash, authorizationToken, mediaCatalogId, mediaCollectionId;
+  let objectId,
+    versionHash,
+    authorizationToken,
+    mediaCatalogId,
+    mediaCollectionId;
   const ticketCode = "BkiWYk";
 
   // Clear
@@ -64,7 +66,7 @@ const Initialize = async () => {
         },
         mediaCollectionOptions: {
           mediaCatalogObjectId: mediaCatalogId,
-          collectionId: mediaCollectionId
+          collectionId: mediaCollectionId,
         },
         contentInfo: {
           title: "Franklin",
@@ -72,11 +74,12 @@ const Initialize = async () => {
           description: "My big description",
           headers: ["pg-13"],
           image: "/public/display_image",
-          companyLogo: "https://image.similarpng.com/very-thumbnail/2020/06/Logo-google-icon-PNG.png",
-          rating: EluvioPlayerParameters.rating.OVER_15
+          companyLogo:
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png",
+          rating: EluvioPlayerParameters.rating.OVER_15,
           //type: EluvioPlayerParameters.type.LIVE,
           //posterImage: "https://demov3.net955210.contentfabric.io/s/demov3/q/hq__8f7LgwsG7qBtTNSPKkv3Ano4UPoNh4rzF3iPJ4dUbVv2bDBbVzk516q2E4Vg4bkHaEHuPxXFiD/meta/public/display_image"
-        }
+        },
       },
       playerOptions: {
         //posterUrl: "https://miro.medium.com/v2/resize:fit:1099/1*5PeT0-Dch_KhFwjYwUWiDA.png",
@@ -96,11 +99,11 @@ const Initialize = async () => {
           //maxBufferSize: 0.5 * 1000 * 1000
         },
         markInOut: true,
-        markInOutCallback: (values) => { 
+        markInOutCallback: (values) => {
           console.log("markInOutCallback: ", values);
         },
-        previewMode: true
-      }
+        previewMode: true,
+      },
     }
   );
 
@@ -110,10 +113,10 @@ const Initialize = async () => {
   player.UpdateContentInfo({
     title: "Franklin",
     subtitle: "Pride and Carts",
-    companyLogo: "https://image.similarpng.com/very-thumbnail/2020/06/Logo-google-icon-PNG.png",
-    rating: EluvioPlayerParameters.rating.UNIVERSAL
+    companyLogo:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png",
+    rating: EluvioPlayerParameters.rating.UNIVERSAL,
   });
 };
-
 
 Initialize();
